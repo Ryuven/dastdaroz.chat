@@ -1160,6 +1160,7 @@ let firstLoadTs=0; // used for "new messages" divider
 const EMOJIS=['👍','❤️','🔥','😂','😮','👏','✅','🎉','🚀','💯','😎','🙏','💪','✨','🎯','😅','🤔','💀','🫡','⚡'];
 const REACT5 =['👍','❤️','🔥','😂','😮'];
 const MAX_CHARS=4000;
+const API_BASE='https://api.dastdaroz.shop';
 
 /* ── UTILS ── */
 const $=id=>document.getElementById(id);
@@ -1313,8 +1314,12 @@ function startTypingListener(chId){
 /* ── LOAD USERS ── */
 async function loadAllUsers(){
   try{
-    const snap=await getDocs(collection(deliveryDb,'users'));
-    snap.forEach(d=>{allUsers[d.id]={uid:d.id,...d.data()};});
+    const token=await auth.currentUser.getIdToken();
+    const res=await fetch(`${API_BASE}/api/chat/users`,{
+      headers:{Authorization:`Bearer ${token}`}
+    });
+    const data=await res.json();
+    (data.users||[]).forEach(u=>{allUsers[u.uid]=u;});
     usersLoaded=true;
     onSnapshot(collection(fdb,'pulsar_presence'),snap=>{
       snap.forEach(d=>{
@@ -2051,7 +2056,7 @@ function fillProfileModal(u, isOwn){
   // Имя, email
   $('profile-display-name').textContent = u.displayName || u.phone || '—';
   // Показываем email только если это реальный email (не UID из Firestore)
-  $('profile-email-label').textContent = u.phone ? '+' + u.phone : '';
+  $('profile-email-label').textContent = u.phone || '';
 
   // Роль
   const badge = $('prof-role-badge');
@@ -2161,7 +2166,7 @@ function renderDMUserSearch(q){
     const avI=u.avatarUrl?`<img src="${esc(u.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`:ini(u.displayName||u.phone);
     return`<div class="dm-item" data-uid="${esc(u.uid)}" role="button" tabindex="0" style="padding:9px 8px;border-radius:var(--r)">
       <div class="dm-avatar" style="overflow:hidden">${avI}<div class="presence-dot ${pr}"></div></div>
-      <div><div style="font-size:.76rem;font-weight:500;color:var(--text)">${esc(u.displayName||'—')}</div><div style="font-size:.62rem;color:var(--muted)">${u.phone?'+'+esc(u.phone):''}${pr==='online'?' · <span style="color:var(--green)">в сети</span>':''}</div></div>
+      <div><div style="font-size:.76rem;font-weight:500;color:var(--text)">${esc(u.displayName||'—')}</div><div style="font-size:.62rem;color:var(--muted)">${esc(u.phone||'')}${pr==='online'?' · <span style="color:var(--green)">в сети</span>':''}</div></div>
     </div>`;
   }).join('');
   list.querySelectorAll('.dm-item').forEach(el=>{
@@ -2201,8 +2206,8 @@ function _renderUserSearch(q){
       ? `<img src="${esc(u.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`
       : `<span>${ini(u.displayName||u.phone)}</span>`;
     const phoneHl = ql && u.phone
-      ? ('+'+esc(u.phone)).replace(new RegExp(`(${esc(ql)})`, 'gi'), '<mark style="background:rgba(255,255,255,.18);border-radius:2px;color:var(--text);padding:0 1px">$1</mark>')
-      : (u.phone ? '+'+esc(u.phone) : '');
+      ? esc(u.phone).replace(new RegExp(`(${esc(ql)})`, 'gi'), '<mark style="background:rgba(255,255,255,.18);border-radius:2px;color:var(--text);padding:0 1px">$1</mark>')
+      : esc(u.phone||'');
     const prLabel = pr === 'online'
       ? `<span style="color:var(--green)">в сети</span>`
       : pr === 'away' ? `<span style="color:#8888c0">отошёл</span>` : '';
