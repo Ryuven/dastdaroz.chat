@@ -1059,7 +1059,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js';
 import { ref as sRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js';
 import { Sheet }                    from './sheet.js';
-import { auth, db as fdb, storage } from './firebase.js';
+import { auth, db as fdb, storage, deliveryDb } from './firebase.js';
 
 /* ════════════════════════════════════════════════════════════════
  *  FIRESTORE — СХЕМА БАЗЫ ДАННЫХ  (pulsar-galelium)
@@ -1224,7 +1224,7 @@ function showInAppNotif(msg,chName){
   const bar=$('notif-bar');
   const card=document.createElement('div');
   const av=allUsers[msg.authorId];
-  const avContent=av?.photoURL?`<img src="${esc(av.photoURL)}" alt=""/>`:(ini(msg.authorName));
+  const avContent=av?.avatarUrl?`<img src="${esc(av.avatarUrl)}" alt=""/>`:(ini(msg.authorName));
   card.className='notif-card';
   card.innerHTML=`<div class="notif-avatar">${avContent}</div><div class="notif-body"><div class="notif-ch"># ${esc(chName)}</div><div class="notif-name">${esc(msg.authorName)}</div><div class="notif-msg">${msg.attachmentType?'📎 '+esc(msg.attachmentName||'Файл'):esc((msg.text||'').slice(0,60))}</div></div>`;
   card.addEventListener('click',()=>{openChannel(msg.chId);card.remove();});
@@ -1245,15 +1245,15 @@ onAuthStateChanged(auth,async user=>{
   clearTimeout(authTO);
   if(!user){location.replace('login.html');return;}
   // Load profile
-  let p={uid:user.uid,displayName:user.displayName||user.email,email:user.email,role:'user',photoURL:user.photoURL||''};
-  try{const s=await getDoc(doc(fdb,'users',user.uid));if(s.exists())Object.assign(p,s.data());}catch(e){}
+  let p={uid:user.uid,displayName:user.displayName||'',role:'user',avatarUrl:'',phone:''};
+  try{const s=await getDoc(doc(deliveryDb,'users',user.uid));if(s.exists())Object.assign(p,s.data());}catch(e){}
   me=p;
   updatePresence('online');
   document.addEventListener('visibilitychange',()=>updatePresence(document.hidden?'away':'online'));
   window.addEventListener('beforeunload',()=>updatePresence('offline'));
   // Интерфейс уже виден (skeleton), обновляем данные
   updateMyAvatarUI();
-  if($('my-name'))$('my-name').textContent=me.displayName||me.email;
+  if($('my-name'))$('my-name').textContent=me.displayName||me.phone||'';
   await loadAllUsers();
   startChannelListener();
   initUI();
@@ -1263,7 +1263,7 @@ onAuthStateChanged(auth,async user=>{
 function updateMyAvatarUI(){
   [$('my-avatar'),$('mob-my-avatar')].forEach(av=>{
     if(!av)return;
-    if(me.photoURL)av.innerHTML=`<img src="${esc(me.photoURL)}" alt=""/>`;
+    if(me.avatarUrl)av.innerHTML=`<img src="${esc(me.avatarUrl)}" alt=""/>`;
     else av.textContent=ini(me.displayName);
   });
 }
@@ -1271,7 +1271,7 @@ function updateMyAvatarUI(){
 /* ── PRESENCE ── */
 async function updatePresence(status){
   if(!me)return;
-  try{await setDoc(doc(fdb,'pulsar_presence',me.uid),{status,displayName:me.displayName,email:me.email,uid:me.uid,photoURL:me.photoURL||'',updatedAt:serverTimestamp()},{merge:true});}catch(e){}
+  try{await setDoc(doc(fdb,'pulsar_presence',me.uid),{status,displayName:me.displayName,phone:me.phone||'',uid:me.uid,avatarUrl:me.avatarUrl||'',updatedAt:serverTimestamp()},{merge:true});}catch(e){}
   const colors={online:'var(--green)',away:'#8888c0',offline:'var(--muted-2)'};
   const labels={online:'В сети',away:'Отошёл',offline:'Не в сети'};
   const dot=$('my-status-dot');
@@ -1313,7 +1313,7 @@ function startTypingListener(chId){
 /* ── LOAD USERS ── */
 async function loadAllUsers(){
   try{
-    const snap=await getDocs(collection(fdb,'users'));
+    const snap=await getDocs(collection(deliveryDb,'users'));
     snap.forEach(d=>{allUsers[d.id]={uid:d.id,...d.data()};});
     usersLoaded=true;
     onSnapshot(collection(fdb,'pulsar_presence'),snap=>{
@@ -1359,7 +1359,7 @@ function makeChCard(ch, o /* null for channels */, oid=null){
   let avaHtml;
   if(isDM && o){
     const pr  = o.presence?.status || 'offline';
-    const avI = o.photoURL ? `<img src="${esc(o.photoURL)}" alt=""/>` : esc(ini(o.displayName||o.email));
+    const avI = o.avatarUrl ? `<img src="${esc(o.avatarUrl)}" alt=""/>` : esc(ini(o.displayName||o.phone));
     avaHtml = `<div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>`;
   } else {
     const icon = ch.type==='private' ? '🔒' : ch.name?.[0]?.toUpperCase() || '#';
@@ -1373,7 +1373,7 @@ function makeChCard(ch, o /* null for channels */, oid=null){
   } else {
     const icon = lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':'';
     const txt  = (icon + (lm.text||'').slice(0,55)) || (lm.attachmentType?'Файл':'');
-    const isMyMsg = lm.authorName === (me?.displayName||me?.email);
+    const isMyMsg = lm.authorName === (me?.displayName||me?.phone||'');
     const who = isDM
       ? (isMyMsg ? '<b>Вы:</b> ' : '')
       : `<b>${esc((lm.authorName||'').split(' ')[0])}:</b> `;
@@ -1384,7 +1384,7 @@ function makeChCard(ch, o /* null for channels */, oid=null){
   const badgeHtml = (!isActive && uc > 0)
     ? `<span class="ch-badge">${uc>99?'99+':uc}</span>` : '';
 
-  const title = isDM ? esc(o?.displayName||o?.email||'—') : esc(ch.name||'');
+  const title = isDM ? esc(o?.displayName||o?.phone||'—') : esc(ch.name||'');
 
   return `<div class="ch-card${isActive?' active':''}${uc>0&&!isActive?' has-unread':''}" data-chid="${esc(ch.id)}"${oid?` data-uid="${esc(oid)}"`:''} role="button" tabindex="0">
     ${avaHtml}
@@ -1425,7 +1425,7 @@ function rebuildChatList(){
     if(ch.type==='direct'){
       const oid=(ch.members||[]).find(u=>u!==me.uid);
       const o=allUsers[oid]||{};
-      return (o.displayName||'').toLowerCase().includes(q)||(o.email||'').toLowerCase().includes(q);
+      return (o.displayName||'').toLowerCase().includes(q)||(o.phone||'').toLowerCase().includes(q);
     }
     return (ch.name||'').toLowerCase().includes(q)||(ch.description||'').toLowerCase().includes(q);
   }) : combined;
@@ -1516,7 +1516,7 @@ async function openChannel(chId){
   currentCh=chData;
   if(chData.type==='direct'){
     const oid=(chData.members||[]).find(u=>u!==me.uid),o=allUsers[oid]||{};
-    $('ch-icon').textContent='@';$('ch-name').textContent=o.displayName||o.email||'DM';$('ch-desc').textContent='';
+    $('ch-icon').textContent='@';$('ch-name').textContent=o.displayName||o.phone||'DM';$('ch-desc').textContent='';
   }else{
     $('ch-icon').textContent=chData.type==='private'?'🔒':'#';
     $('ch-name').textContent=chData.name||'';$('ch-desc').textContent=chData.description||'';
@@ -1932,7 +1932,7 @@ async function sendMessage(){
   }
 
   input.value='';ar(input);$('btn-send').disabled=true;$('char-count').textContent='';
-  const payload={text:text||'',authorId:me.uid,authorName:me.displayName||me.email,ts:serverTimestamp(),clientTs:Date.now(),edited:false,deleted:false,pinned:false,reactions:{},replyTo:replyTo||null,threadCount:0,...attachData};
+  const payload={text:text||'',authorId:me.uid,authorName:me.displayName||me.phone||'',ts:serverTimestamp(),clientTs:Date.now(),edited:false,deleted:false,pinned:false,reactions:{},replyTo:replyTo||null,threadCount:0,...attachData};
   clearReply();
   try{
     await addDoc(collection(fdb,'pulsar_channels',currentCh.id,'messages'),payload);
@@ -1949,7 +1949,7 @@ function openThread(msgId){
   $('shell').classList.add('thread-open');
   $('thread-panel').classList.add('open');
   const user=allUsers[msg.authorId]||{};
-  const avI=user.photoURL?`<img src="${esc(user.photoURL)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`:esc(ini(msg.authorName));
+  const avI=user.avatarUrl?`<img src="${esc(user.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`:esc(ini(msg.authorName));
   $('thread-root').innerHTML=`<div class="thread-root-author">${avI} ${esc(msg.authorName)} <span class="thread-root-time">${fmtT({toDate:()=>msgTs(msg)})}</span></div><div class="thread-root-text">${renderText(msg.text||'[Вложение]')}</div>`;
   if(threadUnsub)threadUnsub();
   const tq=query(collection(fdb,'pulsar_channels',currentCh.id,'messages',msgId,'thread'),orderBy('clientTs','asc'));
@@ -1959,7 +1959,7 @@ function openThread(msgId){
     if(!replies.length){tmList.innerHTML='<div style="padding:20px;font-size:.73rem;color:var(--muted);text-align:center">Ответов пока нет<br><span style="font-size:.65rem;color:var(--muted-2)">Напишите первый</span></div>';return;}
     tmList.innerHTML=replies.map(r=>{
       const u=allUsers[r.authorId]||{};
-      const avI2=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(r.authorName));
+      const avI2=u.avatarUrl?`<img src="${esc(u.avatarUrl)}" alt=""/>`:esc(ini(r.authorName));
       return`<div class="thread-reply-row"><div class="thread-reply-av">${avI2}</div><div class="thread-reply-body"><div class="thread-reply-meta"><span class="thread-reply-author">${esc(r.authorName)}</span><span class="thread-reply-time">${fmtT(r.ts||{toDate:()=>new Date(r.clientTs)})}</span></div><div class="thread-reply-text">${renderText(r.text||'')}</div></div></div>`;
     }).join('');
     requestAnimationFrame(()=>{tmList.scrollTop=tmList.scrollHeight;});
@@ -1971,7 +1971,7 @@ async function sendThreadReply(){
   if(!text||!currentCh||!threadMsgId)return;
   input.value='';ar(input);$('thread-send').disabled=true;
   try{
-    await addDoc(collection(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId,'thread'),{text,authorId:me.uid,authorName:me.displayName||me.email,ts:serverTimestamp(),clientTs:Date.now()});
+    await addDoc(collection(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId,'thread'),{text,authorId:me.uid,authorName:me.displayName||me.phone||'',ts:serverTimestamp(),clientTs:Date.now()});
     const cur=currentMsgs.find(m=>m.id===threadMsgId);
     await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId),{threadCount:(cur?.threadCount||0)+1});
   }catch(e){toast('Ошибка: '+e.message,'err');}
@@ -2008,13 +2008,13 @@ function closeLightbox(){$('lightbox').classList.remove('open');$('lightbox-img'
 function openMentionPopup(query){
   const popup=$('mention-popup');
   const ql=query.toLowerCase();
-  mentionMatches=Object.values(allUsers).filter(u=>u.uid!==me.uid&&((u.displayName||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql))).slice(0,6);
+  mentionMatches=Object.values(allUsers).filter(u=>u.uid!==me.uid&&((u.displayName||'').toLowerCase().includes(ql)||(u.phone||'').toLowerCase().includes(ql))).slice(0,6);
   if(!mentionMatches.length){popup.classList.remove('open');return;}
   mentionIdx=0;
   popup.innerHTML=mentionMatches.map((u,i)=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:ini(u.displayName||u.email);
-    return`<div class="mention-item ${i===0?'active':''}" data-idx="${i}"><div class="mention-av">${avI}</div><div><div class="mention-name">${esc(u.displayName||'—')}</div><div class="mention-email">${esc(u.email||'')}</div></div>${pr==='online'?'<span class="mention-online"></span>':''}</div>`;
+    const avI=u.avatarUrl?`<img src="${esc(u.avatarUrl)}" alt=""/>`:ini(u.displayName||u.phone);
+    return`<div class="mention-item ${i===0?'active':''}" data-idx="${i}"><div class="mention-av">${avI}</div><div><div class="mention-name">${esc(u.displayName||'—')}</div><div class="mention-email">${esc(u.phone||'')}</div></div>${pr==='online'?'<span class="mention-online"></span>':''}</div>`;
   }).join('');
   popup.classList.add('open');
   popup.querySelectorAll('.mention-item').forEach(el=>el.addEventListener('click',()=>insertMention(parseInt(el.dataset.idx))));
@@ -2040,8 +2040,8 @@ function fillProfileModal(u, isOwn){
   // Аватар
   const avEl = $('profile-av-big');
   avEl.textContent = '';
-  if(u.photoURL){ avEl.innerHTML = `<img src="${esc(u.photoURL)}" alt=""/>`; }
-  else { avEl.textContent = ini(u.displayName||u.email); }
+  if(u.avatarUrl){ avEl.innerHTML = `<img src="${esc(u.avatarUrl)}" alt=""/>`; }
+  else { avEl.textContent = ini(u.displayName||u.phone); }
 
   // Статус-dot на аватаре
   const statusDot = $('prof-av-status');
@@ -2049,11 +2049,9 @@ function fillProfileModal(u, isOwn){
   statusDot.className = `prof-av-status ${st}`;
 
   // Имя, email
-  $('profile-display-name').textContent = u.displayName || u.email || '—';
+  $('profile-display-name').textContent = u.displayName || u.phone || '—';
   // Показываем email только если это реальный email (не UID из Firestore)
-  const emailVal = u.email || '';
-  const isRealEmail = emailVal.includes('@');
-  $('profile-email-label').textContent = isRealEmail ? emailVal : '';
+  $('profile-email-label').textContent = u.phone ? '+' + u.phone : '';
 
   // Роль
   const badge = $('prof-role-badge');
@@ -2062,9 +2060,8 @@ function fillProfileModal(u, isOwn){
 
   // Био
   const bioEl = $('prof-bio-view');
-  const bio = u.bio || (isOwn ? me.bio : null) || '';
-  bioEl.textContent = bio || 'Нет информации';
-  bioEl.className = bio ? 'prof-bio' : 'prof-bio empty';
+  bioEl.textContent = 'Нет информации';
+  bioEl.className = 'prof-bio empty';
 
   // Статы
   $('stat-joined').textContent = u.createdAt ? fmtD(u.createdAt) : '—';
@@ -2078,9 +2075,8 @@ function fillProfileModal(u, isOwn){
 async function openMyProfile(){
   fillProfileModal(me, true);
   $('profile-name-input').value  = me.displayName || '';
-  $('profile-bio-input').value   = me.bio || '';
-  $('profile-avatar-url').value  = me.photoURL || '';
-  updateProfAvPreview(me.photoURL);
+  $('profile-avatar-url').value  = me.avatarUrl || '';
+  updateProfAvPreview(me.avatarUrl);
 
   // Статус-кнопки
   const curStatus = me.presence?.status || 'online';
@@ -2127,15 +2123,14 @@ function updateProfAvPreview(url){
 }
 
 async function saveProfile(){
-  const name     = $('profile-name-input').value.trim();
-  const bio      = $('profile-bio-input').value.trim();
-  const photoURL = $('profile-avatar-url').value.trim();
+  const name      = $('profile-name-input').value.trim();
+  const avatarUrl = $('profile-avatar-url').value.trim();
   if(!name){ toast('Введите имя','err'); return; }
   const btn = $('btn-save-profile'); btn.textContent='Сохранение…'; btn.disabled=true;
   try{
-    await updateDoc(doc(fdb,'users',me.uid),{displayName:name,bio,photoURL,updatedAt:serverTimestamp()});
-    await updateProfile(auth.currentUser,{displayName:name,photoURL:photoURL||null});
-    me.displayName=name; me.bio=bio; me.photoURL=photoURL;
+    await updateDoc(doc(deliveryDb,'users',me.uid),{displayName:name,avatarUrl,updatedAt:serverTimestamp()});
+    await updateProfile(auth.currentUser,{displayName:name,photoURL:avatarUrl||null});
+    me.displayName=name; me.avatarUrl=avatarUrl;
     $('my-name').textContent=name; updateMyAvatarUI();
     await updatePresence(me.presence?.status||'online');
     Sheet.close('profile'); toast('Профиль обновлён ✓','ok');
@@ -2159,14 +2154,14 @@ function renderDMUserSearch(q){
   const list=$('dm-user-list');
   if(!usersLoaded){list.innerHTML='<div style="padding:12px;font-size:.73rem;color:var(--muted)">Загрузка…</div>';return;}
   const ql=q.toLowerCase().trim();
-  const users=Object.values(allUsers).filter(u=>u.uid!==me.uid).filter(u=>!ql||(u.displayName||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql));
+  const users=Object.values(allUsers).filter(u=>u.uid!==me.uid).filter(u=>!ql||(u.displayName||'').toLowerCase().includes(ql)||(u.phone||'').toLowerCase().includes(ql));
   if(!users.length){list.innerHTML=`<div style="padding:14px;font-size:.73rem;color:var(--muted);text-align:center">${ql?`Никого по «${esc(q)}»`:'Нет других пользователей'}</div>`;return;}
   list.innerHTML=users.map(u=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`:ini(u.displayName||u.email);
+    const avI=u.avatarUrl?`<img src="${esc(u.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`:ini(u.displayName||u.phone);
     return`<div class="dm-item" data-uid="${esc(u.uid)}" role="button" tabindex="0" style="padding:9px 8px;border-radius:var(--r)">
       <div class="dm-avatar" style="overflow:hidden">${avI}<div class="presence-dot ${pr}"></div></div>
-      <div><div style="font-size:.76rem;font-weight:500;color:var(--text)">${esc(u.displayName||'—')}</div><div style="font-size:.62rem;color:var(--muted)">${esc(u.email||'')}${pr==='online'?' · <span style="color:var(--green)">в сети</span>':''}</div></div>
+      <div><div style="font-size:.76rem;font-weight:500;color:var(--text)">${esc(u.displayName||'—')}</div><div style="font-size:.62rem;color:var(--muted)">${u.phone?'+'+esc(u.phone):''}${pr==='online'?' · <span style="color:var(--green)">в сети</span>':''}</div></div>
     </div>`;
   }).join('');
   list.querySelectorAll('.dm-item').forEach(el=>{
@@ -2189,8 +2184,8 @@ function _renderUserSearch(q){
   const ql = q.toLowerCase().trim();
   const users = Object.values(allUsers)
     .filter(u => u.uid !== me?.uid)
-    .filter(u => !ql || (u.email||'').toLowerCase().includes(ql))
-    .sort((a,b)=>(a.displayName||a.email||'').localeCompare(b.displayName||b.email||''));
+    .filter(u => !ql || (u.displayName||'').toLowerCase().includes(ql)||(u.phone||'').toLowerCase().includes(ql))
+    .sort((a,b)=>(a.displayName||a.phone||'').localeCompare(b.displayName||b.phone||''));
 
   if(!users.length){
     list.innerHTML = `<div style="padding:32px 16px;text-align:center">
@@ -2202,12 +2197,12 @@ function _renderUserSearch(q){
 
   list.innerHTML = users.map(u => {
     const pr  = u.presence?.status || 'offline';
-    const avI = u.photoURL
-      ? `<img src="${esc(u.photoURL)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`
-      : `<span>${ini(u.displayName||u.email)}</span>`;
-    const emailHl = ql
-      ? esc(u.email||'').replace(new RegExp(`(${esc(ql)})`, 'gi'), '<mark style="background:rgba(255,255,255,.18);border-radius:2px;color:var(--text);padding:0 1px">$1</mark>')
-      : esc(u.email||'');
+    const avI = u.avatarUrl
+      ? `<img src="${esc(u.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`
+      : `<span>${ini(u.displayName||u.phone)}</span>`;
+    const phoneHl = ql && u.phone
+      ? ('+'+esc(u.phone)).replace(new RegExp(`(${esc(ql)})`, 'gi'), '<mark style="background:rgba(255,255,255,.18);border-radius:2px;color:var(--text);padding:0 1px">$1</mark>')
+      : (u.phone ? '+'+esc(u.phone) : '');
     const prLabel = pr === 'online'
       ? `<span style="color:var(--green)">в сети</span>`
       : pr === 'away' ? `<span style="color:#8888c0">отошёл</span>` : '';
@@ -2219,7 +2214,7 @@ function _renderUserSearch(q){
       </div>
       <div style="flex:1;min-width:0">
         <div style="font-size:.8rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.displayName||'—')}</div>
-        <div style="font-size:.68rem;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${emailHl}${prLabel?' · '+prLabel:''}</div>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${phoneHl}${prLabel?' · '+prLabel:''}</div>
       </div>
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="color:var(--muted-2);flex-shrink:0">
         <path d="M4.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2461,14 +2456,6 @@ function initUI(){
         </div>
       </div>
 
-      <!-- О себе -->
-      <div class="prof-card">
-        <div class="prof-card-section">
-          <div class="prof-section-title">О себе</div>
-          <div class="prof-bio empty" id="prof-bio-view">Нет информации</div>
-        </div>
-      </div>
-
       <!-- Статус (только свой) -->
       <div class="prof-card" id="profile-status-row">
         <div class="prof-card-section">
@@ -2489,10 +2476,6 @@ function initUI(){
             <div class="prof-field">
               <label>Отображаемое имя</label>
               <input id="profile-name-input" placeholder="Ваше имя" autocomplete="off"/>
-            </div>
-            <div class="prof-field">
-              <label>О себе</label>
-              <textarea id="profile-bio-input" placeholder="Расскажите о себе…" rows="3"></textarea>
             </div>
             <div class="prof-field">
               <label>Аватар (URL изображения)</label>
