@@ -37,10 +37,12 @@ const _BASE_CSS = `
   background: rgba(0,0,0,.45);
   opacity: 0; pointer-events: none;
   transition: opacity .28s;
+}
+.bs-ov.open {
+  opacity: 1; pointer-events: all;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
-.bs-ov.open { opacity: 1; pointer-events: all; }
 
 /* Сам sheet — выезжает снизу вверх, занимает весь экран */
 .bs-box {
@@ -48,63 +50,80 @@ const _BASE_CSS = `
   height: 100svh;
   background: var(--surface, #ffffff);
   border-top: 1px solid var(--border, rgba(0,0,0,.07));
-  border-radius: 22px 22px 0 0;
+  border-radius: var(--r-xl, 20px) var(--r-xl, 20px) 0 0;
   transform: translateY(100%);
-  transition: transform .38s cubic-bezier(.32,0,.18,1);
   display: flex; flex-direction: column;
   overflow: hidden;
-  will-change: transform;
-  box-shadow: 0 -4px 32px rgba(0,0,0,.08);
+  box-shadow: none;
+  /* закрытый sheet не рисуется и не берёт фокус (visibility срабатывает после анимации) */
+  visibility: hidden;
+  transition: transform .38s cubic-bezier(.32,0,.18,1), box-shadow .38s, visibility 0s linear .38s;
 }
-.bs-box.open { transform: translateY(0); }
+.bs-box.open {
+  transform: translateY(0);
+  box-shadow: 0 -4px 32px rgba(0,0,0,.08);
+  visibility: visible;
+  will-change: transform;   /* отдельный слой только пока открыт */
+  transition: transform .38s cubic-bezier(.32,0,.18,1), box-shadow .38s, visibility 0s;
+}
 
-/* Drag-handle */
+/* Drag-handle (зона захвата для свайпа) */
 .bs-drag {
-  width: 36px; height: 4px;
-  border-radius: 99px;
-  background: var(--border, rgba(0,0,0,.12));
-  margin: 10px auto 0;
+  height: 24px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   cursor: grab;
   touch-action: none;
 }
+.bs-drag::before {
+  content: '';
+  width: 36px; height: 4px;
+  border-radius: 99px;
+  background: var(--border-h, rgba(0,0,0,.15));
+}
 
-/* Шапка */
+/* Заголовок — без отдельной шапки и разделителя.
+   Строка существует только если задан title (или closeButton: true) */
 .bs-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 18px 14px;
-  border-bottom: 1px solid var(--border, rgba(0,0,0,.07));
+  gap: 12px;
+  padding: 0 14px 8px 20px;
   flex-shrink: 0;
+  touch-action: none;
 }
 .bs-head-title {
   font-family: var(--font-display, 'Unbounded', sans-serif);
-  font-weight: 800; font-size: 1rem;
+  font-weight: 800; font-size: var(--fs-lg, 1rem);
   color: var(--text, #171f1a);
+  min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 /* Кнопка закрытия */
 .bs-close {
   background: var(--surface-2, #edf4ef);
   border: none;
-  width: 32px; height: 32px;
+  width: var(--ctl-md, 36px); height: var(--ctl-md, 36px);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   color: var(--muted, #5a7a62);
   flex-shrink: 0;
-  transition: background .13s, color .13s;
+  margin-left: auto;
+  transition: background var(--tf, .14s), color var(--tf, .14s);
 }
 .bs-close:hover {
   background: var(--surface-3, #e0ede3);
   color: var(--text, #171f1a);
 }
 
-/* Тело — сюда идёт весь уникальный контент */
+/* Тело — занимает всё оставшееся место до низа sheet */
 .bs-body {
-  flex: 1;
+  flex: 1; min-height: 0;
   overflow-y: auto; overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 `;
 
@@ -116,6 +135,120 @@ function _ensureCSS() {
   el.textContent = _BASE_CSS;
   document.head.appendChild(el);
   _cssReady = true;
+}
+
+
+// ── Заголовок: показывать только если он есть ────────────────
+function _syncHead(s) {
+  const hasTitle = !!s.titleEl.textContent.trim();
+  const showClose = s.closeButton ?? hasTitle;
+  s.titleEl.style.display = hasTitle ? '' : 'none';
+  s.closeBtn.style.display = showClose ? '' : 'none';
+  s.head.style.display = (hasTitle || showClose) ? 'flex' : 'none';
+}
+
+
+// ── Закрытие свайпом вниз ─────────────────────────────────────
+const _SWIPE_DIST  = 90;    // px — достаточно оттянуть, чтобы закрыть
+const _SWIPE_SPEED = 0.55;  // px/ms — или резкий бросок вниз
+
+// Есть ли между точкой касания и sheet прокручиваемый блок, не в самом верху
+function _scrolledAbove(target, box) {
+  for (let el = target; el && el !== box; el = el.parentElement) {
+    if (el.scrollHeight > el.clientHeight + 1) {
+      const oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollTop > 0) return true;
+    }
+  }
+  return false;
+}
+
+function _attachSwipe(id, s, dragZone) {
+  const { box, ov, head } = s;
+  let startX = 0, startY = 0, lastY = 0, lastT = 0, vel = 0;
+  let tracking = false, dragging = false, fromHandle = false, boxH = 1;
+
+  const reset = () => {
+    box.style.transition = '';           // вернуть CSS-анимацию
+    void box.offsetHeight;               // зафиксировать текущую позицию
+    box.style.transform = '';
+    ov.style.transition = '';
+    ov.style.opacity = '';
+  };
+
+  const begin = (x, y, target) => {
+    if (!box.classList.contains('open')) return false;
+    tracking = true; dragging = false;
+    startX = x; startY = lastY = y; lastT = performance.now(); vel = 0;
+    fromHandle = dragZone.contains(target) || head.contains(target);
+    return true;
+  };
+
+  const move = (x, y, target, ev) => {
+    if (!tracking) return;
+    const dy = y - startY, dx = x - startX;
+
+    if (!dragging) {
+      if (dy <= 6 || Math.abs(dy) < Math.abs(dx)) {
+        if (dy < -6) tracking = false;   // тянут вверх — это обычный скролл
+        return;
+      }
+      if (!fromHandle) {
+        if (s.body.scrollTop > 0 || _scrolledAbove(target, box)) { tracking = false; return; }
+        if (target.closest('input, textarea, select, [contenteditable]')) { tracking = false; return; }
+      }
+      dragging = true;
+      boxH = Math.max(1, box.offsetHeight);
+      startY = y;                         // без рывка в начале
+      box.style.transition = 'none';
+      ov.style.transition = 'none';
+    }
+
+    const off = Math.max(0, y - startY);
+    box.style.transform = `translateY(${off}px)`;
+    ov.style.opacity = String(Math.max(0, 1 - off / boxH));
+    const now = performance.now();
+    if (now > lastT) vel = (y - lastY) / (now - lastT);
+    lastY = y; lastT = now;
+    if (ev && ev.cancelable) ev.preventDefault();
+  };
+
+  const end = () => {
+    if (!tracking) return;
+    tracking = false;
+    if (!dragging) return;
+    dragging = false;
+    const off = lastY - startY;
+    const close = off > _SWIPE_DIST || (vel > _SWIPE_SPEED && off > 20);
+    reset();
+    if (close) Sheet.close(id);
+  };
+
+  // Touch
+  box.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    begin(e.touches[0].clientX, e.touches[0].clientY, e.target);
+  }, { passive: true });
+  box.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    move(t.clientX, t.clientY, e.target, e);
+  }, { passive: false });
+  box.addEventListener('touchend', end);
+  box.addEventListener('touchcancel', end);
+
+  // Мышь — только за ручку/заголовок (десктоп)
+  const onMouseMove = e => move(e.clientX, e.clientY, e.target, e);
+  const onMouseUp = () => {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    end();
+  };
+  [dragZone, head].forEach(el => el.addEventListener('mousedown', e => {
+    if (e.button !== 0 || e.target.closest('.bs-close')) return;
+    if (!begin(e.clientX, e.clientY, e.target)) return;
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }));
 }
 
 
@@ -131,12 +264,13 @@ export const Sheet = {
    *
    * @param {object} cfg
    * @param {string}   cfg.id       — уникальный ключ (напр. 'city', 'caddr')
-   * @param {string}   cfg.title    — текст заголовка
+   * @param {string}  [cfg.title]    — заголовок. Нет title → строки заголовка нет вообще
+   * @param {boolean} [cfg.closeButton] — показывать крестик. По умолчанию: только если есть заголовок
    * @param {number}  [cfg.zIndex=600] — z-index overlay; box получает zIndex+1
    * @param {Function}[cfg.onOpen]  — коллбэк при открытии (опц.)
    * @param {Function}[cfg.onClose] — коллбэк при закрытии (опц.)
    */
-  define({ id, title, zIndex = 600, onOpen = null, onClose = null }) {
+  define({ id, title = '', zIndex = 600, closeButton = null, onOpen = null, onClose = null }) {
     _ensureCSS();
 
     if (_reg[id]) {
@@ -157,12 +291,12 @@ export const Sheet = {
     box.id = `bs-${id}`;
     box.style.zIndex = zIndex + 1;
 
-    // Drag handle
+    // Drag handle (зона свайпа)
     const drag = document.createElement('div');
     drag.className = 'bs-drag';
     box.appendChild(drag);
 
-    // Шапка
+    // Строка заголовка (без отдельной шапки; скрывается, если пусто)
     const head = document.createElement('div');
     head.className = 'bs-head';
 
@@ -191,7 +325,9 @@ export const Sheet = {
 
     document.body.append(ov, box);
 
-    _reg[id] = { ov, box, body, onOpen, onClose };
+    _reg[id] = { ov, box, body, head, titleEl, closeBtn, closeButton, onOpen, onClose };
+    _syncHead(_reg[id]);
+    _attachSwipe(id, _reg[id], drag);
   },
 
   // ─────────────────────────────────────────────────────────
@@ -228,7 +364,9 @@ export const Sheet = {
   /** Изменить заголовок sheet в рантайме */
   setTitle(id, title) {
     const s = _reg[id];
-    if (s) s.box.querySelector('.bs-head-title').textContent = title;
+    if (!s) return;
+    s.titleEl.textContent = title || '';
+    _syncHead(s);
   },
 
   /** true если sheet сейчас открыт */
