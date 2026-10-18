@@ -578,13 +578,25 @@ a{color:inherit;text-decoration:none}
 /* ── ACCOUNT SHEET (меню профиля, 1-й уровень — как профиль в home.html) ── */
 #view-profile>*{flex-shrink:0}
 .acc-group>*{flex-shrink:0}
+.acc-av-wrap{cursor:pointer}
+.acc-av-edit{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--accent);border:2.5px solid var(--surface);color:#fff;display:flex;align-items:center;justify-content:center}
+.avp-top{padding:4px 16px 14px}
+.avp-gallery{width:100%;height:var(--ctl-xl);border-radius:var(--r-lg);background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);font-weight:700;font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-accent);transition:opacity .15s,transform .12s}
+.avp-gallery:active{transform:scale(.98)}.avp-gallery:disabled{opacity:.6}
+.avp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:2px;padding:2px 1px 0;border-top:1px solid var(--surface-3)}
+.avp-item{position:relative;display:block;width:100%;aspect-ratio:1/1;padding:0;margin:0;border:none;border-radius:0;overflow:hidden;background:var(--surface-2);box-shadow:0 0 0 1px var(--surface-3)}
+.avp-item:active{opacity:.75}
+.avp-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.avp-item.sel::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--accent);pointer-events:none}
+.avp-check{position:absolute;right:6px;bottom:6px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center}
+.avp-item.sel .avp-check{display:flex}
 .acc-title{font-family:var(--font-display);font-weight:900;font-size:var(--fs-xl);color:var(--text);padding:2px 4px 14px}
 .acc-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);cursor:pointer;transition:background var(--tf),transform .12s}
 .acc-card:active{transform:scale(.985)}
 .acc-av-wrap{position:relative;width:58px;height:58px;flex-shrink:0}
 .acc-av{width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:var(--fs-xl);position:relative}
 .acc-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.acc-av-st{position:absolute;bottom:0;right:0;width:14px;height:14px;border-radius:50%;border:3px solid var(--surface);background:var(--muted-2)}
+.acc-av-st{position:absolute;top:0;right:0;width:14px;height:14px;border-radius:50%;border:3px solid var(--surface);background:var(--muted-2)}
 .acc-av-st.online{background:var(--green)}.acc-av-st.away{background:var(--amber)}
 .acc-card-body{flex:1;min-width:0}
 .acc-name{font-family:var(--font-display);font-weight:900;font-size:var(--fs-lg);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
@@ -915,7 +927,7 @@ a{color:inherit;text-decoration:none}
     <div id="view-profile" style="display:none;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);padding:16px 16px 28px">
     <div class="acc-title">Настройки</div>
     <button class="acc-card" data-act="profile" type="button">
-      <div class="acc-av-wrap"><div class="acc-av" id="acc-av">?</div><div class="acc-av-st online" id="acc-av-st"></div></div>
+      <div class="acc-av-wrap" data-act="avatar" role="button" aria-label="Сменить аватарку"><div class="acc-av" id="acc-av">?</div><div class="acc-av-st online" id="acc-av-st"></div><div class="acc-av-edit"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div></div>
       <div class="acc-card-body"><div class="acc-name" id="acc-name">—</div><div class="acc-sub" id="acc-sub"></div></div>
       <svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
     </button>
@@ -2200,8 +2212,85 @@ function updateMentionHighlight(){
   popup.querySelectorAll('.mention-item').forEach((el,i)=>el.classList.toggle('active',i===mentionIdx));
 }
 
+/* ── ВЫБОР АВАТАРКИ ── */
+const AVATAR_BASE='https://chat.dastdaroz.shop/storage/images/anime/';
+const AVATAR_LIST=['female_arisa','female_moi','female_nina','female_sakura','female_yui','male_hiro','male_kai','male_kenji','male_ren','male_sora'].map(n=>n+'.webp');
+let _avpBuilt=false, _avpBusy=false;
+const _CHECK_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function _avpBuild(){
+  if(_avpBuilt) return; _avpBuilt=true;
+  // без title → у шторки нет шапки: ручка и сразу кнопка «Выбрать из галереи»
+  Sheet.define({ id:'avatar', zIndex:850, onOpen:_avpMarkSelected });
+  const b=Sheet.body('avatar');
+  b.innerHTML=`
+    <div class="avp-top">
+      <button class="avp-gallery" id="avp-gallery" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Выбрать из галереи</span>
+      </button>
+    </div>
+    <div class="avp-grid" id="avp-grid">${AVATAR_LIST.map(f=>`<button class="avp-item" type="button" data-f="${f}" aria-label="Аватарка"><img src="${AVATAR_BASE+f}" alt="" loading="lazy" decoding="async"/><span class="avp-check">${_CHECK_SVG}</span></button>`).join('')}</div>
+    <input type="file" id="avp-file" accept="image/*" hidden/>`;
+  $('avp-gallery').addEventListener('click',()=>{ if(!_avpBusy) $('avp-file').click(); });
+  $('avp-file').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) _avpUploadFile(f); });
+  $('avp-grid').addEventListener('click',e=>{
+    const it=e.target.closest('.avp-item'); if(it) _setAvatar(AVATAR_BASE+it.dataset.f);
+  });
+}
+function _avpMarkSelected(){
+  const cur=me?.photoURL||'';
+  document.querySelectorAll('#avp-grid .avp-item').forEach(b=>b.classList.toggle('sel',cur.endsWith('/'+b.dataset.f)));
+}
+function openAvatarPicker(){
+  if(!me) return;
+  _avpBuild();
+  Sheet.body('avatar').scrollTop=0;
+  Sheet.open('avatar');
+}
+function closeAvatarPicker(){ Sheet.close('avatar'); }
+async function _setAvatar(url){
+  if(_avpBusy||!me) return;
+  _avpBusy=true;
+  try{
+    await setDoc(doc(fdb,'users',me.uid),{photoURL:url,displayName:me.displayName||'',email:me.email||'',updatedAt:serverTimestamp()},{merge:true});
+    try{ await updateProfile(auth.currentUser,{photoURL:url}); }catch(e){}   // не критично: основной источник — users/{uid}
+    me.photoURL=url;
+    updateMyAvatarUI(); fillAccountCard(); _avpMarkSelected();
+    const inp=$('profile-avatar-url'); if(inp) inp.value=url;
+    updatePresence(me.presence?.status||'online');
+    toast('Аватар обновлён ✓','ok');
+    closeAvatarPicker();
+  }catch(e){ toast('Ошибка: '+e.message,'err'); }
+  _avpBusy=false;
+}
+// фото из галереи → квадрат 512×512 → Storage → профиль
+async function _squareBlob(file,size){
+  const bmp=await createImageBitmap(file);
+  const side=Math.min(bmp.width,bmp.height);
+  const c=document.createElement('canvas'); c.width=c.height=size;
+  c.getContext('2d').drawImage(bmp,(bmp.width-side)/2,(bmp.height-side)/2,side,side,0,0,size,size);
+  bmp.close?.();
+  return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('Не удалось обработать фото')),'image/jpeg',.88));
+}
+async function _avpUploadFile(file){
+  if(_avpBusy||!me) return;
+  if(!file.type.startsWith('image/')){ toast('Выберите изображение','err'); return; }
+  const btn=$('avp-gallery'), lbl=btn.querySelector('span');
+  btn.disabled=true; lbl.textContent='Загрузка…';
+  let url=null;
+  try{
+    const blob=await _squareBlob(file,512);
+    const snap=await uploadBytesResumable(sRef(storage,`avatars/${me.uid}/${Date.now()}.jpg`),blob,{contentType:'image/jpeg'});
+    url=await getDownloadURL(snap.ref);
+  }catch(e){ toast('Не удалось загрузить: '+e.message,'err'); }
+  btn.disabled=false; lbl.textContent='Выбрать из галереи';
+  if(url) _setAvatar(url);
+}
+
 /* действия строк меню «Настройки» (data-act) */
 const _accActs={
+  avatar:       ()=>openAvatarPicker(),
   profile:      ()=>openMyProfile(),
   promo:        ()=>{ Sheet.open('promo'); setTimeout(()=>$('promo-inp')?.focus(),350); },
   achievements: ()=>Sheet.open('achievements'),
@@ -2431,7 +2520,7 @@ async function saveProfile(){
   if(!name){ toast('Введите имя','err'); return; }
   const btn = $('btn-save-profile'); btn.textContent='Сохранение…'; btn.disabled=true;
   try{
-    await updateDoc(doc(fdb,'users',me.uid),{displayName:name,bio,photoURL,updatedAt:serverTimestamp()});
+    await setDoc(doc(fdb,'users',me.uid),{displayName:name,bio,photoURL,updatedAt:serverTimestamp()},{merge:true});
     await updateProfile(auth.currentUser,{displayName:name,photoURL:photoURL||null});
     me.displayName=name; me.bio=bio; me.photoURL=photoURL; fillAccountCard();
     if($('my-name'))$('my-name').textContent=name; updateMyAvatarUI();
@@ -2821,6 +2910,7 @@ function initUI(){
   `;
 
   // Profile triggers
+  $('prof-av-wrap')?.addEventListener('click',()=>{ if($('profile-own').style.display!=='none') openAvatarPicker(); });
   $('btn-my-profile')?.addEventListener('click',openAccount);
   $('my-avatar')?.addEventListener('click',openAccount);
   $('mob-btn-profile').addEventListener('click',openAccount);
@@ -2874,7 +2964,7 @@ function initUI(){
   // Logout
   $('acc-logout')?.addEventListener('click',async()=>{
     if(!confirm('Выйти из Pulsar?'))return;
-    stopSupport();
+    stopSupport(); closeAvatarPicker();
     await updatePresence('offline');clearTyping();
     // Убираем FCM-токен этого устройства из профиля, чтобы пуши не приходили после выхода
     // (только если там лежит именно наш токен — токен другого устройства не трогаем)
