@@ -732,7 +732,7 @@ let loginEmail = null;     // подтверждённый на шаге 1 email
 onAuthStateChanged(auth, user => {
   if (user) {
     statusText.textContent = 'Вы уже вошли — перенаправление…';
-    setTimeout(() => { window.location.href = HOME; }, 500);
+    setTimeout(() => { window.location.replace(HOME); }, 500);
   } else {
     statusText.textContent = 'dastdaroz ID подключён';
   }
@@ -884,7 +884,7 @@ async function submitPassword() {
 
     RL.success(loginEmail);
     statusText.textContent = res === 'created' ? 'Аккаунт создан! Перенаправление…' : 'Успешно! Перенаправление…';
-    window.location.href = HOME;
+    window.location.replace(HOME);
   } catch (e) {
     const [t, m] = fbErr(e.code);
     showAlert(t, m);
@@ -994,7 +994,7 @@ btnGoogle.addEventListener('click', async () => {
     }
 
     statusText.textContent = 'Успешно! Перенаправление…';
-    window.location.href = HOME;
+    window.location.replace(HOME);
   } catch (e) {
     if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
     if (!isWebView() && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) {

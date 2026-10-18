@@ -2151,6 +2151,31 @@ function showView(id){
   closeMsgMenu();
 }
 function openSidebar(){ showView('no-channel'); setNavActive('mob-btn-dms'); }
+
+/* ── КНОПКА «НАЗАД» (Android) ──
+ * MainActivity вызывает window.handleBack(). true — страница сама обработала «назад»
+ * (закрыла шторку/окно/чат), false — приложению можно закрыться как обычно.
+ * Порядок: самое верхнее закрываем первым. */
+window.handleBack=function(){
+  // 1. Просмотр фото
+  if($('lightbox')?.classList.contains('open')){closeLightbox();return true;}
+  // 2. Меню сообщения
+  if(_mm&&_mm.classList.contains('open')&&_mm.classList.contains('show')){closeMsgMenu();return true;}
+  // 3. Шторки (профиль, участники, поиск, звонок…) — верхняя
+  if(Sheet.closeTop())return true;
+  // 4. Модальные окна
+  const modal=document.querySelector('.modal-overlay.open');
+  if(modal){closeModal(modal.id);return true;}
+  // 5. Панель треда
+  if($('thread-panel')?.classList.contains('open')){closeThread();return true;}
+  // 6. Подсказка упоминаний
+  if($('mention-popup')?.classList.contains('open')){closeMentionPopup();return true;}
+  // 7. Переписка или вкладка «Комнаты»/«Группы» → к списку чатов
+  const cur=_allViews.find(v=>{const e=$(v);return e&&getComputedStyle(e).display!=='none';});
+  if(cur&&cur!=='no-channel'){openSidebar();return true;}
+  // 8. Мы на главном экране — пусть приложение закроется как обычно
+  return false;
+};
 function setNavActive(id){ document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active')); $(id)?.classList.add('active'); }
 function closeSidebar(){}
 

@@ -254,6 +254,7 @@ function _attachSwipe(id, s, dragZone) {
 
 // ── Реестр всех sheet-ов ──────────────────────────────────────
 const _reg = {};
+const _openOrder = [];   // порядок открытия: последний — самый верхний
 
 
 // ── Публичный API ─────────────────────────────────────────────
@@ -339,6 +340,8 @@ export const Sheet = {
     s.ov.classList.add('open');
     s.box.classList.add('open');
     document.body.style.overflow = 'hidden';
+    const i = _openOrder.indexOf(id); if (i >= 0) _openOrder.splice(i, 1);
+    _openOrder.push(id);
     s.onOpen?.();
   },
 
@@ -349,7 +352,21 @@ export const Sheet = {
     s.ov.classList.remove('open');
     s.box.classList.remove('open');
     document.body.style.overflow = '';
+    const i = _openOrder.indexOf(id); if (i >= 0) _openOrder.splice(i, 1);
     s.onClose?.();
+  },
+
+  /**
+   * Закрыть самый верхний открытый sheet (для кнопки «Назад» на Android).
+   * Возвращает true, если что-то было закрыто.
+   */
+  closeTop() {
+    while (_openOrder.length) {
+      const id = _openOrder[_openOrder.length - 1];
+      if (Sheet.isOpen(id)) { Sheet.close(id); return true; }
+      _openOrder.pop();
+    }
+    return false;
   },
 
   /**
