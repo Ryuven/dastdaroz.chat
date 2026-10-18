@@ -512,19 +512,35 @@ a{color:inherit;text-decoration:none}
 .btn-ghost{background:none;border:1.5px solid var(--border-h);color:var(--muted)}.btn-ghost:hover{border-color:rgba(0,0,0,.25);color:var(--text)}
 
 /* ── PROFILE SHEET ── */
-.prof-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 24px 8px}
+.prof-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px 8px}
+/* фон: на всю ширину, строго 981×363, поднят под ручку sheet; аватарка делит его нижний край пополам */
+.prof-cover{position:relative;align-self:stretch;margin:0 -24px;aspect-ratio:981/363;overflow:hidden;background:linear-gradient(135deg,var(--accent-dim),var(--surface-2))}
+.prof-cover-img,.prof-cover-img img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.prof-cover-img img{object-fit:cover}
+.prof-cover-btn,.prof-cover-close{position:absolute;z-index:2;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:transform .12s,background var(--tf)}
+/* ручка sheet профиля — поверх фона (вне потока), фон идёт от самого верха */
+#bs-profile .bs-drag{position:absolute;top:0;left:56px;right:56px;z-index:5}
+#bs-profile .bs-drag::before{background:rgba(255,255,255,.85);box-shadow:0 0 4px rgba(0,0,0,.35)}
+.prof-cover-btn:active,.prof-cover-close:active{transform:scale(.92);background:rgba(0,0,0,.6)}
+.prof-cover-close,.prof-cover-btn{top:max(12px,env(safe-area-inset-top,0px));width:34px;height:34px;border-radius:50%}
+.prof-cover-close{right:12px}
+.prof-cover-btn{left:12px}
+.prof-head .prof-av-wrap{margin-top:calc(var(--av-xl) / -2);z-index:1}
+.prof-head>*:not(.prof-cover){position:relative;z-index:1}
 .prof-av-wrap{position:relative;width:var(--av-xl);height:var(--av-xl);border-radius:50%;flex-shrink:0}
 .prof-av-inner{
   width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;
   background:var(--accent-dim);color:var(--accent);
   display:flex;align-items:center;justify-content:center;
   font-size:var(--fs-2xl);font-weight:800;
+  box-shadow:0 0 0 4px var(--surface);
 }
 .prof-av-inner img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .prof-av-status{
   position:absolute;bottom:1px;right:1px;width:14px;height:14px;border-radius:50%;
   border:3px solid var(--surface);transition:background .3s;
 }
+.prof-av-status{display:none!important}
 .prof-av-status.online {background:var(--green)}
 .prof-av-status.away   {background:var(--amber)}
 .prof-av-status.offline{background:var(--muted-2)}
@@ -579,6 +595,7 @@ a{color:inherit;text-decoration:none}
 .prof-action-btn:hover{opacity:.9}
 
 /* Footer */
+#btn-save-profile{font-family:var(--font-display);font-weight:700;font-size:var(--fs-xs);letter-spacing:.06em}
 .prof-foot{display:flex;gap:8px;align-items:center;padding:12px 24px;border-top:1px solid var(--border)}
 
 /* ── ACCOUNT SHEET (меню профиля, 1-й уровень — как профиль в home.html) ── */
@@ -591,6 +608,8 @@ a{color:inherit;text-decoration:none}
 .avp-item{position:relative;display:block;width:100%;aspect-ratio:1/1;padding:0;margin:0;border:none;border-radius:0;overflow:hidden;background:var(--surface-2);box-shadow:0 0 0 1px var(--surface-3)}
 .avp-item:active{opacity:.75}
 .avp-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.bgp-grid{grid-template-columns:1fr}
+.bgp-grid .avp-item{aspect-ratio:981/363}
 .avp-item.sel::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--accent);pointer-events:none}
 .avp-check{position:absolute;right:6px;bottom:6px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center}
 .avp-item.sel .avp-check{display:flex}
@@ -2292,6 +2311,82 @@ async function _avpUploadFile(file){
   if(url) _setAvatar(url);
 }
 
+/* ── ВЫБОР ЗАДНЕГО ФОНА ПРОФИЛЯ (981×363) ── */
+const BG_BASE='https://chat.dastdaroz.shop/storage/images/bg/';
+const BG_LIST=['city_skyline','coastal_beach','desert_city','desert_dunes','jungle_valley','mars_colony','meadow_path','moon_base','moscow_kremlin','mountain_range'].map(n=>n+'.webp');
+let _bgpBuilt=false, _bgpBusy=false;
+
+function _bgpBuild(){
+  if(_bgpBuilt) return; _bgpBuilt=true;
+  Sheet.define({ id:'bgpicker', zIndex:850, onOpen:_bgpMarkSelected });
+  const b=Sheet.body('bgpicker');
+  b.innerHTML=`
+    <div class="avp-top">
+      <button class="avp-gallery" id="bgp-gallery" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Выбрать из галереи</span>
+      </button>
+    </div>
+    <div class="avp-grid bgp-grid" id="bgp-grid">${BG_LIST.map(f=>`<button class="avp-item" type="button" data-f="${f}" aria-label="Фон"><img src="${BG_BASE+f}" alt="" loading="lazy" decoding="async"/><span class="avp-check">${_CHECK_SVG}</span></button>`).join('')}</div>
+    <input type="file" id="bgp-file" accept="image/*" hidden/>`;
+  $('bgp-gallery').addEventListener('click',()=>{ if(!_bgpBusy) $('bgp-file').click(); });
+  $('bgp-file').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) _bgpUploadFile(f); });
+  $('bgp-grid').addEventListener('click',e=>{
+    const it=e.target.closest('.avp-item'); if(it) _setBg(BG_BASE+it.dataset.f);
+  });
+}
+function _bgpMarkSelected(){
+  const cur=me?.bgURL||'';
+  document.querySelectorAll('#bgp-grid .avp-item').forEach(b=>b.classList.toggle('sel',cur.endsWith('/'+b.dataset.f)));
+}
+function openBgPicker(){
+  if(!me) return;
+  _bgpBuild();
+  Sheet.body('bgpicker').scrollTop=0;
+  Sheet.open('bgpicker');
+}
+function closeBgPicker(){ if(_bgpBuilt) Sheet.close('bgpicker'); }
+function setProfileCover(url){
+  const c=$('profile-cover'); if(!c) return;
+  c.innerHTML=url?`<img src="${esc(url)}" alt="" decoding="async"/>`:'';
+}
+async function _setBg(url){
+  if(_bgpBusy||!me) return;
+  _bgpBusy=true;
+  try{
+    await setDoc(doc(fdb,'users',me.uid),{bgURL:url,updatedAt:serverTimestamp()},{merge:true});
+    me.bgURL=url;
+    setProfileCover(url); _bgpMarkSelected();
+    toast('Фон обновлён ✓','ok');
+    closeBgPicker();
+  }catch(e){ toast('Ошибка: '+e.message,'err'); }
+  _bgpBusy=false;
+}
+// фото из галереи → кроп по центру до 981×363 → Storage → профиль
+async function _coverBlob(file,w,h){
+  const bmp=await createImageBitmap(file);
+  const k=Math.max(w/bmp.width,h/bmp.height);
+  const sw=w/k, sh=h/k;
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  c.getContext('2d').drawImage(bmp,(bmp.width-sw)/2,(bmp.height-sh)/2,sw,sh,0,0,w,h);
+  bmp.close?.();
+  return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('Не удалось обработать фото')),'image/jpeg',.88));
+}
+async function _bgpUploadFile(file){
+  if(_bgpBusy||!me) return;
+  if(!file.type.startsWith('image/')){ toast('Выберите изображение','err'); return; }
+  const btn=$('bgp-gallery'), lbl=btn.querySelector('span');
+  btn.disabled=true; lbl.textContent='Загрузка…';
+  let url=null;
+  try{
+    const blob=await _coverBlob(file,981,363);
+    const snap=await uploadBytesResumable(sRef(storage,`covers/${me.uid}/${Date.now()}.jpg`),blob,{contentType:'image/jpeg'});
+    url=await getDownloadURL(snap.ref);
+  }catch(e){ toast('Не удалось загрузить: '+e.message,'err'); }
+  btn.disabled=false; lbl.textContent='Выбрать из галереи';
+  if(url) _setBg(url);
+}
+
 /* действия строк меню «Настройки» (data-act) */
 const _accActs={
   profile:      ()=>openMyProfile(),
@@ -2474,6 +2569,7 @@ function fillProfileModal(u, isOwn){
 
   const st = u.presence?.status || (isOwn ? me.presence?.status : null) || 'offline';
   $('prof-av-status').className = `prof-av-status ${st}`;
+  setProfileCover(u.bgURL||'');
 
   $('profile-display-name').textContent = u.displayName || u.email || '—';
   const emailVal = u.email || '';
@@ -2494,6 +2590,7 @@ function _profDirty(){
 function _profSetOwn(own){
   $('prof-av-wrap').classList.toggle('own',own);
   $('prof-av-edit').style.display=own?'':'none';
+  $('prof-cover-btn').style.display=own?'':'none';
 }
 
 async function openMyProfile(){
@@ -2511,7 +2608,6 @@ async function openMyProfile(){
   $('profile-own').style.display          = '';
   $('profile-foot').style.display         = '';
   $('prof-other-actions').style.display   = 'none';
-  Sheet.setTitle('profile', 'Личные данные');
   Sheet.open('profile');
 }
 
@@ -2526,7 +2622,6 @@ async function openUserProfile(uid){
   $('prof-other-actions').style.display   = 'block';
 
   $('prof-btn-dm').onclick = ()=>{ Sheet.close('profile'); openOrCreateDM(uid); };
-  Sheet.setTitle('profile', u.displayName || 'Профиль');
   Sheet.open('profile');
 }
 
@@ -2872,14 +2967,19 @@ function initUI(){
 
 
   // ── Profile Sheet (теперь 2-й уровень: «Личные данные») ───────
+  // без title → нет шапки; крестик и кнопка смены фона нарисованы поверх фона
   Sheet.define({
     id:     'profile',
-    title:  'Профиль',
     zIndex: 800,
   });
 
   Sheet.body('profile').innerHTML = `
     <div class="prof-head">
+      <div class="prof-cover">
+        <div class="prof-cover-img" id="profile-cover"></div>
+        <button class="prof-cover-close" id="prof-cover-close" type="button" aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button class="prof-cover-btn" id="prof-cover-btn" type="button" aria-label="Изменить фон" style="display:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button>
+      </div>
       <div class="prof-av-wrap" id="prof-av-wrap">
         <div class="prof-av-inner" id="profile-av-big">?</div>
         <div class="prof-av-status offline" id="prof-av-status"></div>
@@ -2900,11 +3000,6 @@ function initUI(){
 
     <!-- Свой профиль -->
     <div class="prof-pad" id="profile-own">
-      <div class="prof-status-btns" id="profile-status-row">
-        <button class="prof-status-btn online"  data-s="online"><span class="prof-sdot"></span>В сети</button>
-        <button class="prof-status-btn away"    data-s="away"><span class="prof-sdot"></span>Отошёл</button>
-        <button class="prof-status-btn offline" data-s="offline"><span class="prof-sdot"></span>Не беспокоить</button>
-      </div>
       <div>
         <div class="prof-field">
           <label for="profile-name-input">Имя</label>
@@ -2924,6 +3019,8 @@ function initUI(){
 
   // Profile triggers
   $('prof-av-wrap')?.addEventListener('click',()=>{ if($('profile-own').style.display!=='none') openAvatarPicker(); });
+  $('prof-cover-btn')?.addEventListener('click',openBgPicker);
+  $('prof-cover-close')?.addEventListener('click',()=>Sheet.close('profile'));
   $('btn-my-profile')?.addEventListener('click',openAccount);
   $('my-avatar')?.addEventListener('click',openAccount);
   $('mob-btn-profile').addEventListener('click',openAccount);
@@ -2986,7 +3083,7 @@ function initUI(){
   // Logout
   $('acc-logout')?.addEventListener('click',async()=>{
     if(!confirm('Выйти из Pulsar?'))return;
-    stopSupport(); closeAvatarPicker();
+    stopSupport(); closeAvatarPicker(); closeBgPicker();
     await updatePresence('offline');clearTyping();
     // Убираем FCM-токен этого устройства из профиля, чтобы пуши не приходили после выхода
     // (только если там лежит именно наш токен — токен другого устройства не трогаем)
