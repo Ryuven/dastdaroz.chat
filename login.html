@@ -569,6 +569,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  signInWithCredential,
 } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
 
 // ─── Константы ────────────────────────────────────────────────
@@ -908,6 +909,66 @@ btnForgot.addEventListener('click', async () => {
 });
 
 // ─── Вход через Google ────────────────────────────────────────
+// В WebView (наше приложение) Google блокирует вход через браузерное окно,
+// поэтому там вызываем НАТИВНЫЙ вход, а в обычном браузере — popup как раньше.
+//
+// Контракт с нативной частью (достаточно ОДНОГО из вариантов):
+//  1) Capacitor + @capacitor-firebase/authentication (skipNativeAuth: true) — подхватится сам.
+//  2) Android: в существующем мосте AndroidBridge добавить метод googleSignIn()
+//     (подойдёт и отдельный интерфейс "NativeAuth").
+//     Результат нативный код возвращает вызовом JS:
+//       window.onNativeGoogleSignIn(idToken, errorCode)
+//     (idToken — Google ID token; при отмене — errorCode = 'cancelled').
+//  3) iOS: WKScriptMessageHandler "googleSignIn" → то же window.onNativeGoogleSignIn(...).
+function isWebView() {
+  const ua = navigator.userAgent || '';
+  if (window.Capacitor?.isNativePlatform?.()) return true;
+  if (window.AndroidBridge || window.NativeAuth || window.webkit?.messageHandlers?.googleSignIn) return true;
+  if (/DastdarozApp/.test(ua)) return true;                             // наше приложение
+  if (/; wv\)/.test(ua)) return true;                                   // Android WebView
+  if (/(iPhone|iPod|iPad)/.test(ua) && !/Safari/.test(ua)) return true; // iOS WKWebView
+  return false;
+}
+
+let _nativeResolve = null;
+window.onNativeGoogleSignIn = (idToken, error) => {
+  if (!_nativeResolve) return;
+  const r = _nativeResolve; _nativeResolve = null;
+  if (idToken) r.resolve(idToken);
+  else r.reject(Object.assign(new Error(error || 'native-failed'),
+    { code: error === 'cancelled' ? 'auth/popup-closed-by-user' : 'auth/native-failed' }));
+};
+
+function nativeGoogleIdToken() {
+  // 1) Capacitor-плагин
+  const cap = window.Capacitor?.Plugins?.FirebaseAuthentication;
+  if (cap?.signInWithGoogle) {
+    return cap.signInWithGoogle({ skipNativeAuth: true }).then(r => {
+      const t = r?.credential?.idToken;
+      if (!t) throw Object.assign(new Error('no-token'), { code: 'auth/native-failed' });
+      return t;
+    }).catch(e => {
+      if (/cancel/i.test(e?.message || '')) throw Object.assign(e, { code: 'auth/popup-closed-by-user' });
+      throw e;
+    });
+  }
+  // 2) Android / iOS мост с колбэком window.onNativeGoogleSignIn
+  return new Promise((resolve, reject) => {
+    if (window.AndroidBridge?.googleSignIn) {
+      _nativeResolve = { resolve, reject };
+      window.AndroidBridge.googleSignIn();
+    } else if (window.NativeAuth?.googleSignIn) {
+      _nativeResolve = { resolve, reject };
+      window.NativeAuth.googleSignIn();
+    } else if (window.webkit?.messageHandlers?.googleSignIn) {
+      _nativeResolve = { resolve, reject };
+      window.webkit.messageHandlers.googleSignIn.postMessage({});
+    } else {
+      reject(Object.assign(new Error('no-bridge'), { code: 'auth/native-unavailable' }));
+    }
+  });
+}
+
 btnGoogle.addEventListener('click', async () => {
   if (_submitting) return;
   hideAlert();
@@ -915,21 +976,35 @@ btnGoogle.addEventListener('click', async () => {
     showAlert('Слишком много попыток', 'Подождите немного и попробуйте снова.');
     return;
   }
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
 
   _submitting = true;
   setLoading(btnGoogle, true);
   try {
     await setPersistence(auth, browserLocalPersistence);
-    await signInWithPopup(auth, provider);
+
+    if (isWebView()) {
+      // ── Приложение: нативный вход → Firebase по idToken ──
+      const idToken = await nativeGoogleIdToken();
+      await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+    } else {
+      // ── Обычный браузер: как раньше ──
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    }
+
     statusText.textContent = 'Успешно! Перенаправление…';
     window.location.href = HOME;
   } catch (e) {
     if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
-    if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
-      // Окно заблокировано (часто на телефоне) — входим через переадресацию
-      try { await signInWithRedirect(auth, provider); return; } catch (e2) { e = e2; }
+    if (!isWebView() && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) {
+      // Окно заблокировано в обычном мобильном браузере — входим через переадресацию
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithRedirect(auth, provider);
+        return;
+      } catch (e2) { e = e2; }
     }
     const [t, m] = fbErr(e.code);
     showAlert(t, m);
@@ -950,6 +1025,8 @@ function fbErr(code) {
     'auth/user-disabled':             ['Аккаунт отключён',         'Этот аккаунт заблокирован. Обратитесь в поддержку.'],
     'auth/too-many-requests':         ['Слишком много попыток',    'Подождите немного и попробуйте снова.'],
     'auth/network-request-failed':    ['Ошибка сети',              'Проверьте подключение к интернету.'],
+    'auth/native-unavailable':        ['Вход через Google недоступен', 'В приложении этот способ пока не подключён. Войдите по email и паролю.'],
+    'auth/native-failed':             ['Не удалось войти',          'Вход через Google не завершился. Попробуйте ещё раз или войдите по email.'],
     'auth/popup-blocked':             ['Окно заблокировано',       'Разрешите всплывающие окна для этого сайта и повторите.'],
     'auth/unauthorized-domain':       ['Домен не разрешён',        'Добавьте этот домен в Firebase → Authentication → Settings → Authorized domains.'],
     'auth/operation-not-allowed':     ['Способ входа отключён',    'Включите этот способ входа в Firebase → Authentication → Sign-in method.'],
