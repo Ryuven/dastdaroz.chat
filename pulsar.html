@@ -520,7 +520,7 @@ a{color:inherit;text-decoration:none}
 .prof-cover{position:relative;align-self:stretch;margin:0 -24px;aspect-ratio:981/363;overflow:hidden;background:linear-gradient(135deg,var(--accent-dim),var(--surface-2))}
 .prof-cover-img,.prof-cover-img img{position:absolute;inset:0;width:100%;height:100%;display:block}
 .prof-cover-img img{object-fit:cover}
-.prof-cover-btn,.prof-cover-close{position:absolute;z-index:2;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:transform .12s,background var(--tf)}
+.prof-cover-btn,.prof-cover-close{position:absolute;z-index:2;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.45);transition:transform .12s,background var(--tf)}
 /* ручка sheet профиля — поверх фона (вне потока), фон идёт от самого верха */
 #bs-profile .bs-drag{position:absolute;top:0;left:56px;right:56px;z-index:5}
 #bs-profile .bs-drag::before{background:rgba(255,255,255,.85);box-shadow:0 0 4px rgba(0,0,0,.35)}
@@ -2344,6 +2344,14 @@ function setProfileCover(url){
   const c=$('profile-cover'); if(!c) return;
   c.innerHTML=url?`<img src="${esc(url)}" alt="" decoding="async"/>`:'';
 }
+// перед анимацией шторки профиля декодируем картинки (не дольше 250 мс), чтобы декодирование не рвало кадры
+function _profImgsReady(){
+  const imgs=[...document.querySelectorAll('#profile-cover img,#profile-av-big img')];
+  return Promise.race([
+    Promise.all(imgs.map(i=>i.decode?i.decode().catch(()=>{}):0)),
+    new Promise(r=>setTimeout(r,250))
+  ]);
+}
 async function _setBg(url){
   if(_bgpBusy||!me) return;
   _bgpBusy=true;
@@ -2602,6 +2610,7 @@ async function openMyProfile(){
   $('profile-own').style.display          = '';
   $('profile-foot').style.display         = '';
   $('prof-other-actions').style.display   = 'none';
+  await _profImgsReady();
   Sheet.open('profile');
 }
 
@@ -2616,6 +2625,7 @@ async function openUserProfile(uid){
   $('prof-other-actions').style.display   = 'block';
 
   $('prof-btn-dm').onclick = ()=>{ Sheet.close('profile'); openOrCreateDM(uid); };
+  await _profImgsReady();
   Sheet.open('profile');
 }
 

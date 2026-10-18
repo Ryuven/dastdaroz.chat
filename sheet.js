@@ -34,14 +34,12 @@ const _BASE_CSS = `
 /* Затемнение */
 .bs-ov {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.5);
   opacity: 0; pointer-events: none;
   transition: opacity .28s;
 }
 .bs-ov.open {
   opacity: 1; pointer-events: all;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 /* Сам sheet — выезжает снизу вверх, занимает весь экран */
@@ -51,20 +49,20 @@ const _BASE_CSS = `
   background: var(--surface, #ffffff);
   border-top: 1px solid var(--border, rgba(0,0,0,.07));
   border-radius: var(--r-xl, 20px) var(--r-xl, 20px) 0 0;
-  transform: translateY(100%);
+  transform: translate3d(0,100%,0);
+  backface-visibility: hidden;
   display: flex; flex-direction: column;
   overflow: hidden;
   box-shadow: none;
   /* закрытый sheet не рисуется и не берёт фокус (visibility срабатывает после анимации) */
   visibility: hidden;
-  transition: transform .38s cubic-bezier(.32,0,.18,1), box-shadow .38s, visibility 0s linear .38s;
+  transition: transform .38s cubic-bezier(.32,0,.18,1), visibility 0s linear .38s;
 }
 .bs-box.open {
-  transform: translateY(0);
-  box-shadow: 0 -4px 32px rgba(0,0,0,.08);
+  transform: translate3d(0,0,0);
   visibility: visible;
   will-change: transform;   /* отдельный слой только пока открыт */
-  transition: transform .38s cubic-bezier(.32,0,.18,1), box-shadow .38s, visibility 0s;
+  transition: transform .38s cubic-bezier(.32,0,.18,1), visibility 0s;
 }
 
 /* Drag-handle (зона захвата для свайпа) */
