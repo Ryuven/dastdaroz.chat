@@ -71,7 +71,7 @@ a{color:inherit;text-decoration:none}
   display:flex;align-items:center;gap:12px;width:100%;
 }
 .sb-logo-img{
-  height:26px;width:auto;object-fit:contain;flex-shrink:0;
+  height:29px;width:auto;object-fit:contain;flex-shrink:0;
   display:block;
 }
 .sb-head-actions{display:flex;gap:4px}
@@ -81,11 +81,11 @@ a{color:inherit;text-decoration:none}
   transition:background var(--tf),color var(--tf);
 }
 .sb-action-btn:hover{background:var(--surface-3);color:var(--text)}
-.sb-action-btn svg{width:20px;height:20px}
+.sb-action-btn svg{width:22px;height:22px}
 
 /* Список чатов */
 .sb-chat-list{
-  flex:1;overflow-y:auto;padding:4px 0 8px;
+  flex:1;overflow-y:auto;padding:0 0 8px;
 }
 
 /* Метка-раздел (тег "Каналы" / "Личные") */
@@ -104,8 +104,8 @@ a{color:inherit;text-decoration:none}
 
 /* ── CHAT CARD ── */
 .ch-card{
-  display:flex;align-items:center;gap:12px;
-  padding:8px 16px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;
+  padding:6px 16px;cursor:pointer;
   transition:background var(--tf);position:relative;
   user-select:none;min-width:0;
 }
@@ -119,13 +119,13 @@ a{color:inherit;text-decoration:none}
 /* Аватар/иконка */
 .ch-ava-wrap{
   position:relative;flex-shrink:0;
-  width:var(--av-lg);height:var(--av-lg);
+  width:56px;height:56px;
 }
 .ch-ava{
-  width:var(--av-lg);height:var(--av-lg);border-radius:50%;
+  width:56px;height:56px;border-radius:50%;
   background:var(--surface-3);border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
-  font-size:var(--fs-md);font-weight:700;color:var(--accent);
+  font-size:var(--fs-lg);font-weight:700;color:var(--accent);
   position:relative;overflow:hidden;
   transition:border-color var(--tf);
 }
@@ -133,15 +133,15 @@ a{color:inherit;text-decoration:none}
 .ch-ava.ch-ava--ch{
   border-radius:var(--r-lg);
   background:var(--accent-dim);border-color:var(--accent-mid);
-  font-size:var(--fs-sm);color:var(--accent);
+  font-size:var(--fs-md);color:var(--accent);
 }
 .ch-card.active .ch-ava{border-color:var(--accent-mid)}
 
 /* Presence dot */
 .ch-presence{
   position:absolute;bottom:0;right:0;
-  width:11px;height:11px;border-radius:50%;
-  border:2px solid var(--surface);
+  width:13px;height:13px;border-radius:50%;
+  border:2.5px solid var(--surface);
   transition:border-color var(--tf);
   pointer-events:none;
 }
@@ -151,19 +151,19 @@ a{color:inherit;text-decoration:none}
 .ch-presence.offline{background:var(--muted-2)}
 
 /* Тело карточки */
-.ch-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ch-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .ch-row1{display:flex;align-items:center;gap:6px}
 .ch-title{
-  font-size:var(--fs-sm);font-weight:500;color:var(--text);
+  font-size:.96875rem;font-weight:500;color:var(--text);
   flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .ch-card:not(.active) .ch-title{color:var(--muted);font-weight:400}
 .ch-card:hover .ch-title,.ch-card.active .ch-title{color:var(--text);font-weight:500}
-.ch-ts{font-size:var(--fs-2xs);color:var(--muted-2);white-space:nowrap;flex-shrink:0}
+.ch-ts{font-size:var(--fs-xs);color:var(--muted-2);white-space:nowrap;flex-shrink:0}
 .ch-card.has-unread .ch-ts{color:var(--accent)}
 
 .ch-preview{
-  flex:1;font-size:var(--fs-xs);color:var(--muted-2);
+  flex:1;font-size:.84375rem;color:var(--muted-2);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .ch-preview b{color:var(--muted);font-weight:500}
@@ -173,15 +173,18 @@ a{color:inherit;text-decoration:none}
 .ch-badge{
   background:var(--red);color:var(--on-accent);
   font-size:var(--fs-2xs);font-weight:700;
-  min-width:18px;height:18px;border-radius:var(--r);
+  min-width:20px;height:20px;border-radius:var(--r);
   display:flex;align-items:center;justify-content:center;
-  padding:0 4px;flex-shrink:0;
+  padding:0 5px;flex-shrink:0;
   box-shadow:0 2px 6px rgba(220,38,38,.35);
 }
 
 /* Skeleton */
-.ch-card-sk{display:flex;align-items:center;gap:12px;padding:8px 16px}
-.sk-circle{width:var(--av-lg);height:var(--av-lg);border-radius:50%;background:var(--surface-3);flex-shrink:0;animation:skPulse 1.8s ease-in-out infinite}
+/* верхний отступ — внутри первой карточки (фон активного чата идёт от самой шапки, без пустой полосы) */
+.sb-chat-list>.ch-card:first-child{padding-top:12px}
+#chat-list-skeleton>.ch-card-sk:first-child{padding-top:12px}
+.ch-card-sk{display:flex;align-items:center;gap:14px;padding:6px 16px}
+.sk-circle{width:56px;height:56px;border-radius:50%;background:var(--surface-3);flex-shrink:0;animation:skPulse 1.8s ease-in-out infinite}
 .sk-lines{flex:1;display:flex;flex-direction:column;gap:8px}
 
 
@@ -613,33 +616,34 @@ a{color:inherit;text-decoration:none}
 .avp-item.sel::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--accent);pointer-events:none}
 .avp-check{position:absolute;right:6px;bottom:6px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center}
 .avp-item.sel .avp-check{display:flex}
-.acc-title{font-family:var(--font-display);font-weight:900;font-size:var(--fs-xl);color:var(--text);padding:2px 4px 14px}
-.acc-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);cursor:pointer;transition:background var(--tf),transform .12s}
+.acc-title{font-family:var(--font-display);font-weight:900;font-size:1.1875rem;color:var(--text);padding:0 4px 12px}
+.acc-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);cursor:pointer;transition:background var(--tf),transform .12s}
 .acc-card:active{transform:scale(.985)}
-.acc-av-wrap{position:relative;width:58px;height:58px;flex-shrink:0}
-.acc-av{width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:var(--fs-xl);position:relative}
+.acc-av-wrap{position:relative;width:56px;height:56px;flex-shrink:0}
+.acc-av{width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:1.1875rem;position:relative}
 .acc-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.acc-av-st{position:absolute;bottom:0;right:0;width:14px;height:14px;border-radius:50%;border:3px solid var(--surface);background:var(--muted-2)}
+.acc-av-st{position:absolute;bottom:0;right:0;width:13px;height:13px;border-radius:50%;border:3px solid var(--surface);background:var(--muted-2)}
 .acc-av-st.online{background:var(--green)}.acc-av-st.away{background:var(--amber)}
 .acc-card-body{flex:1;min-width:0}
-.acc-name{font-family:var(--font-display);font-weight:900;font-size:var(--fs-lg);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.acc-sub{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.acc-lbl{font-size:var(--fs-2xs);letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);padding:18px 4px 6px;font-weight:600}
+.acc-name{font-family:var(--font-display);font-weight:900;font-size:1rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.acc-sub{font-size:.78125rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-lbl{font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2);padding:16px 4px 6px;font-weight:600}
 .acc-group{display:flex;flex-direction:column;border-radius:var(--r-lg);overflow:hidden;border:1.5px solid var(--border);background:var(--surface)}
-.acc-row{display:flex;align-items:center;gap:13px;width:100%;padding:13px 16px;background:var(--surface);text-align:left;cursor:pointer;transition:background var(--tf);text-decoration:none;color:inherit;-webkit-appearance:none;appearance:none}
+.acc-row{display:flex;align-items:center;gap:13px;width:100%;padding:12px 16px;background:var(--surface);text-align:left;cursor:pointer;transition:background var(--tf);text-decoration:none;color:inherit;-webkit-appearance:none;appearance:none}
 .acc-row+.acc-row{border-top:1.5px solid var(--border)}
 .acc-row:active{background:var(--surface-2)}
-.acc-row-ico{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.acc-row-ico{width:41px;height:41px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.acc-row-ico svg{width:18px;height:18px}
 .acc-row-body{flex:1;min-width:0}
-.acc-row-title{font-size:var(--fs-md);font-weight:600;color:var(--text);margin-bottom:1px}
-.acc-row-sub{font-size:var(--fs-2xs);color:var(--muted)}
+.acc-row-title{font-size:.90625rem;font-weight:600;color:var(--text);margin-bottom:1px}
+.acc-row-sub{font-size:.75rem;color:var(--muted)}
 .acc-row-arrow{color:var(--muted);flex-shrink:0;opacity:.4}
 .acc-badge{min-width:20px;height:20px;padding:0 6px;background:var(--red);color:#fff;border-radius:99px;display:none;align-items:center;justify-content:center;font-size:var(--fs-2xs);font-weight:800;flex-shrink:0}
-.acc-logout{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:13px 16px;background:var(--red-dim);border:1.5px solid rgba(220,38,38,.18);border-radius:var(--r-lg);cursor:pointer;transition:background var(--tf)}
+.acc-logout{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:12px 16px;background:var(--red-dim);border:1.5px solid rgba(220,38,38,.18);border-radius:var(--r-lg);cursor:pointer;transition:background var(--tf)}
 .acc-logout:active{background:rgba(220,38,38,.18)}
-.acc-logout-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;background:rgba(220,38,38,.12);display:flex;align-items:center;justify-content:center}
-.acc-logout-t{font-size:var(--fs-md);font-weight:600;color:var(--red)}
-.acc-logout-s{font-size:var(--fs-2xs);color:rgba(220,38,38,.55);margin-top:1px}
+.acc-logout-ico{width:36px;height:36px;border-radius:11px;flex-shrink:0;background:rgba(220,38,38,.12);display:flex;align-items:center;justify-content:center}
+.acc-logout-t{font-size:.90625rem;font-weight:600;color:var(--red)}
+.acc-logout-s{font-size:.75rem;color:rgba(220,38,38,.55);margin-top:1px}
 /* Промокод */
 .promo-inp{width:100%;background:var(--surface-2);border:1.5px solid var(--border-h);border-radius:var(--r-lg);padding:15px 18px;font-size:var(--fs-lg);font-weight:600;color:var(--text);letter-spacing:.06em;text-transform:uppercase;transition:border-color .15s,box-shadow .15s}
 .promo-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
@@ -817,23 +821,13 @@ a{color:inherit;text-decoration:none}
         <div style="flex:1"></div>
         <div class="sb-head-actions">
           <button class="sb-action-btn" id="btn-compose" title="Найти или начать чат">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path fill="currentColor" fill-opacity=".14" d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           </button>
         </div>
       </div>
     </div>
 
     <div id="no-channel">
-      <!-- Поиск по чатам и людям -->
-      <div class="store-search" id="chat-search">
-        <div class="store-search-in">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input id="chat-search-input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Поиск чатов и людей" aria-label="Поиск чатов и людей"/>
-          <button type="button" class="store-search-x" id="chat-search-x" aria-label="Очистить">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-      </div>
       <!-- Список чатов -->
       <div class="sb-chat-list" id="chat-list">
         <div id="chat-list-skeleton">
@@ -957,7 +951,7 @@ a{color:inherit;text-decoration:none}
 
     <div class="acc-lbl">Маълумот</div>
     <div class="acc-group">
-      <button class="acc-row" data-act="profile"><div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Личные данные</div><div class="acc-row-sub">Имя, о себе, статус</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="acc-row" data-act="profile"><div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Личные данные</div><div class="acc-row-sub">Имя и о себе</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
 
     <div class="acc-lbl">Акции</div>
