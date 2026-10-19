@@ -522,8 +522,8 @@ a{color:inherit;text-decoration:none}
 .prof-cover-img img{object-fit:cover}
 .prof-cover-btn,.prof-cover-close{position:absolute;z-index:2;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.45);transition:transform .12s,background var(--tf)}
 /* ручка sheet профиля — поверх фона (вне потока), фон идёт от самого верха */
-#bs-profile .bs-drag{position:absolute;top:0;left:56px;right:56px;z-index:5}
-#bs-profile .bs-drag::before{background:rgba(255,255,255,.85);box-shadow:0 0 4px rgba(0,0,0,.35)}
+#bs-profile .bs-drag,#bs-group-profile .bs-drag{position:absolute;top:0;left:56px;right:56px;z-index:5}
+#bs-profile .bs-drag::before,#bs-group-profile .bs-drag::before{background:rgba(255,255,255,.85);box-shadow:0 0 4px rgba(0,0,0,.35)}
 .prof-cover-btn:active,.prof-cover-close:active{transform:scale(.92);background:rgba(0,0,0,.6)}
 .prof-cover-close,.prof-cover-btn{top:max(12px,env(safe-area-inset-top,0px));width:34px;height:34px;border-radius:50%}
 .prof-cover-close{right:12px}
@@ -776,6 +776,62 @@ a{color:inherit;text-decoration:none}
 .topbar-back-btn{width:var(--tb-btn);height:var(--tb-btn);display:flex;align-items:center;justify-content:center;border-radius:var(--r);color:var(--muted);transition:background var(--tf),color var(--tf);flex-shrink:0}
 .topbar-back-btn:hover{background:var(--surface-2);color:var(--text)}
 
+/* ── ГРУППЫ ── */
+.grp-top{padding:12px 16px 0;flex-shrink:0}
+.grp-create{width:100%;height:var(--ctl-xl);border-radius:var(--r-lg);background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);font-weight:700;font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow-accent);transition:opacity .15s,transform .12s}
+.grp-create:active{transform:scale(.98)}
+.grp-create svg{width:18px;height:18px}
+/* квадратная аватарка группы (в списке и в шапке чата) */
+.ch-ava.ch-ava--sq{border-radius:var(--r-lg);background:var(--accent-dim);border-color:var(--accent-mid);font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl)}
+.topbar-ava.sq{border-radius:var(--r)}
+.grp-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:48px 40px;text-align:center}
+.grp-empty-ico{width:62px;height:62px;background:var(--surface-2);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;color:var(--muted)}
+.grp-empty-t{font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text)}
+.grp-empty-s{font-size:var(--fs-xs);color:var(--muted);max-width:220px;line-height:1.65}
+/* ник собеседника — внутри пузырька (в группах) */
+.msg-author-in{font-size:var(--fs-xs);font-weight:700;line-height:1.3;margin-bottom:2px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* шторка «Новая группа» */
+.grp-sheet{flex:1;display:flex;flex-direction:column;min-height:min(640px,82svh)}
+.grp-sheet .prof-foot{margin-top:auto;padding-bottom:calc(12px + var(--safe-b))}
+.grp-sheet .acc-lbl{padding:0 4px 8px}
+.grp-ava-row{display:flex;justify-content:center;padding-top:4px}
+.grp-ava-pick{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:var(--r-xl);cursor:pointer;transition:opacity var(--tf)}
+.grp-ava-pick:active{opacity:.8}
+.grp-ava-in{width:100%;height:100%;border-radius:var(--r-xl);overflow:hidden;position:relative;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.grp-ava-in img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.grp-ava-ltr{font-family:var(--font-display);font-weight:800;font-size:2rem}
+.grp-hint{font-size:var(--fs-xs);color:var(--muted);line-height:1.5;padding:8px 4px 0}
+.prof-status-btn:disabled{opacity:.45;cursor:default}
+.prof-status-btn:disabled:hover{color:var(--muted)}
+#grp-submit,#grp-pick-done{font-family:var(--font-display);font-weight:700;font-size:var(--fs-xs);letter-spacing:.06em}
+.grp-pick-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 8px}
+.grp-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border-h);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--on-accent);transition:background var(--tf),border-color var(--tf)}
+.grp-check svg{display:none}
+.ch-card.sel .grp-check{background:var(--accent);border-color:var(--accent)}
+.ch-card.sel .grp-check svg{display:block}
+/* публичная группа: если не участник — вместо поля ввода кнопка «Вступить» */
+.grp-join{flex-shrink:0;padding:12px 16px calc(12px + var(--safe-b));background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0}
+.grp-join .btn{width:100%;min-height:var(--ctl-xl);border-radius:var(--r-lg);font-size:var(--fs-xs)}
+
+/* ── ПРОФИЛЬ ГРУППЫ (как профиль аккаунта, но аватарка квадратная) ── */
+.gp-av,.gp-av .prof-av-inner{border-radius:var(--r-xl)}
+.gp-av .prof-av-inner{font-family:var(--font-display);font-weight:800}
+#gp-save{font-family:var(--font-display);font-weight:700;font-size:var(--fs-xs);letter-spacing:.06em}
+.gp-members{padding:4px 0 8px}
+.gp-members-lbl{font-size:var(--fs-2xs);letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);padding:12px 24px 4px;font-weight:600}
+.gp-role{font-size:var(--fs-2xs);font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-mid);padding:2px 8px;border-radius:6px;flex-shrink:0}
+/* ── ГРУППЫ: действия, переключатель, непрочитанное ── */
+.gp-acts{padding:8px 24px 4px}
+.gp-leave{padding:12px 24px 16px}
+.gp-sw{width:44px;height:26px;border-radius:13px;background:var(--surface-4);position:relative;flex-shrink:0;transition:background var(--tf)}
+.gp-sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease)}
+.gp-sw.on{background:var(--accent)}
+.gp-sw.on::after{transform:translateX(18px)}
+.gp-kick{width:var(--ctl-md);height:var(--ctl-md);border-radius:var(--r);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted-2);transition:background var(--tf),color var(--tf)}
+.gp-kick:hover,.gp-kick:active{color:var(--red);background:var(--red-dim)}
+.grp-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.grp-dot.muted{background:var(--muted-3)}
+#groups-list .ch-card.has-unread .ch-title{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -916,6 +972,11 @@ a{color:inherit;text-decoration:none}
         <!-- Mention popup -->
         <div id="mention-popup"></div>
       </div>
+
+      <!-- Группа: пока не участник — вместо поля ввода -->
+      <div class="grp-join" id="grp-join" style="display:none">
+        <button class="btn btn-primary" id="grp-join-btn" type="button">Вступить в группу</button>
+      </div>
     </div>
 
     <!-- Комнаты — внутри #main -->
@@ -931,12 +992,23 @@ a{color:inherit;text-decoration:none}
 
     <!-- Группы — внутри #main -->
     <div id="view-groups" style="display:none;flex-direction:column;flex:1;overflow:hidden;background:var(--surface)">
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px;text-align:center">
-        <div style="width:62px;height:62px;background:var(--surface-2);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:4px">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.4"><path d="M17 17c2.5 1 4 2.8 4 5" stroke-linecap="round"/><path d="M3 22c0-3.5 2.5-5.5 6-5.5s6 2 6 5.5" stroke-linecap="round"/><circle cx="9" cy="9" r="4"/><path d="M17 5a4 4 0 110 8" stroke-linecap="round"/></svg>
+      <div class="grp-top">
+        <button class="grp-create" id="btn-group-create" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Создать группу</span>
+        </button>
+      </div>
+      <div class="store-search" id="grp-search">
+        <div class="store-search-in">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="grp-search-input" type="text" placeholder="Поиск групп" autocomplete="off" spellcheck="false"/>
+          <button class="store-search-x" id="grp-search-x" type="button" aria-label="Очистить"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
-        <div style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text)">Скоро</div>
-        <div style="font-size:var(--fs-xs);color:var(--muted);max-width:210px;line-height:1.65">Групповые чаты появятся в следующем обновлении Pulsar</div>
+      </div>
+      <div class="sb-chat-list" id="groups-list">
+        <div class="ch-card-sk"><div class="sk-circle" style="border-radius:var(--r-lg)"></div><div class="sk-lines"><div class="sk-line" style="width:48%"></div><div class="sk-line" style="width:34%"></div></div></div>
+        <div class="ch-card-sk"><div class="sk-circle" style="border-radius:var(--r-lg)"></div><div class="sk-lines"><div class="sk-line" style="width:58%"></div><div class="sk-line" style="width:40%"></div></div></div>
+        <div class="ch-card-sk"><div class="sk-circle" style="border-radius:var(--r-lg)"></div><div class="sk-lines"><div class="sk-line" style="width:42%"></div><div class="sk-line" style="width:30%"></div></div></div>
       </div>
     </div>
 
@@ -1204,7 +1276,10 @@ window.addEventListener('offline',()=>$('conn-banner').classList.add('show'));
 const authTO=setTimeout(()=>location.replace('login.html'),8000);
 onAuthStateChanged(auth,async user=>{
   clearTimeout(authTO);
-  if(!user){location.replace('login.html');return;}
+  if(!user){
+    try{const j=new URLSearchParams(location.search).get('join');if(j)localStorage.setItem('p_join',j);}catch(e){}   // ссылка-приглашение переживёт вход
+    location.replace('login.html');return;
+  }
   // Load profile
   let p={uid:user.uid,displayName:user.displayName||user.email,email:user.email,role:'user',photoURL:user.photoURL||''};
   try{const s=await getDoc(doc(fdb,'users',user.uid));if(s.exists())Object.assign(p,s.data());}catch(e){}
@@ -1323,12 +1398,13 @@ async function loadAllUsers(){
 /* ── CHANNEL LISTENER ── */
 function startChannelListener(){
   onSnapshot(query(collection(fdb,'pulsar_channels'),orderBy('order','asc')),snap=>{
-    const chs=[],dms=[];
-    snap.forEach(d=>{const ch={id:d.id,...d.data()};if(ch.type==='direct'){if((ch.members||[]).includes(me.uid))dms.push(ch);}else chs.push(ch);});
-    // Обновляем оба массива атомарно — один вызов rebuildChatList, без промежуточного пустого состояния
-    _allChs=chs; _allDmChs=dms; _chatListLoaded=true;
+    const chs=[],dms=[],grps=[];
+    snap.forEach(d=>{const ch={id:d.id,...d.data()};if(ch.type==='direct'){if((ch.members||[]).includes(me.uid))dms.push(ch);}else if(ch.type==='group')grps.push(ch);else chs.push(ch);});
+    // Обновляем массивы атомарно — один вызов rebuildChatList, без промежуточного пустого состояния
+    _allChs=chs; _allDmChs=dms; _allGroups=grps; _chatListLoaded=true; _grpLoaded=true;
     dms.forEach(markDeliveredFromList);
     scheduleChatList();
+    onGroupsChanged();
   },e=>console.error('channels:',e));
 }
 
@@ -1395,7 +1471,7 @@ function makeChCard(ch, o /* null for channels */, oid=null){
 }
 
 // Все чаты в одном массиве, сортировка по lastMessage.ts
-let _allChs = [], _allDmChs = [];
+let _allChs = [], _allDmChs = [], _allGroups = [];
 let _sbQuery = '';
 
 let _chatListLoaded = false;
@@ -1521,6 +1597,7 @@ async function openChannel(chId){
   closeThread();clearTyping();
   replyTo=null;
   delete unreadCounts[chId];
+  if(_allGroups.some(g=>g.id===chId))markGroupRead(chId);
   knownMsgIds=new Set();currentMsgs=[];newMsgCount=0;
   updateScrollBtn();
 
@@ -1532,12 +1609,13 @@ async function openChannel(chId){
   $('ch-ava').innerHTML='';
   $('msg-list').innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">Загрузка…</div>';
   clearReply();cancelUpload();
+  $('grp-join').style.display='none';$('input-wrap').style.display='';   // состояние предыдущей группы не тянем
   closeSidebar();
   if(matchMedia('(pointer:fine)').matches)setTimeout(()=>$('msg-input').focus(),150);   // на телефоне клавиатуру не выдвигаем сама
 
   // ── Грузим данные канала в фоне ──
   // Данные канала уже есть в списке чатов — запрос в базу нужен только как запасной путь
-  let chData=_allChs.find(c=>c.id===chId)||_allDmChs.find(c=>c.id===chId);
+  let chData=_allChs.find(c=>c.id===chId)||_allDmChs.find(c=>c.id===chId)||_allGroups.find(c=>c.id===chId);
   if(!chData){
     try{const s=await getDoc(doc(fdb,'pulsar_channels',chId));if(!s.exists()){toast('Канал не найден','err');openSidebar();return;}chData={id:s.id,...s.data()};}
     catch(e){toast('Ошибка: '+e.message,'err');openSidebar();return;}
@@ -1557,6 +1635,7 @@ function _plural(n,a,b,c){return n%10===1&&n%100!==11?a:(n%10>=2&&n%10<=4&&(n%10
 function updateChatHeader(){
   if(!currentCh)return;
   const ava=$('ch-ava'),nameEl=$('ch-name'),sub=$('ch-desc');
+  const isGrp=currentCh.type==='group';
   let nm,photo=null;
   if(currentCh.type==='direct'){
     const oid=(currentCh.members||[]).find(u=>u!==me.uid),o=allUsers[oid]||{};
@@ -1564,6 +1643,11 @@ function updateChatHeader(){
     const st=o.presence?.status||'offline';
     sub.className='topbar-desc'+(st==='online'?' online':'');
     sub.textContent=st==='online'?'в сети':st==='away'?'отошёл':'не в сети';
+  }else if(isGrp){
+    nm=currentCh.name||'';photo=currentCh.photoURL||null;
+    const c=(currentCh.members||[]).length;
+    sub.className='topbar-desc';
+    sub.textContent=`${c} ${_plural(c,'участник','участника','участников')}`;
   }else{
     nm=currentCh.name||'';
     const n=(currentCh.members&&currentCh.members.length)||Object.keys(allUsers).length;
@@ -1571,8 +1655,12 @@ function updateChatHeader(){
     sub.textContent=currentCh.description||(n?`${n} ${_plural(n,'участник','участника','участников')}`:'');
   }
   nameEl.textContent=nm;
+  ava.classList.toggle('sq',isGrp);                           // у групп аватарка квадратная
+  if($('btn-call'))$('btn-call').style.display=isGrp?'none':'';     // в группах нет звонков
+  if($('btn-video'))$('btn-video').style.display=isGrp?'none':'';
   if(photo)ava.innerHTML=`<img src="${esc(photo)}" alt=""/>`;
-  else ava.textContent=currentCh.type==='direct'?ini(nm):(currentCh.type==='private'?'🔒':'#');
+  else ava.textContent=(currentCh.type==='direct'||isGrp)?ini(nm):(currentCh.type==='private'?'🔒':'#');
+  updateGroupInputState();
 }
 
 /* ── MESSAGE LISTENER (incremental) ── */
@@ -1603,6 +1691,7 @@ function startMessageListener(chId){
       knownMsgIds.add(m.id);
       const isNew=(m.clientTs||0)>firstLoadTs;
       const stuck=appendMessage(m,isNew);
+      if(currentCh?.type==='group')markGroupRead(chId);          // группа открыта — всё, что пришло, прочитано
       if(m.authorId!==me.uid&&isNew){
         showInAppNotif(m,currentCh?.name||'DM');
         if(document.hidden||!document.hasFocus())document.title='(!) Pulsar — Galelium';
@@ -1623,7 +1712,7 @@ function startMessageListener(chId){
 /* ── FULL RENDER (initial) ── */
 function fullRender(msgs){
   const list=$('msg-list');
-  if(!msgs.length){list.innerHTML='<div class="empty-chat" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);padding:40px;text-align:center"><div style="font-size:var(--fs-3xl)">💬</div><div style="font-size:var(--fs-sm);font-weight:500">Напишите первое сообщение!</div><div style="font-size:var(--fs-xs);color:var(--muted-2)">Это начало вашего общения в этом канале</div></div>';return;}
+  if(!msgs.length){list.innerHTML='<div class="empty-chat" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);padding:40px;text-align:center"><div style="font-size:var(--fs-3xl)">💬</div><div style="font-size:var(--fs-sm);font-weight:500">Напишите первое сообщение!</div><div style="font-size:var(--fs-xs);color:var(--muted-2)">Это начало вашего общения в '+(currentCh?.type==='group'?'этой группе':'этом канале')+'</div></div>';return;}
   list.innerHTML='';
   const frag=document.createDocumentFragment();     // один reflow вместо сотни
   let pDate='',pAId='',pTs=0;
@@ -1834,6 +1923,7 @@ function makeMsgEl(msg, grouped, animate){
   const threadCount = msg.threadCount || 0;
   const ts = fmtT({toDate: () => msgTs(msg)});
   const isDM = currentCh?.type === 'direct';
+  const isGrp = currentCh?.type === 'group';
 
   const div = document.createElement('div');
   div.className = `msg-group${!grouped?' msg-first':' msg-grouped'}${isMe?' from-me':''}${animate?' new-msg':''}`;
@@ -1841,7 +1931,7 @@ function makeMsgEl(msg, grouped, animate){
 
   // Мета (имя + время над сообщением): только в каналах и группах, у первого сообщения автора.
   // В личной переписке имя не показываем — время лежит внутри пузырька.
-  const showMeta = !grouped && !isDM;
+  const showMeta = !grouped && !isDM && !isGrp;   // в группах ник уходит внутрь пузырька
   const metaHtml = showMeta ? `<div class="msg-meta">
     <span class="msg-author${isMe?' is-me':''}" data-uid="${esc(msg.authorId)}">${esc(msg.authorName)}</span>
     <span class="msg-time">${ts}</span>
@@ -1853,7 +1943,7 @@ function makeMsgEl(msg, grouped, animate){
   // + значок статуса (⏱/✓/✓✓/●) — только у своих сообщений в личной переписке; заполняет refreshStatuses()
   const stHtml = (isMe && isDM && !msg.deleted) ? '<span class="msg-st"></span>' : '';
   const editedInl = (msg.edited && !showMeta) ? '<span class="msg-edited-inline">изм.</span>' : '';   // без меты «изм.» рядом со временем
-  const tsInline = (isMe || grouped || isDM) ? `<span class="msg-ts-inline">${editedInl}<span class="msg-ts-time">${ts}</span>${stHtml}</span>` : '';
+  const tsInline = (isMe || grouped || isDM || isGrp) ? `<span class="msg-ts-inline">${editedInl}<span class="msg-ts-time">${ts}</span>${stHtml}</span>` : '';
 
   const textHtml = msg.deleted
     ? '<div class="msg-text deleted">Сообщение удалено</div>'
@@ -1875,6 +1965,7 @@ function makeMsgEl(msg, grouped, animate){
       <div class="msg-bubble-wrap">
         ${metaHtml}
         <div class="msg-bubble">
+          ${(isGrp && !isMe && !grouped)?`<div class="msg-author-in" data-uid="${esc(msg.authorId)}" style="color:${uidColor(msg.authorId)}">${esc(msg.authorName)}</div>`:''}
           ${msg.replyTo?`<div class="msg-reply-ref" data-scroll="${esc(msg.replyTo.id)}"><span class="msg-reply-author">${esc(msg.replyTo.authorName)}</span><span class="msg-reply-text">${esc(msg.replyTo.text?.slice(0,80)||'Вложение')}</span>
         </div>`:''}
           ${textHtml}
@@ -2203,7 +2294,7 @@ function closeLightbox(){$('lightbox').classList.remove('open');$('lightbox-img'
 function openMentionPopup(query){
   const popup=$('mention-popup');
   const ql=query.toLowerCase();
-  mentionMatches=Object.values(allUsers).filter(u=>u.uid!==me.uid&&((u.displayName||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql))).slice(0,6);
+  mentionMatches=_mentionPool().filter(u=>u.uid!==me.uid&&((u.displayName||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql))).slice(0,6);
   if(!mentionMatches.length){popup.classList.remove('open');return;}
   mentionIdx=0;
   popup.innerHTML=mentionMatches.map((u,i)=>{
@@ -2233,6 +2324,8 @@ function updateMentionHighlight(){
 const AVATAR_BASE='https://chat.dastdaroz.shop/storage/images/anime/';
 const AVATAR_LIST=['female_arisa','female_moi','female_nina','female_sakura','female_yui','male_hiro','male_kai','male_kenji','male_ren','male_sora'].map(n=>n+'.webp');
 let _avpBuilt=false, _avpBusy=false;
+let _pickGrp=null;   // id группы, если аватарку/фон выбираем для неё (null — для своего аккаунта)
+const _pickSrc=()=>_pickGrp?_allGroups.find(g=>g.id===_pickGrp):me;
 const _CHECK_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
 function _avpBuild(){
@@ -2256,11 +2349,12 @@ function _avpBuild(){
   });
 }
 function _avpMarkSelected(){
-  const cur=me?.photoURL||'';
+  const cur=_pickSrc()?.photoURL||'';
   document.querySelectorAll('#avp-grid .avp-item').forEach(b=>b.classList.toggle('sel',cur.endsWith('/'+b.dataset.f)));
 }
-function openAvatarPicker(){
+function openAvatarPicker(grp=null){
   if(!me) return;
+  _pickGrp=(typeof grp==='string')?grp:null;
   _avpBuild();
   Sheet.body('avatar').scrollTop=0;
   Sheet.open('avatar');
@@ -2269,6 +2363,11 @@ function closeAvatarPicker(){ Sheet.close('avatar'); }
 async function _setAvatar(url){
   if(_avpBusy||!me) return;
   _avpBusy=true;
+  if(_pickGrp){
+    const ok=await _saveGroupMedia({photoURL:url},'Фото группы обновлено ✓');
+    if(ok){ _avpMarkSelected(); closeAvatarPicker(); }
+    _avpBusy=false; return;
+  }
   try{
     await setDoc(doc(fdb,'users',me.uid),{photoURL:url,displayName:me.displayName||'',email:me.email||'',updatedAt:serverTimestamp()},{merge:true});
     try{ await updateProfile(auth.currentUser,{photoURL:url}); }catch(e){}   // не критично: основной источник — users/{uid}
@@ -2330,11 +2429,12 @@ function _bgpBuild(){
   });
 }
 function _bgpMarkSelected(){
-  const cur=me?.bgURL||'';
+  const cur=_pickSrc()?.bgURL||'';
   document.querySelectorAll('#bgp-grid .avp-item').forEach(b=>b.classList.toggle('sel',cur.endsWith('/'+b.dataset.f)));
 }
-function openBgPicker(){
+function openBgPicker(grp=null){
   if(!me) return;
+  _pickGrp=(typeof grp==='string')?grp:null;
   _bgpBuild();
   Sheet.body('bgpicker').scrollTop=0;
   Sheet.open('bgpicker');
@@ -2355,6 +2455,11 @@ function _profImgsReady(){
 async function _setBg(url){
   if(_bgpBusy||!me) return;
   _bgpBusy=true;
+  if(_pickGrp){
+    const ok=await _saveGroupMedia({bgURL:url},'Фон обновлён ✓');
+    if(ok){ _bgpMarkSelected(); closeBgPicker(); }
+    _bgpBusy=false; return;
+  }
   try{
     await setDoc(doc(fdb,'users',me.uid),{bgURL:url,updatedAt:serverTimestamp()},{merge:true});
     me.bgURL=url;
@@ -2647,6 +2752,553 @@ async function saveProfile(){
 
 
 
+/* ════════════════════════════════════════════════════════════════
+ *  ГРУППЫ  (pulsar_channels/{id}, type:'group')
+ *  Хранятся в той же коллекции, что и каналы, поэтому сообщения, реакции, треды,
+ *  закрепы и «печатает…» работают без изменений. В список чатов не попадают —
+ *  только во вкладку «Группы».
+ *    ├─ name, description, photoURL
+ *    ├─ privacy     'public' (пока только он)
+ *    ├─ members     string[]  uid участников (создатель — первый)
+ *    ├─ createdBy, createdAt, order:9999, lastMessage
+ * ════════════════════════════════════════════════════════════════ */
+const GRP_COLORS=['#1a9e4a','#2563eb','#d97706','#7c3aed','#db2777','#0891b2','#dc2626','#65a30d'];
+function uidColor(uid=''){let h=0;for(let i=0;i<uid.length;i++)h=(h*31+uid.charCodeAt(i))>>>0;return GRP_COLORS[h%GRP_COLORS.length];}
+const GRP_ICON='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>';
+let _grpLoaded=false,_grpQuery='',_grpBase=false,_grpPickMode='create';
+let _pendingJoin=(()=>{try{return new URLSearchParams(location.search).get('join')||localStorage.getItem('p_join');}catch(e){return null;}})();
+// «прочитано» хранится на устройстве: время, когда группу последний раз видели
+const _readMap=(()=>{try{return JSON.parse(localStorage.getItem('p_gread')||'{}');}catch(e){return {};}})();
+function _saveRead(){try{localStorage.setItem('p_gread',JSON.stringify(_readMap));}catch(e){}}
+function markGroupRead(id){_readMap[id]=Date.now();_saveRead();}
+function isGroupUnread(g){
+  if(!me||!(g.members||[]).includes(me.uid))return false;
+  const lm=g.lastMessage;if(!lm?.ts||lm.authorId===me.uid)return false;
+  const t=lm.ts.toDate?lm.ts.toDate().getTime():0;
+  return t>(_readMap[g.id]||0);
+}
+const groupLink=id=>location.origin+location.pathname+'?join='+encodeURIComponent(id);
+async function shareGroupLink(){
+  const g=_gpGroup();if(!g)return;
+  const url=groupLink(g.id);
+  if(navigator.share){
+    try{await navigator.share({title:g.name,text:`Вступайте в группу «${g.name}» в Pulsar`,url});return;}
+    catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  try{await navigator.clipboard.writeText(url);toast('Ссылка скопирована','ok');}
+  catch(e){toast('Не удалось скопировать','err');}
+}
+let _grpBuilt=false,_grpBusy=false,_grpBlob=null,_grpPrev='',_grpPicked=new Set();
+
+function _mentionPool(){
+  if(currentCh?.type==='group')return (currentCh.members||[]).map(id=>allUsers[id]).filter(Boolean);
+  return Object.values(allUsers);
+}
+
+/* ── список во вкладке «Группы» ── */
+function makeGroupCard(g){
+  const n=(g.members||[]).length,lm=g.lastMessage;
+  const ts=lm?.ts?fmtSbTime(lm.ts):'';
+  const ava=g.photoURL?`<img src="${esc(g.photoURL)}" alt="" loading="lazy"/>`:esc(ini(g.name||'G'));
+  const cnt=`${n} ${_plural(n,'участник','участника','участников')}`;
+  let tail;
+  if(lm){
+    const icon=lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':'';
+    tail=`<b>${esc((lm.authorName||'').split(' ')[0])}:</b> ${esc(icon+((lm.text||'').slice(0,55)||(lm.attachmentType?'Файл':'')))}`;
+  }else tail=esc((g.description||'').slice(0,60))||'Нет сообщений';
+  const unread=currentCh?.id!==g.id&&isGroupUnread(g);
+  return `<div class="ch-card${currentCh?.id===g.id?' active':''}${unread?' has-unread':''}" data-chid="${esc(g.id)}" role="button" tabindex="0">
+    <div class="ch-ava-wrap"><div class="ch-ava ch-ava--sq">${ava}</div></div>
+    <div class="ch-body">
+      <div class="ch-row1"><span class="ch-title">${esc(g.name||'')}</span>${ts?`<span class="ch-ts">${ts}</span>`:''}${unread?`<span class="grp-dot${mutedChannels.has(g.id)?' muted':''}"></span>`:''}</div>
+      <div class="ch-preview"><b>${cnt}</b> · ${tail}</div>
+    </div>
+  </div>`;
+}
+function renderGroupList(){
+  const list=$('groups-list');
+  if(!list||!me||!_grpLoaded)return;                    // пока данные не пришли — висит skeleton
+  const q=_grpQuery.trim().toLowerCase();
+  const act=g=>g.lastMessage?.ts?.toDate?.()?.getTime()||g.createdAt?.toDate?.()?.getTime()||Date.now();
+  const vis=_allGroups
+    .filter(g=>g.privacy!=='private'||(g.members||[]).includes(me.uid))     // приватные (на будущее) видят только участники
+    .filter(g=>!q||(g.name||'').toLowerCase().includes(q)||(g.description||'').toLowerCase().includes(q))
+    .sort((a,b)=>act(b)-act(a));
+  if(!vis.length){
+    list.innerHTML=q
+      ?'<div style="padding:20px 14px;font-size:var(--fs-xs);color:var(--muted-2);text-align:center">Ничего не найдено</div>'
+      :`<div class="grp-empty"><div class="grp-empty-ico">${GRP_ICON.replace('width="34" height="34"','width="28" height="28"')}</div><div class="grp-empty-t">Групп пока нет</div><div class="grp-empty-s">Создайте первую — её увидят все пользователи Pulsar</div></div>`;
+    return;
+  }
+  const mine=vis.filter(g=>(g.members||[]).includes(me.uid)),other=vis.filter(g=>!(g.members||[]).includes(me.uid));
+  list.innerHTML=
+    (mine.length?`<div class="sb-section-tag"><span>Мои группы</span></div>`+mine.map(makeGroupCard).join(''):'')+
+    (other.length?`<div class="sb-section-tag"><span>${mine.length?'Другие группы':'Все группы'}</span></div>`+other.map(makeGroupCard).join(''):'');
+}
+function onGroupsChanged(){
+  renderGroupList();
+  // открытая группа: подтягиваем свежие данные (участники, название, фото)
+  if(currentCh?.type==='group'){
+    const g=_allGroups.find(x=>x.id===currentCh.id);
+    if(g){currentCh=g;updateChatHeader();if(_gpOpen)fillGroupProfile(false);}
+  }
+  // первая загрузка: уже имеющиеся сообщения считаем прочитанными, дальше работает индикатор
+  if(!_grpBase){
+    _grpBase=true;let ch=false;
+    _allGroups.forEach(g=>{if((g.members||[]).includes(me.uid)&&!_readMap[g.id]){_readMap[g.id]=Date.now();ch=true;}});
+    if(ch)_saveRead();
+  }
+  // пришли по ссылке-приглашению ?join=ID
+  if(_pendingJoin){
+    const id=_pendingJoin;_pendingJoin=null;
+    try{localStorage.removeItem('p_join');history.replaceState(null,'',location.pathname);}catch(e){}
+    if(_allGroups.some(g=>g.id===id))openChannel(id);else toast('Группа не найдена','err');
+  }
+}
+
+/* ── внутри группы: не участник → кнопка «Вступить» вместо поля ввода ── */
+function updateGroupInputState(){
+  const isGrp=currentCh?.type==='group';
+  const joined=!isGrp||(currentCh.members||[]).includes(me?.uid);
+  const iw=$('input-wrap'),jb=$('grp-join'),jbtn=$('grp-join-btn');
+  const banned=isGrp&&!joined&&(currentCh.banned||[]).includes(me?.uid);
+  if(iw)iw.style.display=joined?'':'none';
+  if(jb)jb.style.display=(isGrp&&!joined)?'':'none';
+  if(jbtn){jbtn.disabled=banned;jbtn.textContent=banned?'Вас исключили из группы':'Вступить в группу';}
+}
+async function joinGroup(){
+  if(!currentCh||currentCh.type!=='group'||!me)return;
+  if((currentCh.banned||[]).includes(me.uid)){toast('Вас исключили из этой группы','err');return;}
+  const btn=$('grp-join-btn');btn.disabled=true;
+  try{
+    await updateDoc(doc(fdb,'pulsar_channels',currentCh.id),{members:arrayUnion(me.uid)});
+    if(!(currentCh.members||[]).includes(me.uid))currentCh.members=[...(currentCh.members||[]),me.uid];
+    markGroupRead(currentCh.id);
+    updateChatHeader();if(_gpOpen)fillGroupProfile(false);
+    toast('Вы вступили в группу ✓','ok');
+  }catch(e){toast('Ошибка: '+e.message,'err');}
+  btn.disabled=false;
+}
+
+/* ── шторка «Новая группа» ── */
+function _grpAvaRefresh(){
+  const el=$('grp-ava-in');if(!el)return;
+  if(_grpPrev){el.innerHTML=`<img src="${_grpPrev}" alt=""/>`;return;}
+  const n=$('grp-name').value.trim();
+  el.innerHTML=n?`<span class="grp-ava-ltr">${esc(ini(n))}</span>`:GRP_ICON;
+}
+function _grpValid(){const b=$('grp-submit');if(b)b.disabled=_grpBusy||!$('grp-name').value.trim();}
+function _grpPickedLabel(){
+  const n=_grpPicked.size,el=$('grp-members-sub');
+  if(el)el.textContent=n?`Выбрано: ${n}`:'Необязательно — остальные вступят сами';
+  const d=$('grp-pick-done');if(d)d.textContent=_grpPickMode==='add'?(n?`Добавить · ${n}`:'Добавить'):'Готово';
+}
+function _grpReset(){
+  _grpBlob=null;if(_grpPrev){URL.revokeObjectURL(_grpPrev);_grpPrev='';}
+  _grpPicked=new Set();
+  $('grp-name').value='';$('grp-desc').value='';
+  $('grp-name-count').textContent='0/40';$('grp-desc-count').textContent='0/140';
+  $('grp-submit').textContent='Создать группу';
+  _grpAvaRefresh();_grpPickedLabel();_grpValid();
+  Sheet.body('group-create').scrollTop=0;
+  if(matchMedia('(pointer:fine)').matches)setTimeout(()=>$('grp-name')?.focus(),350);
+}
+function _grpPickRender(){
+  const list=$('grp-pick-list');if(!list)return;
+  if(!usersLoaded){list.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">Загрузка пользователей…</div>';return;}
+  const q=($('grp-pick-inp').value||'').trim().toLowerCase();
+  const users=Object.values(allUsers).filter(u=>u.uid!==me.uid)
+    .filter(u=>_grpPickMode!=='add'||!(_gpGroup()?.members||[]).includes(u.uid))     // при добавлении — только те, кого ещё нет в группе
+    .filter(u=>!q||(u.displayName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q))
+    .sort((a,b)=>(a.displayName||a.email||'').localeCompare(b.displayName||b.email||'','ru'));
+  if(!users.length){list.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">${q?'Никого не найдено':(_grpPickMode==='add'?'Все пользователи уже в группе':'Нет других пользователей')}</div>`;return;}
+  list.innerHTML=users.map(u=>{
+    const pr=u.presence?.status||'offline';
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email));
+    return `<div class="ch-card${_grpPicked.has(u.uid)?' sel':''}" data-pick="${esc(u.uid)}" role="button" tabindex="0">
+      <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(u.displayName||u.email||'—')}</span></div><div class="ch-preview">${esc(u.email||'')}</div></div>
+      <span class="grp-check">${_CHECK_SVG}</span></div>`;
+  }).join('');
+}
+function _grpBuild(){
+  if(_grpBuilt)return;_grpBuilt=true;
+
+  Sheet.define({id:'group-create',title:'Новая группа',zIndex:700,onOpen:_grpReset});
+  const b=Sheet.body('group-create');
+  b.style.cssText='display:flex;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch';
+  b.innerHTML=`
+    <div class="grp-sheet">
+      <div class="prof-pad">
+        <div class="grp-ava-row">
+          <button class="grp-ava-pick" id="grp-ava-pick" type="button" aria-label="Фото группы">
+            <div class="grp-ava-in" id="grp-ava-in"></div>
+            <div class="prof-av-edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+          </button>
+          <input type="file" id="grp-file" accept="image/*" hidden/>
+        </div>
+        <div>
+          <div class="prof-field">
+            <label for="grp-name">Название<span class="prof-count" id="grp-name-count">0/40</span></label>
+            <input id="grp-name" placeholder="Например, Дизайнеры" autocomplete="off" maxlength="40" autocapitalize="sentences" enterkeyhint="done"/>
+          </div>
+          <div class="prof-field">
+            <label for="grp-desc">Описание<span class="prof-count" id="grp-desc-count">0/140</span></label>
+            <textarea id="grp-desc" placeholder="О чём эта группа" rows="3" maxlength="140"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="acc-lbl">Тип группы</div>
+          <div class="prof-status-btns">
+            <button class="prof-status-btn active online" type="button"><span class="prof-sdot"></span>Публичная</button>
+            <button class="prof-status-btn" type="button" disabled><span class="prof-sdot"></span>Приватная · скоро</button>
+          </div>
+          <div class="grp-hint">Публичную группу видят все — любой пользователь может вступить и писать.</div>
+        </div>
+        <div>
+          <div class="acc-lbl">Участники</div>
+          <div class="acc-group">
+            <button class="acc-row" id="grp-members-row" type="button">
+              <div class="acc-row-ico" style="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></div>
+              <div class="acc-row-body"><div class="acc-row-title">Добавить участников</div><div class="acc-row-sub" id="grp-members-sub"></div></div>
+              <svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="prof-foot"><button class="btn btn-primary" id="grp-submit" type="button" style="flex:1" disabled>Создать группу</button></div>
+    </div>`;
+
+  $('grp-ava-pick').addEventListener('click',()=>{if(!_grpBusy)$('grp-file').click();});
+  $('grp-file').addEventListener('change',async e=>{
+    const f=e.target.files[0];e.target.value='';if(!f)return;
+    if(!f.type.startsWith('image/')){toast('Выберите изображение','err');return;}
+    try{
+      _grpBlob=await _squareBlob(f,512);                          // квадрат 512×512, как у личного аватара
+      if(_grpPrev)URL.revokeObjectURL(_grpPrev);
+      _grpPrev=URL.createObjectURL(_grpBlob);
+      _grpAvaRefresh();
+    }catch(err){toast('Не удалось обработать фото','err');}
+  });
+  $('grp-name').addEventListener('input',()=>{
+    $('grp-name-count').textContent=$('grp-name').value.length+'/40';
+    if(!_grpPrev)_grpAvaRefresh();
+    _grpValid();
+  });
+  $('grp-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!$('grp-submit').disabled)createGroup();}});
+  $('grp-desc').addEventListener('input',()=>{$('grp-desc-count').textContent=$('grp-desc').value.length+'/140';});
+  $('grp-submit').addEventListener('click',createGroup);
+  $('grp-members-row').addEventListener('click',()=>{
+    _grpPickMode='create';Sheet.setTitle('group-pick','Добавить участников');_grpPickedLabel();
+    $('grp-pick-inp').value='';_grpPickRender();Sheet.open('group-pick');
+  });
+
+  // Выбор участников (2-й уровень)
+  Sheet.define({id:'group-pick',title:'Добавить участников',zIndex:800,onClose:_grpPickedLabel});
+  const pb=Sheet.body('group-pick');
+  pb.style.cssText='display:flex;flex-direction:column;flex:1;min-height:min(560px,70svh);overflow:hidden';
+  pb.innerHTML=`
+    <div class="store-search" style="padding:4px 16px 8px">
+      <div class="store-search-in">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="grp-pick-inp" type="text" placeholder="Имя или email" autocomplete="off" autocapitalize="none" spellcheck="false"/>
+      </div>
+    </div>
+    <div class="grp-pick-list" id="grp-pick-list"></div>
+    <div class="prof-foot"><button class="btn btn-primary" id="grp-pick-done" type="button" style="flex:1">Готово</button></div>`;
+  $('grp-pick-inp').addEventListener('input',_grpPickRender);
+  $('grp-pick-list').addEventListener('click',e=>{
+    const el=e.target.closest('[data-pick]');if(!el)return;
+    const id=el.dataset.pick;
+    if(_grpPicked.has(id)){_grpPicked.delete(id);el.classList.remove('sel');}
+    else{_grpPicked.add(id);el.classList.add('sel');}
+    _grpPickedLabel();
+  });
+  $('grp-pick-done').addEventListener('click',()=>{if(_grpPickMode==='add')addGroupMembers();else Sheet.close('group-pick');});
+}
+function openGroupCreate(){
+  if(!me)return;
+  _grpBuild();
+  Sheet.open('group-create');
+}
+async function createGroup(){
+  if(_grpBusy||!me)return;
+  const name=$('grp-name').value.trim(),description=$('grp-desc').value.trim();
+  if(!name){toast('Введите название','err');return;}
+  _grpBusy=true;_grpValid();$('grp-submit').textContent='Создание…';
+  try{
+    let photoURL='';
+    if(_grpBlob){
+      // путь avatars/{uid}/… уже разрешён правилами Storage для аватарок
+      const snap=await uploadBytesResumable(sRef(storage,`avatars/${me.uid}/group_${Date.now()}.jpg`),_grpBlob,{contentType:'image/jpeg'});
+      photoURL=await getDownloadURL(snap.ref);
+    }
+    const members=[me.uid,...[..._grpPicked].filter(id=>id!==me.uid)];
+    const ref=await addDoc(collection(fdb,'pulsar_channels'),{
+      type:'group',privacy:'public',name,description,photoURL,members,
+      createdBy:me.uid,createdAt:serverTimestamp(),order:9999,lastMessage:null
+    });
+    Sheet.close('group-create');
+    toast('Группа создана ✓','ok');
+    openChannel(ref.id);
+  }catch(e){toast('Не удалось создать: '+e.message,'err');}
+  _grpBusy=false;
+  if($('grp-submit')){$('grp-submit').textContent='Создать группу';_grpValid();}
+}
+
+function initGroups(){
+  $('btn-group-create')?.addEventListener('click',openGroupCreate);
+  const list=$('groups-list');
+  list?.addEventListener('click',e=>{const el=e.target.closest('.ch-card[data-chid]');if(el)openChannel(el.dataset.chid);});
+  list?.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const el=e.target.closest('.ch-card');if(el)el.click();});
+  const inp=$('grp-search-input');
+  inp?.addEventListener('input',()=>{_grpQuery=inp.value;$('grp-search').classList.toggle('has-q',!!inp.value);renderGroupList();});
+  inp?.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();});
+  $('grp-search-x')?.addEventListener('click',()=>{inp.value='';_grpQuery='';$('grp-search').classList.remove('has-q');renderGroupList();inp.focus();});
+  $('grp-join-btn')?.addEventListener('click',joinGroup);
+  renderGroupList();
+}
+
+/* ── ПРОФИЛЬ ГРУППЫ ──
+ * Тот же вид, что у профиля аккаунта: обложка, квадратная аватарка, название, описание, ниже — участники.
+ * Редактировать (название, описание, фото, обложку) может только создатель (createdBy). Остальные — только смотрят.
+ * Дополнительное поле группы: bgURL — обложка. */
+let _gpOpen=false,_gpBuilt=false,_gpBusy=false,_gpSnap={name:'',desc:''};
+const _gpGroup=()=>currentCh?.type==='group'?currentCh:null;
+const _gpIsOwner=g=>!!g&&g.createdBy===me?.uid;
+
+function _gpDirty(){
+  const n=$('gp-name-input').value.trim(),d=$('gp-desc-input').value.trim();
+  $('gp-desc-count').textContent=$('gp-desc-input').value.length+'/140';
+  $('gp-save').disabled=_gpBusy||!n||(n===_gpSnap.name&&d===_gpSnap.desc);
+}
+function fillGroupProfile(full){
+  const g=_gpGroup();if(!g||!_gpBuilt)return;
+  const owner=_gpIsOwner(g),members=g.members||[],joined=members.includes(me.uid);
+  if(full){
+    $('gp-name-input').value=g.name||'';$('gp-desc-input').value=g.description||'';
+    _gpSnap={name:(g.name||'').trim(),desc:(g.description||'').trim()};
+  }
+  const nm=(owner&&$('gp-name-input').value.trim())||g.name||'—';
+  $('gp-name').textContent=nm;
+  $('gp-av').innerHTML=g.photoURL?`<img src="${esc(g.photoURL)}" alt=""/>`:esc(ini(nm));
+  $('gp-cover').innerHTML=g.bgURL?`<img src="${esc(g.bgURL)}" alt="" decoding="async"/>`:'';
+  const n=members.length;
+  $('gp-sub').textContent=`${n} ${_plural(n,'участник','участника','участников')} · публичная группа`;
+  $('gp-bio').textContent=owner?'':(g.description||'');
+  // права: правит только создатель
+  $('gp-av-wrap').classList.toggle('own',owner);
+  $('gp-av-edit').style.display=owner?'':'none';
+  $('gp-cover-btn').style.display=owner?'':'none';
+  $('gp-edit').style.display=owner?'':'none';
+  $('gp-foot').style.display=owner?'':'none';
+  const banned=(g.banned||[]).includes(me.uid);
+  $('gp-join').style.display=(joined||banned)?'none':'';
+  $('gp-row-add').style.display=owner?'':'none';
+  $('gp-row-mute').style.display=joined?'':'none';
+  const muted=mutedChannels.has(g.id);
+  $('gp-mute-sw').classList.toggle('on',!muted);
+  $('gp-mute-sub').textContent=muted?'Выключены':'Включены';
+  $('gp-leave-wrap').style.display=(joined&&!owner)?'':'none';       // создатель выйти не может
+  if(owner)_gpDirty();
+  // участники: создатель, затем те, кто в сети, затем по имени
+  const users=members.map(id=>allUsers[id]||{uid:id,displayName:'Пользователь'})
+    .sort((a,b)=>((b.uid===g.createdBy)-(a.uid===g.createdBy))||((b.presence?.status==='online')-(a.presence?.status==='online'))||(a.displayName||'').localeCompare(b.displayName||'','ru'));
+  $('gp-members-lbl').textContent=`Участники · ${users.length}`;
+  $('gp-members').innerHTML=users.map(u=>{
+    const pr=u.presence?.status||'offline';
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email));
+    const st=pr==='online'?'в сети':pr==='away'?'отошёл':'не в сети';
+    return `<div class="ch-card" data-uid="${esc(u.uid)}" role="button" tabindex="0">
+      <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(u.displayName||u.email||'—')}${u.uid===me.uid?' (вы)':''}</span>${u.uid===g.createdBy?'<span class="gp-role">Создатель</span>':''}</div>
+      <div class="ch-preview">${st}</div></div>
+      ${(owner&&u.uid!==me.uid&&u.uid!==g.createdBy)?`<button class="gp-kick" data-kick="${esc(u.uid)}" type="button" aria-label="Исключить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l5 5M22 8l-5 5"/></svg></button>`:''}</div>`;
+  }).join('')||'<div style="padding:24px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">Нет участников</div>';
+}
+function _gpBuild(){
+  if(_gpBuilt)return;_gpBuilt=true;
+  Sheet.define({id:'group-profile',zIndex:750,onOpen:()=>{_gpOpen=true;},onClose:()=>{_gpOpen=false;}});   // без title → нет шапки, как у профиля
+  Sheet.body('group-profile').innerHTML=`
+    <div class="prof-head">
+      <div class="prof-cover">
+        <div class="prof-cover-img" id="gp-cover"></div>
+        <button class="prof-cover-close" id="gp-close" type="button" aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button class="prof-cover-btn" id="gp-cover-btn" type="button" aria-label="Изменить фон" style="display:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button>
+      </div>
+      <div class="prof-av-wrap gp-av" id="gp-av-wrap">
+        <div class="prof-av-inner" id="gp-av">?</div>
+        <div class="prof-av-edit" id="gp-av-edit" style="display:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+      </div>
+      <div class="prof-name" id="gp-name">—</div>
+      <div class="prof-sub" id="gp-sub"></div>
+      <div class="prof-bio" id="gp-bio"></div>
+    </div>
+
+    <div class="prof-actions" id="gp-join" style="display:none">
+      <button class="prof-action-btn" id="gp-join-btn" type="button">Вступить в группу</button>
+    </div>
+
+    <!-- Только создатель -->
+    <div class="prof-pad" id="gp-edit" style="display:none">
+      <div>
+        <div class="prof-field">
+          <label for="gp-name-input">Название</label>
+          <input id="gp-name-input" placeholder="Название группы" autocomplete="off" maxlength="40" autocapitalize="sentences" enterkeyhint="done"/>
+        </div>
+        <div class="prof-field">
+          <label for="gp-desc-input">Описание<span class="prof-count" id="gp-desc-count">0/140</span></label>
+          <textarea id="gp-desc-input" placeholder="О чём эта группа" rows="3" maxlength="140"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="gp-acts">
+      <div class="acc-group">
+        <button class="acc-row" id="gp-row-add" type="button" style="display:none">
+          <div class="acc-row-ico" style="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></div>
+          <div class="acc-row-body"><div class="acc-row-title">Добавить участников</div><div class="acc-row-sub">Из списка пользователей</div></div>
+          <svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="acc-row" id="gp-row-link" type="button">
+          <div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1.5-1.5"/></svg></div>
+          <div class="acc-row-body"><div class="acc-row-title">Ссылка-приглашение</div><div class="acc-row-sub">Отправить или скопировать</div></div>
+          <svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="acc-row" id="gp-row-mute" type="button" style="display:none">
+          <div class="acc-row-ico" style="background:#F59E0B"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+          <div class="acc-row-body"><div class="acc-row-title">Уведомления</div><div class="acc-row-sub" id="gp-mute-sub">Включены</div></div>
+          <span class="gp-sw on" id="gp-mute-sw"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="gp-members-lbl" id="gp-members-lbl">Участники</div>
+    <div class="gp-members" id="gp-members"></div>
+
+    <div class="gp-leave" id="gp-leave-wrap" style="display:none">
+      <button class="acc-logout" id="gp-leave" type="button">
+        <div class="acc-logout-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></div>
+        <div><div class="acc-logout-t">Покинуть группу</div><div class="acc-logout-s">Вернуться можно по ссылке или самому</div></div>
+      </button>
+    </div>
+
+    <div class="prof-foot" id="gp-foot" style="display:none">
+      <button class="btn btn-primary" id="gp-save" type="button" style="flex:1" disabled>Сохранить</button>
+    </div>`;
+  $('gp-close').addEventListener('click',()=>Sheet.close('group-profile'));
+  $('gp-av-wrap').addEventListener('click',()=>{const g=_gpGroup();if(_gpIsOwner(g))openAvatarPicker(g.id);});
+  $('gp-cover-btn').addEventListener('click',()=>{const g=_gpGroup();if(_gpIsOwner(g))openBgPicker(g.id);});
+  $('gp-name-input').addEventListener('input',()=>{
+    const v=$('gp-name-input').value.trim(),g=_gpGroup();
+    $('gp-name').textContent=v||'—';
+    if(g&&!g.photoURL)$('gp-av').textContent=ini(v||g.name);
+    _gpDirty();
+  });
+  $('gp-name-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!$('gp-save').disabled)saveGroupProfile();}});
+  $('gp-desc-input').addEventListener('input',_gpDirty);
+  $('gp-save').addEventListener('click',saveGroupProfile);
+  $('gp-join-btn').addEventListener('click',joinGroup);
+  $('gp-members').addEventListener('click',e=>{
+    const k=e.target.closest('[data-kick]');
+    if(k){e.stopPropagation();kickMember(k.dataset.kick);return;}
+    const el=e.target.closest('[data-uid]');if(el)openUserProfile(el.dataset.uid);
+  });
+  $('gp-row-add').addEventListener('click',openGroupAdd);
+  $('gp-row-link').addEventListener('click',shareGroupLink);
+  $('gp-row-mute').addEventListener('click',toggleGroupMute);
+  $('gp-leave').addEventListener('click',leaveGroup);
+}
+async function openGroupProfile(){
+  if(!_gpGroup())return;
+  _gpBuild();
+  fillGroupProfile(true);
+  Sheet.body('group-profile').scrollTop=0;
+  const imgs=[...document.querySelectorAll('#gp-cover img,#gp-av img')];     // как у профиля: не рвём анимацию декодированием
+  await Promise.race([Promise.all(imgs.map(i=>i.decode?i.decode().catch(()=>{}):0)),new Promise(r=>setTimeout(r,250))]);
+  Sheet.open('group-profile');
+}
+async function saveGroupProfile(){
+  const g=_gpGroup();if(!g||!_gpIsOwner(g)||_gpBusy)return;
+  const name=$('gp-name-input').value.trim(),description=$('gp-desc-input').value.trim();
+  if(!name){toast('Введите название','err');return;}
+  _gpBusy=true;$('gp-save').textContent='Сохранение…';_gpDirty();
+  try{
+    await updateDoc(doc(fdb,'pulsar_channels',g.id),{name,description});
+    g.name=name;g.description=description;_gpSnap={name,desc:description};
+    updateChatHeader();renderGroupList();
+    Sheet.close('group-profile');toast('Группа обновлена ✓','ok');
+  }catch(e){toast('Ошибка: '+e.message,'err');}
+  _gpBusy=false;$('gp-save').textContent='Сохранить';_gpDirty();
+}
+const _grpRef=id=>doc(fdb,'pulsar_channels',id);
+function toggleGroupMute(){
+  const g=_gpGroup();if(!g)return;
+  if(mutedChannels.has(g.id)){mutedChannels.delete(g.id);toast('Уведомления включены','ok');}
+  else{mutedChannels.add(g.id);toast('Уведомления выключены','ok');}
+  try{localStorage.setItem('p_muted',JSON.stringify([...mutedChannels]));}catch(e){}
+  fillGroupProfile(false);renderGroupList();
+}
+async function leaveGroup(){
+  const g=_gpGroup();if(!g||_gpIsOwner(g)||!(g.members||[]).includes(me.uid))return;
+  if(!confirm(`Покинуть группу «${g.name}»?`))return;
+  try{
+    await updateDoc(_grpRef(g.id),{members:arrayRemove(me.uid)});
+    g.members=(g.members||[]).filter(x=>x!==me.uid);
+    Sheet.close('group-profile');
+    toast('Вы покинули группу','ok');
+    leaveConversation();                                   // обратно во вкладку «Группы»
+  }catch(e){toast('Ошибка: '+e.message,'err');}
+}
+async function kickMember(uid){
+  const g=_gpGroup();if(!g||!_gpIsOwner(g)||uid===me.uid||uid===g.createdBy)return;
+  const nm=allUsers[uid]?.displayName||allUsers[uid]?.email||'участника';
+  if(!confirm(`Исключить «${nm}» из группы?\nОн не сможет вступить снова, пока вы сами его не добавите.`))return;
+  try{
+    await updateDoc(_grpRef(g.id),{members:arrayRemove(uid),banned:arrayUnion(uid)});
+    g.members=(g.members||[]).filter(x=>x!==uid);
+    g.banned=[...new Set([...(g.banned||[]),uid])];
+    fillGroupProfile(false);renderGroupList();updateChatHeader();
+    toast('Участник исключён','ok');
+  }catch(e){toast('Ошибка: '+e.message,'err');}
+}
+function openGroupAdd(){
+  const g=_gpGroup();if(!g||!_gpIsOwner(g))return;
+  _grpBuild();
+  _grpPickMode='add';_grpPicked=new Set();
+  Sheet.setTitle('group-pick','Добавить в группу');
+  _grpPickedLabel();
+  $('grp-pick-inp').value='';_grpPickRender();
+  Sheet.open('group-pick');
+}
+async function addGroupMembers(){
+  const g=_gpGroup(),ids=[..._grpPicked];
+  if(!g||!_gpIsOwner(g))return;
+  if(!ids.length){Sheet.close('group-pick');return;}
+  const btn=$('grp-pick-done');btn.disabled=true;
+  try{
+    // явное добавление снимает исключение
+    await updateDoc(_grpRef(g.id),{members:arrayUnion(...ids),banned:arrayRemove(...ids)});
+    g.members=[...new Set([...(g.members||[]),...ids])];
+    g.banned=(g.banned||[]).filter(x=>!ids.includes(x));
+    fillGroupProfile(false);renderGroupList();updateChatHeader();
+    Sheet.close('group-pick');
+    toast(`Добавлено: ${ids.length}`,'ok');
+  }catch(e){toast('Ошибка: '+e.message,'err');}
+  btn.disabled=false;
+}
+// фото/обложка группы (вызывается из пикеров); true — сохранено
+async function _saveGroupMedia(fields,okMsg){
+  const g=_gpGroup();
+  if(!g||!_gpIsOwner(g)||g.id!==_pickGrp){toast('Менять группу может только создатель','err');return false;}
+  try{
+    await updateDoc(doc(fdb,'pulsar_channels',g.id),fields);
+    Object.assign(g,fields);
+    fillGroupProfile(false);updateChatHeader();renderGroupList();
+    toast(okMsg,'ok');return true;
+  }catch(e){toast('Ошибка: '+e.message,'err');return false;}
+}
+
 /* ── MEMBERS ── */
 function openMembers(){
   if(!currentCh)return;
@@ -2751,6 +3403,11 @@ function showView(id){
   closeMsgMenu();
 }
 function openSidebar(){ showView('no-channel'); setNavActive('mob-btn-dms'); }
+// Из группы возвращаемся во вкладку «Группы», из остальных чатов — в список чатов
+function leaveConversation(){
+  if(currentCh?.type==='group'){ markGroupRead(currentCh.id); showView('view-groups'); setNavActive('mob-btn-new'); renderGroupList(); }
+  else openSidebar();
+}
 
 /* ── КНОПКА «НАЗАД» (Android) ──
  * MainActivity вызывает window.handleBack(). true — страница сама обработала «назад»
@@ -2772,6 +3429,7 @@ window.handleBack=function(){
   if($('mention-popup')?.classList.contains('open')){closeMentionPopup();return true;}
   // 7. Переписка или вкладка «Комнаты»/«Группы» → к списку чатов
   const cur=_allViews.find(v=>{const e=$(v);return e&&getComputedStyle(e).display!=='none';});
+  if(cur==='conversation'){leaveConversation();return true;}
   if(cur&&cur!=='no-channel'){openSidebar();return true;}
   // 8. Мы на главном экране — пусть приложение закроется как обычно
   return false;
@@ -2784,6 +3442,7 @@ function initUI(){
   const input=$('msg-input');
   initMessageEvents();
   bindChatListEvents();
+  initGroups();
 
   // Scroll btn
   let scrollRaf=0;
@@ -2942,6 +3601,8 @@ function initUI(){
     if (currentCh.type === 'direct') {
       const oid = (currentCh.members || []).find(u => u !== me.uid);
       if (oid) openUserProfile(oid);
+    } else if (currentCh.type === 'group') {
+      openGroupProfile();
     } else {
       openMembers();
     }
@@ -3023,7 +3684,7 @@ function initUI(){
 
   // Profile triggers
   $('prof-av-wrap')?.addEventListener('click',()=>{ if($('profile-own').style.display!=='none') openAvatarPicker(); });
-  $('prof-cover-btn')?.addEventListener('click',openBgPicker);
+  $('prof-cover-btn')?.addEventListener('click',()=>openBgPicker());
   $('prof-cover-close')?.addEventListener('click',()=>Sheet.close('profile'));
   $('btn-my-profile')?.addEventListener('click',openAccount);
   $('my-avatar')?.addEventListener('click',openAccount);
@@ -3079,10 +3740,10 @@ function initUI(){
   window.addEventListener('focus',()=>{document.title='Pulsar — Galelium';});
 
   // Navigation
-  $('btn-back-to-chats').addEventListener('click',()=>{ openSidebar(); });
+  $('btn-back-to-chats').addEventListener('click',()=>{ leaveConversation(); });
   $('mob-btn-dms')?.addEventListener('click',()=>{ openSidebar(); });
   $('mob-btn-channels')?.addEventListener('click',()=>{ setNavActive('mob-btn-channels'); clearChatSearch(); showView('view-rooms'); });
-  $('mob-btn-new')?.addEventListener('click',()=>{ setNavActive('mob-btn-new'); showView('view-groups'); });
+  $('mob-btn-new')?.addEventListener('click',()=>{ setNavActive('mob-btn-new'); showView('view-groups'); renderGroupList(); });
 
   // Logout
   $('acc-logout')?.addEventListener('click',async()=>{
