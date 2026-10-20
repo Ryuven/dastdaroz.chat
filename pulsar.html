@@ -979,7 +979,15 @@ a{color:inherit;text-decoration:none}
 .vc-pip-badge{position:absolute;left:6px;bottom:6px;width:22px;height:22px;border-radius:50%;background:var(--red);display:none;align-items:center;justify-content:center}
 .vc-pip-badge svg{width:12px;height:12px}
 .vc-pip.mic-off .vc-pip-badge{display:flex}
-.vc-remote video.mirror{transform:scaleX(-1)}   /* моя камера на большом экране (после тапа по плитке) */
+.vc-remote video.mirror{transform:scaleX(-1)}
+/* тап по экрану прячет / показывает кнопки */
+.vc-top,.vc-bar{transition:opacity .25s var(--ease),transform .25s var(--ease)}
+#vc.ui-hidden .vc-top{opacity:0;transform:translateY(-12px);pointer-events:none}
+#vc.ui-hidden .vc-bar{opacity:0;transform:translateY(12px);pointer-events:none}
+/* у собеседника выключен микрофон — значок рядом с именем */
+.vc-top-row{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+.vc-top-mic{width:16px;height:16px;flex:0 0 auto;color:#ff6b6b}
+.vc-top-mic[hidden]{display:none}   /* моя камера на большом экране (после тапа по плитке) */
 
 /* нижняя панель: все кнопки — ровные круги одного размера */
 .vc-bar{position:relative;z-index:2;margin-top:auto;display:flex;align-items:center;justify-content:center;gap:16px;
@@ -1320,7 +1328,7 @@ a{color:inherit;text-decoration:none}
 
   <div class="vc-top" id="vc-top">
     <button class="vc-tbtn" id="vc-back" type="button" aria-label="Свернуть звонок"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></button>
-    <div class="vc-top-mid"><div class="vc-top-name" id="vc-top-name"></div><div class="vc-top-sub" id="vc-top-sub"></div></div>
+    <div class="vc-top-mid"><div class="vc-top-row"><div class="vc-top-name" id="vc-top-name"></div><svg class="vc-top-mic" id="vc-top-mic" hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Микрофон собеседника выключен"><rect x="9" y="3" width="6" height="12" rx="3" fill="currentColor" fill-opacity=".14"/><path d="M5 11a7 7 0 0014 0M12 18v3M3 3l18 18"/></svg></div><div class="vc-top-sub" id="vc-top-sub"></div></div>
     <span class="vc-top-spacer"></span>
   </div>
 
@@ -1333,7 +1341,7 @@ a{color:inherit;text-decoration:none}
   <div class="vc-bar">
     <button class="vc-btn" id="vc-cam" type="button" aria-label="Камера"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".14"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3"/></svg></button>
     <button class="vc-btn" id="vc-mic" type="button" aria-label="Микрофон"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3" fill="currentColor" fill-opacity=".14"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button>
-    <button class="vc-btn" id="vc-flip" type="button" aria-label="Перевернуть камеру"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-3.5L15 5H9L7.5 7H4a1 1 0 00-1 1v10a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"/><path d="M9.5 13a2.5 2.5 0 014.3-1.7M14.5 13a2.5 2.5 0 01-4.3 1.7M14 9.5v2h-2M10 16.5v-2h2"/></svg></button>
+    <button class="vc-btn" id="vc-flip" type="button" aria-label="Перевернуть камеру"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19H4a2 2 0 01-2-2V7a2 2 0 012-2h5"/><path d="M13 5h7a2 2 0 012 2v10a2 2 0 01-2 2h-5"/><circle cx="12" cy="12" r="3" fill="currentColor" fill-opacity=".14"/><path d="M18 22l-3-3 3-3"/><path d="M6 2l3 3-3 3"/></svg></button>
     <button class="vc-btn end" id="vc-end" type="button" aria-label="Завершить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" fill-opacity=".2" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.36 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg></button>
   </div>
 </div>
@@ -4416,7 +4424,7 @@ function initUI(){
       camX: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".14"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3M3 3l18 18"/></svg>'
     };
     const st = {
-      state:'idle', min:false, ch:null, peerId:null, stream:null, facing:'user', mic:true, cam:true, session:0, t0:0, timer:null, corner:{h:'r', v:'t'}, swap:false,
+      state:'idle', min:false, ch:null, peerId:null, stream:null, facing:'user', mic:true, cam:true, session:0, t0:0, timer:null, corner:{h:'r', v:'t'}, swap:false, remoteMicOff:false,
       role:null, callRef:null, callStatus:null, pc:null, txA:null, txV:null, remote:null, remoteCamOff:false, answered:false,
       pendingIce:[], unsubs:[], ringTimer:null, dropTimer:null
     };
@@ -4440,6 +4448,8 @@ function initUI(){
 
     function setState(s){
       st.state = s;
+      ringback(s === 'calling');                                  // гудки у звонящего, пока ждём ответа
+      if (s !== 'connected') vc.classList.remove('ui-hidden');
       vc.classList.toggle('calling', s === 'calling' || s === 'connecting');
       const sub = $v('vc-top-sub'), status = $v('vc-peer-status'), badge = $v('vcm-badge');
       clearInterval(st.timer);
@@ -4496,6 +4506,7 @@ function initUI(){
       vc.classList.toggle('has-remote', bigLive); mini.classList.toggle('has-remote', remoteLive);
       pip.classList.toggle('cam-off', !smallLive);
       pip.classList.toggle('mic-off', !st.mic && !sw);     // значок «мой микрофон выключен» — только на моей плитке
+      $v('vc-top-mic').toggleAttribute('hidden', !(st.state === 'connected' && st.remoteMicOff));   // у собеседника выключен микрофон
       paintWho(sw);
       if (st.state === 'connected' && !bigLive) $v('vc-peer-status').textContent = (sw || st.remoteCamOff) ? 'Камера выключена' : 'На связи';
     }
@@ -4552,6 +4563,10 @@ function initUI(){
     function sendCamFlag(){
       if (st.callRef && st.callStatus) updateDoc(st.callRef, { ['cam.' + me.uid]: st.cam }).catch(()=>{});
     }
+    // Микрофон — отдельным запросом: если правила Firestore не знают поле mic, это не сломает флаг камеры
+    function sendMicFlag(){
+      if (st.callRef && st.callStatus) updateDoc(st.callRef, { ['mic.' + me.uid]: st.mic }).catch(()=>{});
+    }
 
     function paintMic(on){
       const b = $v('vc-mic'); b.classList.toggle('off', !on); b.innerHTML = on ? ICO.mic : ICO.micX;
@@ -4564,7 +4579,7 @@ function initUI(){
     function toggleMic(){
       st.mic = !st.mic;
       st.stream?.getAudioTracks().forEach(t => t.enabled = st.mic);
-      paintMic(st.mic);
+      paintMic(st.mic); sendMicFlag();
     }
     // Выключая камеру, трек останавливаем полностью — индикатор камеры на телефоне гаснет.
     async function toggleCam(){
@@ -4688,6 +4703,25 @@ function initUI(){
       snap(); requestAnimationFrame(snap);
     }
 
+    /* ── гудки: звонящий слышит «ту-у…», пока собеседник не ответил ── */
+    let rb = null;
+    function ringback(on){
+      if (!on){ if (rb){ clearInterval(rb.iv); try { rb.ctx.close(); } catch(e){} rb = null; } return; }
+      if (rb) return;
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) return;
+        const ctx = new Ctx(), g = ctx.createGain(), o = ctx.createOscillator();
+        g.gain.value = 0; o.frequency.value = 425; o.connect(g); g.connect(ctx.destination); o.start();
+        const beep = () => {
+          const t = ctx.currentTime; g.gain.cancelScheduledValues(t);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .05);
+          g.gain.setValueAtTime(.12, t + 1); g.gain.linearRampToValueAtTime(0, t + 1.08);
+        };
+        ctx.resume?.(); beep();
+        rb = { ctx, iv: setInterval(beep, 4000) };
+      } catch(e){ rb = null; }
+    }
+
     /* ── WebRTC ── */
     function makePC(){
       const pc = new RTCPeerConnection({ iceServers: window.PULSAR_ICE_SERVERS || ICE_SERVERS });
@@ -4727,7 +4761,7 @@ function initUI(){
       st.unsubs.push(onSnapshot(ref, snap => {
         const d = snap.data(); if (!d || my !== st.session) return;
         st.callStatus = d.status;
-        st.remoteCamOff = d.cam?.[st.peerId] === false; updateRemoteView();
+        st.remoteCamOff = d.cam?.[st.peerId] === false; st.remoteMicOff = d.mic?.[st.peerId] === false; updateRemoteView();
         if (st.role === 'caller' && d.answer && !st.answered && st.pc?.signalingState === 'have-local-offer'){
           st.answered = true;
           st.pc.setRemoteDescription({ type:d.answer.type, sdp:d.answer.sdp })
@@ -4765,6 +4799,7 @@ function initUI(){
       st.callStatus = 'ringing';
       if (my !== st.session){ updateDoc(ref, { status:'ended', endedBy: me.uid }).catch(()=>{}); return; }
       ready = true; buf.splice(0).forEach(push);
+      if (!st.mic) sendMicFlag();                         // микрофона нет / выключен ещё до звонка
       watchCall(ref, 'calleeCandidates');
       st.ringTimer = setTimeout(() => { if (st.state === 'calling'){ toast('Не ответил','err'); end(false, 'missed'); } }, 45000);
     }
@@ -4795,6 +4830,7 @@ function initUI(){
         if (my !== st.session) return;
         await updateDoc(ref, { answer: { type: answer.type, sdp: answer.sdp }, status: 'active', answeredAt: serverTimestamp(), ['cam.' + me.uid]: st.cam });
         st.callStatus = 'active';
+        if (!st.mic) sendMicFlag();
         watchCall(ref, 'callerCandidates');
       } catch(e){
         console.warn('join', e);
@@ -4806,7 +4842,7 @@ function initUI(){
     function showUI(peerId, ch){
       const o = allUsers[peerId] || {}, name = o.displayName || o.email || 'Собеседник';
       st.ch = ch; st.peerId = peerId; st.session++; st.min = false;
-      st.facing = 'user'; st.corner = { h:'r', v:'t' }; st.mic = true; st.cam = true; st.remoteCamOff = false; st.swap = false;
+      st.facing = 'user'; st.corner = { h:'r', v:'t' }; st.mic = true; st.cam = true; st.remoteCamOff = false; st.swap = false; st.remoteMicOff = false; vc.classList.remove('ui-hidden');
       paintMic(true); paintCam(true); $v('vc-flip').hidden = false;
       bindVideos(true);
       $v('vc-peer-name').textContent = name; $v('vc-top-name').textContent = name;
@@ -4859,14 +4895,14 @@ function initUI(){
       st.unsubs.splice(0).forEach(u => { try { u(); } catch(e){} });
       try { st.pc?.close(); } catch(e){}
       releaseStream(); remoteV.srcObject = null; miniV.srcObject = null; keepAwake(false);
-      remoteV.muted = false; localV.muted = true; remoteV.classList.remove('mirror');
+      remoteV.muted = false; localV.muted = true; remoteV.classList.remove('mirror'); ringback(false);
       if (ref && !remote && cs && cs !== 'ended' && cs !== 'declined' && cs !== 'missed')
         updateDoc(ref, { status, endedBy: me.uid, endedAt: serverTimestamp() }).catch(()=>{});
       if (asCaller && cs && logCh?.id)                       // запись в чат пишет только звонящий — один документ на звонок
         logCall(logCh, wasLive ? 'ended' : cs === 'declined' ? 'declined' : status === 'missed' ? 'missed' : 'cancelled', dur);
       Object.assign(st, { state:'idle', min:false, ch:null, peerId:null, role:null, callRef:null, callStatus:null, pc:null, txA:null, txV:null,
-                          remote:null, remoteCamOff:false, answered:false, pendingIce:[], swap:false });
-      vc.classList.remove('open', 'has-remote', 'calling'); vc.setAttribute('aria-hidden', 'true');
+                          remote:null, remoteCamOff:false, answered:false, pendingIce:[], swap:false, remoteMicOff:false });
+      vc.classList.remove('open', 'has-remote', 'calling', 'ui-hidden'); vc.setAttribute('aria-hidden', 'true');
       mini.style.display = 'none'; mini.classList.remove('has-remote');
     }
 
@@ -4932,6 +4968,7 @@ function initUI(){
     $v('vc-end').addEventListener('click', () => end());
     $v('vcm-end').addEventListener('click', e => { e.stopPropagation(); end(); });
     $v('vc-back').addEventListener('click', minimize);
+    vc.querySelector('.vc-remote').addEventListener('click', () => { if (st.state === 'connected') vc.classList.toggle('ui-hidden'); });   // тап по экрану — спрятать / показать кнопки
     $v('cb-join').addEventListener('click', joinIncoming);
     $v('cb-decline').addEventListener('click', declineIncoming);
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && vc.classList.contains('open')) minimize(); });
