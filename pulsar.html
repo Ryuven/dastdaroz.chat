@@ -527,6 +527,26 @@ a{color:inherit;text-decoration:none}
 .prof-cover-close,.prof-cover-btn{top:max(12px,env(safe-area-inset-top,0px));width:34px;height:34px;border-radius:50%}
 .prof-cover-close{right:12px}
 .prof-cover-btn{left:12px}
+.prof-cover-report{left:12px}
+.prof-rep-hd{padding:0 20px 10px;font-size:var(--fs-xs);color:var(--muted);line-height:1.5}
+.prof-rep-list{display:flex;flex-direction:column;gap:8px;padding:0 20px 12px}
+.prof-rep-list button{border:1.5px solid transparent;border-radius:12px;padding:13px 14px;font:inherit;text-align:left;cursor:pointer;background:var(--surface-2);color:var(--text);transition:border-color var(--tf),background var(--tf)}
+.prof-rep-list button.on{border-color:var(--accent);background:var(--accent-dim)}
+.prof-rep-list button:active{transform:scale(.98)}
+.prof-rep-note-wrap{padding:0 20px 12px}
+.prof-rep-note-wrap label{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin-bottom:6px}
+.prof-rep-note-wrap textarea{width:100%;box-sizing:border-box;resize:none;border-radius:12px;padding:12px;font:inherit;background:var(--surface-2);color:var(--text);border:1.5px solid transparent}
+.prof-rep-note-wrap textarea:focus{outline:none;border-color:var(--accent)}
+.prof-rep-ev-grid{display:flex;flex-wrap:wrap;gap:8px}
+.prof-rep-th,.prof-rep-add{position:relative;width:84px;height:84px;border-radius:12px;overflow:hidden;flex-shrink:0}
+.prof-rep-th{background:var(--surface-2)}
+.prof-rep-th img,.prof-rep-th video{width:100%;height:100%;object-fit:cover;display:block}
+.prof-rep-play{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:rgba(0,0,0,.55);pointer-events:none}
+.prof-rep-play::after{content:"";position:absolute;left:10px;top:7px;border-style:solid;border-width:6px 0 6px 9px;border-color:transparent transparent transparent #fff}
+.prof-rep-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border:none;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.prof-rep-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1.5px dashed var(--border-h,var(--border));background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-2xs);cursor:pointer}
+.prof-rep-add:active{transform:scale(.97)}
+.prof-rep-add:disabled,.prof-rep-x:disabled{opacity:.5}
 .prof-head .prof-av-wrap{margin-top:calc(var(--av-xl) / -2);z-index:1}
 .prof-head>*:not(.prof-cover){position:relative;z-index:1}
 .prof-av-wrap{position:relative;width:var(--av-xl);height:var(--av-xl);border-radius:50%;flex-shrink:0}
@@ -585,6 +605,17 @@ a{color:inherit;text-decoration:none}
 .prof-field input::placeholder,.prof-field textarea::placeholder{color:var(--muted-2)}
 .prof-field textarea{resize:none;line-height:1.5}
 .prof-field+.prof-field{margin-top:12px}
+
+/* Чужой профиль: квадратные кнопки действий */
+.prof-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:4px 24px 12px}
+.prof-q{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;aspect-ratio:1/1;min-width:0;padding:8px 4px;border:none;border-radius:var(--r-lg);background:var(--surface-2);color:var(--accent);font-family:var(--font);font-size:var(--fs-2xs);font-weight:600;cursor:pointer;transition:transform var(--tf),background var(--tf)}
+.prof-q:active{transform:scale(.94);background:var(--surface-3)}
+.prof-q svg{width:24px;height:24px;flex-shrink:0}
+.prof-q span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prof-stub{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;padding:28px 24px calc(var(--safe-b) + 32px);text-align:center}
+.prof-stub-ico{font-size:2.4rem}
+.prof-stub-t{font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text)}
+.prof-stub-s{font-size:var(--fs-xs);color:var(--muted);line-height:1.6;max-width:260px}
 
 /* Чужой профиль */
 .prof-actions{padding:6px 24px 24px}
@@ -651,6 +682,20 @@ a{color:inherit;text-decoration:none}
 .del-btn:not(:disabled):active{transform:scale(.98)}
 .acc-logout-t{font-size:.90625rem;font-weight:600;color:var(--red)}
 .acc-logout-s{font-size:.75rem;color:rgba(220,38,38,.55);margin-top:1px}
+/* Никнейм (@ник) в «Личных данных» */
+.nick-wrap{display:flex;align-items:center;background:var(--surface-2);border:1px solid transparent;border-radius:var(--r);transition:border-color var(--tf),background var(--tf)}
+.nick-wrap:focus-within{border-color:var(--accent-mid);background:var(--surface)}
+.nick-wrap.ok{border-color:var(--accent-mid)}
+.nick-wrap.err{border-color:rgba(220,38,38,.45)}
+.nick-at{padding-left:14px;font-size:var(--fs-md);font-weight:700;color:var(--accent);line-height:1}
+.nick-wrap input{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text);font-size:var(--fs-md);font-family:var(--font);padding:12px 12px 12px 2px}
+.nick-wrap input::placeholder{color:var(--muted-2)}
+.nick-hint{font-size:var(--fs-2xs);line-height:1.5;color:var(--muted);margin:8px 4px 0;min-height:1.5em}
+.nick-hint.ok{color:var(--accent)}
+.nick-hint.err{color:var(--red)}
+.nick-save{width:100%;margin-top:14px}
+.nick-save:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.acc-danger{margin-top:auto;padding-top:20px}   /* «Удалить аккаунт» всегда прижато к низу, новые блоки добавляются выше */
 /* Промокод */
 .promo-inp{width:100%;background:var(--surface-2);border:1.5px solid var(--border-h);border-radius:var(--r-lg);padding:15px 18px;font-size:var(--fs-lg);font-weight:600;color:var(--text);letter-spacing:.06em;text-transform:uppercase;transition:border-color .15s,box-shadow .15s}
 .promo-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
@@ -774,8 +819,10 @@ a{color:inherit;text-decoration:none}
   .notif-card{width:calc(100vw - 44px)}
   #scroll-btn{bottom:calc(var(--mob-nav-h) + 80px + 56px)}
 }
+/* reduced-motion (на Android включается сам при «Экономии заряда» / отключённых анимациях) гасит декоративные анимации,
+   но НЕ трогает шторки (bs-*), тост и уведомления — иначе они появляются рывком */
 @media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  *:not(:is(#toast,#notif-bar,#notif-bar *,[id^="bs-"],[id^="bs-"] *,[class^="bs-"],[class*=" bs-"])),*:not(:is(#toast,#notif-bar,#notif-bar *,[id^="bs-"],[id^="bs-"] *,[class^="bs-"],[class*=" bs-"]))::before,*:not(:is(#toast,#notif-bar,#notif-bar *,[id^="bs-"],[id^="bs-"] *,[class^="bs-"],[class*=" bs-"]))::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
   .msg-group.new-msg{animation:none}
 }
 
@@ -920,6 +967,7 @@ a{color:inherit;text-decoration:none}
 
 .mc-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
 .mc-side .msg-ts-inline{float:none;margin:0}
+.mc-side .msg-st{margin-right:-3px}   /* в иконке галочек справа ~3px пустого поля — выравниваем по краю кнопки */
 .mc-back{width:36px;height:36px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);color:var(--accent);transition:transform var(--tf)}
 .mc-back svg{width:18px;height:18px}
 .mc-back:active{transform:scale(.92)}
@@ -1265,7 +1313,7 @@ a{color:inherit;text-decoration:none}
 
     <div class="acc-lbl">Маълумот</div>
     <div class="acc-group">
-      <button class="acc-row" data-act="personal"><div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Личные данные</div><div class="acc-row-sub">Аккаунт и безопасность</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="acc-row" data-act="personal"><div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Личные данные</div><div class="acc-row-sub">Никнейм и безопасность</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
 
     <div class="acc-lbl">Акции</div>
@@ -1371,11 +1419,30 @@ import { onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.
 import {
   collection, doc, addDoc, setDoc, getDoc, getDocs,
   updateDoc, onSnapshot, serverTimestamp, increment,
-  query, orderBy, limit, where, arrayUnion, arrayRemove, deleteDoc, writeBatch
+  query, orderBy, limit, where, arrayUnion, arrayRemove, deleteDoc, writeBatch, runTransaction
 } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js';
 import { ref as sRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js';
 import { Sheet }                    from './sheet.js';
 import { auth, db as fdb, storage } from './firebase.js';
+
+/* sheetFirstOpenFix — шторка, созданная через Sheet.define() и тут же открытая, на ПЕРВЫЙ показ не анимируется:
+   браузер не успевает отрисовать «закрытое» состояние, и transition нечего проигрывать (со второго раза DOM уже есть — анимация работает).
+   Решение: при первом открытии каждой шторки сбрасываем стили и открываем через 2 кадра. Дальше — без задержки. */
+(()=>{
+  try{
+    const _open=Sheet.open.bind(Sheet), _seen=new Set(), _pending=new Set();
+    Sheet.open=function(id,...args){
+      if(_seen.has(id)) return _open(id,...args);
+      if(_pending.has(id)) return;                       // двойной тап до открытия
+      _pending.add(id);
+      document.querySelectorAll('[id^="bs-"]').forEach(el=>{ void el.offsetHeight; getComputedStyle(el).transform; });
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        _pending.delete(id); _seen.add(id);
+        _open(id,...args);
+      }));
+    };
+  }catch(e){ console.warn('sheetFirstOpenFix not applied',e); }
+})();
 
 /* ════════════════════════════════════════════════════════════════
  *  FIRESTORE — СХЕМА БАЗЫ ДАННЫХ  (pulsar-galelium)
@@ -1485,7 +1552,12 @@ const MAX_CHARS=4000;
 const $=id=>document.getElementById(id);
 let _tt;
 function toast(msg,type='ok'){const el=$('toast');$('toast-msg').textContent=msg;el.className='show '+type;clearTimeout(_tt);_tt=setTimeout(()=>el.className='',3500);}
-function ini(n=''){return(n||'?').trim()[0].toUpperCase();}
+function ini(n=''){const t=(n||'?').trim().replace(/^@/,'');return(t[0]||'?').toUpperCase();}
+/* Имя другого пользователя для показа: почту НЕ показываем никогда.
+   displayName → @никнейм → «Пользователь». Если в displayName лежит адрес почты (так бывает по умолчанию) — он считается скрытым. */
+function isEmailLike(s){return /\S+@\S+\.\S+/.test(s||'');}
+function uName(u){const d=((u&&u.displayName)||'').trim();if(d&&!isEmailLike(d))return d;return u&&u.username?'@'+u.username:'Пользователь';}
+function uSub(u){return u&&u.username?'@'+u.username:'';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtT(ts){
   if(!ts)return'';
@@ -1521,6 +1593,12 @@ function renderText(raw){
   html=html.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');   // жирный
   html=html.replace(/\*(?=\S)(.+?)(?<=\S)\*/g,'<em>$1</em>');               // курсив
   html=html.replace(/~~(.*?)~~/g,'<del>$1</del>');             // зачёркнутый
+  // Упоминания @никнейм (только если такой пользователь есть), затем @Имя
+  html=html.replace(/(^|[\s(])@([a-z][a-z0-9_]{2,19})(?![\w])/g,(m,pre,nick)=>{
+    if(!Object.values(allUsers).some(u=>u.username===nick))return m;
+    const isMe=nick===(me?.username||'');
+    return pre+keep(`<span class="mention${isMe?' is-me':''}" data-mention="${nick}">@${nick}</span>`);
+  });
   // Упоминания @Имя
   html=html.replace(/@([А-Яа-яёA-Za-z][А-Яа-яёA-Za-z\s]*?)(?=\s|$|[^\wА-Яа-яЁё])/g,(m,name)=>{
     const isMe=name.trim().toLowerCase()===(me?.displayName||'').toLowerCase();
@@ -1554,7 +1632,7 @@ function showInAppNotif(msg,chName){
 }
 
 /* ── NETWORK ── */
-window.addEventListener('online',()=>$('conn-banner').classList.remove('show'));
+window.addEventListener('online',()=>{ $('conn-banner').classList.remove('show'); toast('Соединение восстановлено','ok'); });
 window.addEventListener('offline',()=>$('conn-banner').classList.add('show'));
 
 /* ── AUTH ── */
@@ -1614,7 +1692,7 @@ function updateMyAvatarUI(){
 /* ── PRESENCE ── */
 async function updatePresence(status){
   if(!me)return;
-  try{await setDoc(doc(fdb,'pulsar_presence',me.uid),{status,displayName:me.displayName,email:me.email,uid:me.uid,photoURL:me.photoURL||'',updatedAt:serverTimestamp()},{merge:true});}catch(e){}
+  try{await setDoc(doc(fdb,'pulsar_presence',me.uid),{status,displayName:me.displayName,username:me.username||'',uid:me.uid,photoURL:me.photoURL||'',updatedAt:serverTimestamp()},{merge:true});}catch(e){}
   const colors={online:'var(--green)',away:'var(--amber)',offline:'var(--muted-2)'};
   const labels={online:'В сети',away:'Отошёл',offline:'Не в сети'};
   const dot=$('my-status-dot');
@@ -1672,7 +1750,7 @@ async function loadAllUsers(){
       snap.docChanges().forEach(c=>{
         const d=c.doc;
         if(c.type==='removed'){if(allUsers[d.id])delete allUsers[d.id].presence;return;}
-        if(allUsers[d.id])allUsers[d.id].presence=d.data();
+        if(allUsers[d.id]){allUsers[d.id].presence=d.data();const pn=d.data().username;if(typeof pn==='string')allUsers[d.id].username=pn;}   // ник меняется у собеседника — видно сразу
         else allUsers[d.id]={uid:d.id,...d.data(),presence:d.data()};
       });
       scheduleChatList();
@@ -1718,7 +1796,7 @@ function makeChCard(ch, o /* null for channels */, oid=null){
   let avaHtml;
   if(isDM && o){
     const pr  = o.presence?.status || 'offline';
-    const avI = o.photoURL ? `<img src="${esc(o.photoURL)}" alt=""/>` : esc(ini(o.displayName||o.email));
+    const avI = o.photoURL ? `<img src="${esc(o.photoURL)}" alt=""/>` : esc(ini(uName(o)));
     avaHtml = `<div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>`;
   } else {
     const icon = ch.type==='private' ? '🔒' : ch.name?.[0]?.toUpperCase() || '#';
@@ -1743,7 +1821,7 @@ function makeChCard(ch, o /* null for channels */, oid=null){
   const badgeHtml = (!isActive && uc > 0)
     ? `<span class="ch-badge">${uc>99?'99+':uc}</span>` : '';
 
-  const title = isDM ? esc(o?.displayName||o?.email||'—') : esc(ch.name||'');
+  const title = isDM ? esc(uName(o)||'—') : esc(ch.name||'');
 
   return `<div class="ch-card${isActive?' active':''}${uc>0&&!isActive?' has-unread':''}" data-chid="${esc(ch.id)}"${oid?` data-uid="${esc(oid)}"`:''} role="button" tabindex="0">
     ${avaHtml}
@@ -1784,7 +1862,7 @@ function rebuildChatList(){
     if(ch.type==='direct'){
       const oid=(ch.members||[]).find(u=>u!==me.uid);
       const o=allUsers[oid]||{};
-      return (o.displayName||'').toLowerCase().includes(q)||(o.email||'').toLowerCase().includes(q);
+      return (o.displayName||'').toLowerCase().includes(q)||(o.username||'').includes(q.replace(/^@/,''));
     }
     return (ch.name||'').toLowerCase().includes(q)||(ch.description||'').toLowerCase().includes(q);
   }) : combined;
@@ -1795,7 +1873,7 @@ function rebuildChatList(){
     const dmUids = new Set(_allDmChs.map(ch=>(ch.members||[]).find(u=>u!==me.uid)));
     people = Object.values(allUsers).filter(u=>
       u.uid!==me.uid && !dmUids.has(u.uid) &&
-      ((u.displayName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q))
+      ((u.displayName||'').toLowerCase().includes(q)||(u.username||'').includes(q.replace(/^@/,'')))
     );
   }
 
@@ -1818,11 +1896,11 @@ function rebuildChatList(){
 
   const peopleHtml = people.length ? `<div class="sb-section-tag"><span>Люди</span></div>` + people.map(u=>{
     const pr  = u.presence?.status || 'offline';
-    const avI = u.photoURL ? `<img src="${esc(u.photoURL)}" alt=""/>` : esc(ini(u.displayName||u.email));
+    const avI = u.photoURL ? `<img src="${esc(u.photoURL)}" alt=""/>` : esc(ini(uName(u)));
     return `<div class="ch-card" data-person="${esc(u.uid)}" role="button" tabindex="0">
       <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
-      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(u.displayName||u.email||'—')}</span></div>
-      <div class="ch-preview">${esc(u.email||'')}</div></div>
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(uName(u)||'—')}</span></div>
+      <div class="ch-preview">${esc(uSub(u))}</div></div>
     </div>`;
   }).join('') : '';
 
@@ -1929,7 +2007,7 @@ function updateChatHeader(){
   let nm,photo=null;
   if(currentCh.type==='direct'){
     const oid=(currentCh.members||[]).find(u=>u!==me.uid),o=allUsers[oid]||{};
-    nm=o.displayName||o.email||'DM';photo=o.photoURL||null;
+    nm=uName(o)||'DM';photo=o.photoURL||null;
     const st=o.presence?.status||'offline';
     sub.className='topbar-desc'+(st==='online'?' online':'');
     sub.textContent=st==='online'?'в сети':st==='away'?'отошёл':'не в сети';
@@ -2357,7 +2435,7 @@ function updatePinnedBar(){
 }
 async function pinMessage(msgId,isPinned){
   if(!currentCh)return;
-  try{await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',msgId),{pinned:!isPinned});toast(isPinned?'Откреплено':'Закреплено ✓','ok');loadPinnedMsgs(currentCh.id);}
+  try{await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',msgId),{pinned:!isPinned});toast(isPinned?'Откреплено':'Закреплено ✓',isPinned?'info':'ok');loadPinnedMsgs(currentCh.id);}
   catch(e){toast('Ошибка: '+e.message,'err');}
 }
 
@@ -2504,7 +2582,7 @@ async function saveEdit(msgId,t){
     }
   }
 }
-async function delMsg(msgId){if(!currentCh)return;try{await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',msgId),{deleted:true,text:''});}catch(e){toast('Ошибка: '+e.message,'err');}}
+async function delMsg(msgId){if(!currentCh)return;try{await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',msgId),{deleted:true,text:''});toast('Сообщение удалено','info');}catch(e){toast('Ошибка: '+e.message,'err');}}
 async function toggleReact(msgId,emoji){
   if(!currentCh||!me)return;
   const ref=doc(fdb,'pulsar_channels',currentCh.id,'messages',msgId);
@@ -2546,7 +2624,7 @@ async function sendMessage(){
   const input=$('msg-input'),text=input.value.trim();
   if(!text&&!pendingFile)return;
   if(!currentCh)return;
-  if(text.length>MAX_CHARS){toast(`Слишком длинное сообщение (макс. ${MAX_CHARS})`,'err');return;}
+  if(text.length>MAX_CHARS){toast(`Слишком длинное сообщение (макс. ${MAX_CHARS})`,'warn');return;}
   const chId=currentCh.id;                 // фиксируем чат: пока грузится файл, пользователь мог перейти в другой
   clearTyping();
 
@@ -2563,14 +2641,14 @@ async function sendMessage(){
   }
 
   input.value='';ar(input);$('btn-send').disabled=true;$('char-count').textContent='';
-  const payload={text:text||'',authorId:me.uid,authorName:me.displayName||me.email,ts:serverTimestamp(),clientTs:Date.now(),edited:false,deleted:false,pinned:false,reactions:{},replyTo:replyTo||null,threadCount:0,...attachData};
+  const payload={text:text||'',authorId:me.uid,authorName:uName(me),ts:serverTimestamp(),clientTs:Date.now(),edited:false,deleted:false,pinned:false,reactions:{},replyTo:replyTo||null,threadCount:0,...attachData};
   clearReply();
   let sentId=null;
   try{
     sentId=(await addDoc(collection(fdb,'pulsar_channels',chId,'messages'),payload)).id;
   }catch(e){toast('Ошибка отправки: '+e.message,'err');input.value=text;ar(input);$('btn-send').disabled=false;return;}
   // Превью в списке чатов — отдельно: сбой тут не должен возвращать текст в поле (получился бы дубль)
-  updateDoc(doc(fdb,'pulsar_channels',chId),{lastMessage:{id:sentId,text:(text||'Файл').slice(0,80),authorId:me.uid,authorName:me.displayName||me.email,attachmentType:attachData.attachmentType||null,ts:serverTimestamp()}}).catch(e=>console.error('lastMessage:',e));
+  updateDoc(doc(fdb,'pulsar_channels',chId),{lastMessage:{id:sentId,text:(text||'Файл').slice(0,80),authorId:me.uid,authorName:uName(me),attachmentType:attachData.attachmentType||null,ts:serverTimestamp()}}).catch(e=>console.error('lastMessage:',e));
 }
 
 function clearReply(){replyTo=null;$('reply-bar').classList.remove('visible');$('reply-to-name').textContent='';$('reply-preview').textContent='';updateInputRadius();}
@@ -2604,7 +2682,7 @@ async function sendThreadReply(){
   if(!text||!currentCh||!threadMsgId)return;
   input.value='';ar(input);$('thread-send').disabled=true;
   try{
-    await addDoc(collection(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId,'thread'),{text,authorId:me.uid,authorName:me.displayName||me.email,ts:serverTimestamp(),clientTs:Date.now()});
+    await addDoc(collection(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId,'thread'),{text,authorId:me.uid,authorName:uName(me),ts:serverTimestamp(),clientTs:Date.now()});
     await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId),{threadCount:increment(1)});
   }catch(e){toast('Ошибка: '+e.message,'err');}
   $('thread-send').disabled=false;
@@ -2618,13 +2696,13 @@ function closeLightbox(){$('lightbox').classList.remove('open');$('lightbox-img'
 function openMentionPopup(query){
   const popup=$('mention-popup');
   const ql=query.toLowerCase();
-  mentionMatches=_mentionPool().filter(u=>u.uid!==me.uid&&((u.displayName||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql))).slice(0,6);
+  mentionMatches=_mentionPool().filter(u=>u.uid!==me.uid&&((u.displayName||'').toLowerCase().includes(ql)||(u.username||'').includes(ql.replace(/^@/,'')))).slice(0,6);
   if(!mentionMatches.length){popup.classList.remove('open');return;}
   mentionIdx=0;
   popup.innerHTML=mentionMatches.map((u,i)=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:ini(u.displayName||u.email);
-    return`<div class="mention-item ${i===0?'active':''}" data-idx="${i}"><div class="mention-av">${avI}</div><div><div class="mention-name">${esc(u.displayName||'—')}</div><div class="mention-email">${esc(u.email||'')}</div></div>${pr==='online'?'<span class="mention-online"></span>':''}</div>`;
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:ini(uName(u));
+    return`<div class="mention-item ${i===0?'active':''}" data-idx="${i}"><div class="mention-av">${avI}</div><div><div class="mention-name">${esc(uName(u))}</div><div class="mention-email">${esc(uSub(u))}</div></div>${pr==='online'?'<span class="mention-online"></span>':''}</div>`;
   }).join('');
   popup.classList.add('open');
   popup.querySelectorAll('.mention-item').forEach(el=>el.addEventListener('click',()=>insertMention(parseInt(el.dataset.idx))));
@@ -2635,7 +2713,7 @@ function insertMention(idx){
   const input=$('msg-input');const val=input.value;
   const at=val.lastIndexOf('@');
   if(at<0){closeMentionPopup();return;}
-  input.value=val.slice(0,at)+'@'+(u.displayName||u.email)+' ';
+  input.value=val.slice(0,at)+'@'+(u.username||u.displayName||'—')+' ';
   input.focus();ar(input);
   closeMentionPopup();
 }
@@ -2715,7 +2793,7 @@ async function _squareBlob(file,size){
 }
 async function _avpUploadFile(file){
   if(_avpBusy||!me) return;
-  if(!file.type.startsWith('image/')){ toast('Выберите изображение','err'); return; }
+  if(!file.type.startsWith('image/')){ toast('Выберите изображение','warn'); return; }
   const btn=$('avp-gallery'), lbl=btn.querySelector('span');
   btn.disabled=true; lbl.textContent='Загрузка…';
   let url=null;
@@ -2805,7 +2883,7 @@ async function _coverBlob(file,w,h){
 }
 async function _bgpUploadFile(file){
   if(_bgpBusy||!me) return;
-  if(!file.type.startsWith('image/')){ toast('Выберите изображение','err'); return; }
+  if(!file.type.startsWith('image/')){ toast('Выберите изображение','warn'); return; }
   const btn=$('bgp-gallery'), lbl=btn.querySelector('span');
   btn.disabled=true; lbl.textContent='Загрузка…';
   let url=null;
@@ -2833,7 +2911,7 @@ async function deleteMyAccount(){
   if(!DELETE_ACCOUNT_URL){
     const subj=encodeURIComponent('Удаление аккаунта dastdaroz');
     const body=encodeURIComponent('Здравствуйте!\n\nПрошу удалить мой аккаунт dastdaroz и связанные с ним данные.\n\nАдрес электронной почты аккаунта: '+(me.email||'')+'\n\nПодтверждаю, что я владелец аккаунта и понимаю, что удаление необратимо.');
-    toast('Отправьте письмо на info@dastdaroz.shop','ok');
+    toast('Отправьте письмо на info@dastdaroz.shop','info');
     location.href='mailto:info@dastdaroz.shop?subject='+subj+'&body='+body;
     return;
   }
@@ -2875,16 +2953,44 @@ let _accBuilt=false;
 function buildAccountSheets(){
   if(_accBuilt) return; _accBuilt=true;
   // Личные данные (глубокие настройки аккаунта)
-  Sheet.define({ id: 'personal', title: 'Личные данные', zIndex: 700 });
+  Sheet.define({ id: 'personal', title: 'Личные данные', zIndex: 700, onOpen: _nickRowSync });
   const _pd = Sheet.body('personal');
   _pd.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:20px 20px calc(var(--safe-b) + 24px)';
   _pd.innerHTML = `
+    <div class="acc-lbl" style="padding-top:0">Профиль</div>
+    <div class="acc-group">
+      <button class="acc-row" id="btn-nick-row" type="button">
+        <div class="acc-row-ico" style="background:#0EA5E9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94"/></svg></div>
+        <div class="acc-row-body"><div class="acc-row-title">Изменение никнейма</div><div class="acc-row-sub" id="nick-row-sub">Не задан</div></div>
+        <svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="acc-danger">
     <div class="acc-lbl" style="padding-top:0">Аккаунт</div>
     <button class="acc-logout" id="btn-delete-account" type="button">
       <div class="acc-logout-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
       <div><div class="acc-logout-t">Удалить аккаунт</div><div class="acc-logout-s">Безвозвратно удалить аккаунт и данные профиля</div></div>
-    </button>`;
+    </button>
+    </div>`;
   $('btn-delete-account').addEventListener('click', () => Sheet.open('delacc'));
+  $('btn-nick-row').addEventListener('click', () => Sheet.open('nickname'));
+
+  // Изменение никнейма (отдельный лист поверх «Личных данных»)
+  Sheet.define({ id: 'nickname', title: 'Изменение никнейма', zIndex: 750, onOpen: _nickFill });
+  const _nb = Sheet.body('nickname');
+  _nb.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:20px 20px calc(var(--safe-b) + 24px)';
+  _nb.innerHTML = `
+    <div class="acc-lbl" style="padding-top:0">Никнейм</div>
+    <div class="nick-wrap" id="nick-wrap">
+      <span class="nick-at">@</span>
+      <input id="nick-inp" type="text" placeholder="nickname" maxlength="20" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Никнейм"/>
+    </div>
+    <div class="nick-hint" id="nick-hint"></div>
+    <button class="btn btn-primary nick-save" id="nick-save" type="button" disabled>Сохранить</button>`;
+  $('nick-inp').addEventListener('input', _nickInput);
+  $('nick-inp').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); if(!$('nick-save').disabled) saveNickname(); } });
+  $('nick-save').addEventListener('click', saveNickname);
 
   // Подтверждение удаления аккаунта
   Sheet.define({ id: 'delacc', title: 'Удаление аккаунта', zIndex: 750,
@@ -2918,7 +3024,7 @@ function buildAccountSheets(){
   $('promo-inp').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
   $('promo-apply-btn').addEventListener('click', () => {
     const val = $('promo-inp').value.trim();
-    if (!val) { toast('Введите промокод', 'err'); return; }
+    if (!val) { toast('Введите промокод', 'warn'); return; }
     // TODO: проверка промокода (в home.html тоже пока заглушка)
     toast('Промокод принят!', 'ok');
   });
@@ -2959,12 +3065,12 @@ let _accKey='';
 function fillAccountCard(){
   if(!me||!$('acc-av')) return;
   const st=me.presence?.status||'online';
-  const key=[me.displayName,me.email,me.photoURL,st].join('|');
+  const key=[me.displayName,me.email,me.username,me.photoURL,st].join('|');
   if(key===_accKey) return;            // ничего не поменялось — DOM не трогаем
   _accKey=key;
   $('acc-av').innerHTML=me.photoURL?`<img src="${esc(me.photoURL)}" alt="" loading="lazy"/>`:esc(ini(me.displayName||me.email));
   $('acc-name').textContent=me.displayName||me.email||'—';
-  $('acc-sub').textContent=(me.email||'').includes('@')?me.email:'';
+  $('acc-sub').textContent=me.username?'@'+me.username:((me.email||'').includes('@')?me.email:'');
   $('acc-av-st').className='acc-av-st '+st;
 }
 function openAccount(){
@@ -3049,7 +3155,7 @@ function renderAchievements(){
   const list=[{id:me.uid,...me},...others].slice(0,LIMIT);
   const rows=list.map(u=>{
     const isMe=u.id===me.uid;
-    const name=(u.displayName||'').trim()||u.email||('Пользователь ·'+String(u.id).slice(-4));
+    const name=uName(u)==='Пользователь'?('Пользователь ·'+String(u.id).slice(-4)):uName(u);
     const av=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(name));
     return `<div class="lb-row${isMe?' me':''}"><div class="lb-av">${av}</div><div class="lb-name">${esc(name)}</div>${isMe?'<span class="lb-you">Вы</span>':''}</div>`;
   }).join('');
@@ -3067,19 +3173,92 @@ function fillProfileModal(u, isOwn){
   const avEl = $('profile-av-big');
   avEl.textContent = '';
   if(u.photoURL){ avEl.innerHTML = `<img src="${esc(u.photoURL)}" alt=""/>`; }
-  else { avEl.textContent = ini(u.displayName||u.email); }
+  else { avEl.textContent = ini(uName(u)); }
 
   const st = u.presence?.status || (isOwn ? me.presence?.status : null) || 'offline';
   $('prof-av-status').className = `prof-av-status ${st}`;
   setProfileCover(u.bgURL||'');
 
-  $('profile-display-name').textContent = u.displayName || u.email || '—';
-  const emailVal = u.email || '';
-  const sub = [emailVal.includes('@') ? emailVal : '', u.role==='admin' ? 'администратор' : ''].filter(Boolean);
+  $('profile-display-name').textContent = isOwn ? (u.displayName || u.email || '—') : uName(u);
+  const sub = [u.username ? '@'+u.username : '', u.role==='admin' ? 'администратор' : ''].filter(Boolean);   // почта — только из личных данных, другим не показываем
   $('profile-email-label').textContent = sub.join(' · ');
 
   // Био показываем только чужое (своё редактируется в форме ниже)
   $('prof-bio-view').textContent = isOwn ? '' : (u.bio || '');
+}
+
+/* ── НИКНЕЙМ ──
+ * users/{uid}.username — ник без «@», строчные латиница/цифры/_, 3–20, с буквы.
+ * pulsar_usernames/{ник} → {uid, createdAt} — «бронь» ника, гарантирует уникальность (транзакция).
+ * Почта другим пользователям не показывается: везде вместо неё @ник (см. uName / uSub). */
+const NICK_RESERVED=new Set(['admin','administrator','moderator','support','help','system','root','official','dastdaroz','pulsar','everyone','all','here','channel']);
+const NICK_HINT='По никнейму вас смогут найти, а почта останется скрытой. 3–20 символов: латиница, цифры и _';
+let _nickTimer=null,_nickSeq=0,_nickOk=false;
+function _nickSet(kind,msg){
+  const h=$('nick-hint'),w=$('nick-wrap'); if(!h||!w)return;
+  h.className='nick-hint'+(kind?' '+kind:''); h.textContent=msg;
+  w.className='nick-wrap'+(kind?' '+kind:'');
+}
+function _nickLocal(v){
+  if(v.length<3)return 'Минимум 3 символа';
+  if(!/^[a-z]/.test(v))return 'Должен начинаться с буквы';
+  if(v.endsWith('_'))return 'Не заканчивайте на _';
+  if(NICK_RESERVED.has(v))return 'Этот никнейм зарезервирован';
+  return '';
+}
+function _nickRowSync(){
+  const e=$('nick-row-sub'); if(e) e.textContent=me?.username?'@'+me.username:'Не задан';
+}
+function _nickFill(){
+  const i=$('nick-inp'); if(!i||!me)return;
+  clearTimeout(_nickTimer); _nickSeq++; _nickOk=false;
+  i.value=me.username||'';
+  _nickSet('',me.username?'Это ваш текущий никнейм. Его можно изменить в любой момент.':NICK_HINT);
+  $('nick-save').disabled=true; $('nick-save').textContent='Сохранить';
+}
+function _nickInput(){
+  const i=$('nick-inp'); if(!me)return;
+  const v=i.value.toLowerCase().replace(/^@+/,'').replace(/[^a-z0-9_]/g,'');   // «@» и лишние символы убираем на лету
+  if(v!==i.value) i.value=v;
+  clearTimeout(_nickTimer); const seq=++_nickSeq; _nickOk=false; $('nick-save').disabled=true;
+  if(!v){ _nickSet('',NICK_HINT); return; }
+  if(v===(me.username||'')){ _nickSet('','Это ваш текущий никнейм'); return; }
+  const bad=_nickLocal(v);
+  if(bad){ _nickSet('err',bad); return; }
+  _nickSet('','Проверяем…');
+  _nickTimer=setTimeout(async()=>{
+    try{
+      const s=await getDoc(doc(fdb,'pulsar_usernames',v));
+      if(seq!==_nickSeq)return;
+      if(s.exists()&&s.data().uid!==me.uid){ _nickSet('err','@'+v+' уже занят'); return; }
+      _nickOk=true; _nickSet('ok','@'+v+' свободен'); $('nick-save').disabled=false;
+    }catch(e){ if(seq===_nickSeq)_nickSet('err','Не удалось проверить, попробуйте позже'); }
+  },350);
+}
+async function saveNickname(){
+  if(!me)return;
+  const v=$('nick-inp').value.trim();
+  if(!_nickOk||!v||_nickLocal(v))return;
+  const btn=$('nick-save'); btn.disabled=true; btn.textContent='Сохранение…';
+  const old=me.username||'';
+  try{
+    await runTransaction(fdb,async tx=>{
+      const nref=doc(fdb,'pulsar_usernames',v);
+      const s=await tx.get(nref);
+      if(s.exists()&&s.data().uid!==me.uid) throw new Error('taken');
+      if(!s.exists()) tx.set(nref,{uid:me.uid,createdAt:serverTimestamp()});
+      if(old&&old!==v) tx.delete(doc(fdb,'pulsar_usernames',old));          // прежний ник освобождается
+      tx.set(doc(fdb,'users',me.uid),{username:v,updatedAt:serverTimestamp()},{merge:true});
+    });
+    me.username=v; if(allUsers[me.uid]) allUsers[me.uid].username=v; _nickRowSync();
+    _nickOk=false; fillAccountCard(); updatePresence(me.presence?.status||'online');
+    _nickSet('ok','Никнейм сохранён: @'+v); toast('Никнейм @'+v+' сохранён ✓','ok');
+    btn.textContent='Сохранить';
+  }catch(e){
+    btn.textContent='Сохранить';
+    if(e.message==='taken'){ _nickOk=false; _nickSet('err','@'+v+' уже занят'); }
+    else { btn.disabled=false; toast('Не удалось сохранить никнейм','err'); }
+  }
 }
 
 let _profSnap={name:'',bio:''};
@@ -3093,6 +3272,7 @@ function _profSetOwn(own){
   $('prof-av-wrap').classList.toggle('own',own);
   $('prof-av-edit').style.display=own?'':'none';
   $('prof-cover-btn').style.display=own?'':'none';
+  $('prof-cover-report').style.display=own?'none':'flex';
 }
 
 async function openMyProfile(){
@@ -3110,8 +3290,186 @@ async function openMyProfile(){
   $('profile-own').style.display          = '';
   $('profile-foot').style.display         = '';
   $('prof-other-actions').style.display   = 'none';
+  $('prof-quick').style.display           = 'none';
   await _profImgsReady();
   Sheet.open('profile');
+}
+
+/* Заглушка для кнопок чужого профиля («Звук», «Ещё») — потом заменить реальными функциями */
+let _profStubBuilt=false;
+function _openProfStub(title,ico,text){
+  if(!_profStubBuilt){
+    _profStubBuilt=true;
+    Sheet.define({ id:'profstub', title:'', zIndex:850 });
+    Sheet.body('profstub').innerHTML=`<div class="prof-stub"><div class="prof-stub-ico" id="profstub-ico"></div><div class="prof-stub-t" id="profstub-t"></div><div class="prof-stub-s" id="profstub-s"></div></div>`;
+  }
+  $('profstub-ico').textContent=ico; $('profstub-t').textContent=title; $('profstub-s').textContent=text;
+  Sheet.open('profstub');
+}
+
+/* Жалоба на аккаунт
+   — один документ на пару «кто → на кого» (id = reporter__target): повторно пожаловаться нельзя
+   — причина обязательна; комментарий и доказательства (до 3 фото/видео из галереи) нет
+   — фото сжимаются до 1600px, видео до 50 МБ грузятся как есть в Storage: report_evidence/{uid}/{target}/…
+   — клиентский лимит: не больше 10 жалоб в сутки с устройства
+   Firestore: коллекция reports (create — авторизованному, reporterUid == auth.uid).
+   Storage: report_evidence/{uid}/** — запись только владельцу, чтение только админу. */
+const _REP_REASONS=[
+  ['spam','Спам или реклама'],
+  ['abuse','Оскорбления, травля, угрозы'],
+  ['fake','Фейк или выдаёт себя за другого'],
+  ['inappropriate','Неприемлемый контент (профиль, аватар, фон)'],
+  ['other','Другое']
+];
+const _REP_DAILY_LIMIT=10, _REP_MAX_FILES=3, _REP_MAX_IMG=15*1024*1024, _REP_MAX_VID=50*1024*1024;
+let _repBuilt=false,_repUid=null,_repReason=null,_repBusy=false,_repFiles=[];   // _repFiles: [{file,url,kind}]
+
+function _repQuota(){
+  try{
+    const k='pulsar_rep_'+new Date().toISOString().slice(0,10);
+    return {k, n:+localStorage.getItem(k)||0};
+  }catch(_){ return {k:null,n:0}; }
+}
+function _repValidate(){ $('prof-rep-send').disabled=!_repReason||_repBusy; }
+
+const _REP_ICO_PLUS='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+function _repRenderEv(){
+  const g=$('prof-rep-ev-grid');
+  g.innerHTML=_repFiles.map((f,i)=>
+    '<div class="prof-rep-th">'
+    +(f.kind==='video'
+        ? '<video src="'+f.url+'#t=0.1" muted playsinline preload="metadata"></video><span class="prof-rep-play"></span>'
+        : '<img src="'+f.url+'" alt=""/>')
+    +'<button type="button" class="prof-rep-x" data-i="'+i+'" aria-label="Убрать"'+(_repBusy?' disabled':'')+'>×</button></div>'
+  ).join('')
+  +(_repFiles.length<_REP_MAX_FILES
+      ? '<button type="button" class="prof-rep-add" id="prof-rep-add"'+(_repBusy?' disabled':'')+'>'+_REP_ICO_PLUS+'<span>Фото / видео</span></button>' : '');
+  $('prof-rep-ev-count').textContent=_repFiles.length+'/'+_REP_MAX_FILES;
+}
+function _repClearFiles(){ _repFiles.forEach(f=>URL.revokeObjectURL(f.url)); _repFiles=[]; }
+function _repReset(){
+  _repReason=null; _repBusy=false; _repClearFiles();
+  document.querySelectorAll('#prof-rep-list button').forEach(b=>b.classList.remove('on'));
+  $('prof-rep-note').value=''; $('prof-rep-count').textContent='0/300';
+  $('prof-rep-file').value='';
+  $('prof-rep-send').textContent='Отправить жалобу';
+  _repRenderEv(); _repValidate();
+}
+function _repAddFiles(list){
+  for(const file of list){
+    if(_repFiles.length>=_REP_MAX_FILES){ toast('Можно прикрепить не больше '+_REP_MAX_FILES+' файлов','warn'); break; }
+    const kind=file.type.startsWith('video/')?'video':file.type.startsWith('image/')?'image':null;
+    if(!kind){ toast('Подходят только фото и видео','err'); continue; }
+    if(file.size>(kind==='video'?_REP_MAX_VID:_REP_MAX_IMG)){
+      toast((kind==='video'?'Видео':'Фото')+' слишком большое (макс. '+(kind==='video'?'50':'15')+' МБ)','err'); continue;
+    }
+    _repFiles.push({file,kind,url:URL.createObjectURL(file)});
+  }
+  _repRenderEv();
+}
+/* фото ужимаем до 1600px JPEG — быстрее грузится и экономит трафик; если не получилось (HEIC/gif) — шлём оригинал */
+async function _repCompress(file){
+  if(file.type==='image/gif'||file.size<350*1024) return file;
+  try{
+    const bmp=await createImageBitmap(file);
+    const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas'); c.width=Math.round(bmp.width*k); c.height=Math.round(bmp.height*k);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));
+    return blob&&blob.size<file.size ? blob : file;
+  }catch(_){ return file; }
+}
+function _repExt(file){
+  const m=(file.name||'').match(/\.([a-z0-9]{2,5})$/i);
+  if(m) return m[1].toLowerCase();
+  return (file.type.split('/')[1]||'bin').replace('jpeg','jpg');
+}
+async function _repUploadAll(onProgress){
+  const jobs=[];
+  for(const f of _repFiles){
+    const blob=f.kind==='image' ? await _repCompress(f.file) : f.file;
+    jobs.push({kind:f.kind,blob,type:blob.type||f.file.type});
+  }
+  const total=jobs.reduce((n,j)=>n+j.blob.size,0)||1; let done=0; const out=[];
+  for(let i=0;i<jobs.length;i++){
+    const j=jobs[i];
+    const path='report_evidence/'+me.uid+'/'+_repUid+'/'+Date.now()+'_'+i+'.'+(j.type==='image/jpeg'?'jpg':_repExt(j.blob.name?j.blob:_repFiles[i].file));
+    const task=uploadBytesResumable(sRef(storage,path),j.blob,{contentType:j.type});
+    await new Promise((res,rej)=>task.on('state_changed',sn=>onProgress((done+sn.bytesTransferred)/total),rej,res));
+    out.push({kind:j.kind,path,size:j.blob.size,url:await getDownloadURL(task.snapshot.ref)});
+    done+=j.blob.size;
+  }
+  return out;
+}
+
+function _openReport(uid){
+  if(!uid || uid===me.uid) return;
+  _repUid=uid;
+  if(!_repBuilt){
+    _repBuilt=true;
+    Sheet.define({ id:'profreport', title:'Пожаловаться', zIndex:850 });
+    Sheet.body('profreport').innerHTML=
+      '<div class="prof-rep-hd">Что не так с этим аккаунтом? Жалоба анонимна — пользователь о ней не узнает.</div>'
+      +'<div class="prof-rep-list" id="prof-rep-list">'
+      +_REP_REASONS.map(([c,t])=>'<button type="button" data-c="'+c+'">'+t+'</button>').join('')+'</div>'
+      +'<div class="prof-rep-note-wrap"><label for="prof-rep-note">Комментарий (необязательно)<span class="prof-count" id="prof-rep-count">0/300</span></label>'
+      +'<textarea id="prof-rep-note" rows="3" maxlength="300" placeholder="Коротко опишите, что произошло"></textarea></div>'
+      +'<div class="prof-rep-note-wrap"><label>Доказательства (необязательно)<span class="prof-count" id="prof-rep-ev-count">0/3</span></label>'
+      +'<div class="prof-rep-ev-grid" id="prof-rep-ev-grid"></div>'
+      +'<input type="file" id="prof-rep-file" accept="image/*,video/*" multiple hidden/></div>'
+      +'<div class="prof-foot"><button class="btn btn-primary" id="prof-rep-send" type="button" style="flex:1" disabled>Отправить жалобу</button></div>';
+
+    $('prof-rep-list').addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b||_repBusy) return;
+      _repReason=b.dataset.c;
+      document.querySelectorAll('#prof-rep-list button').forEach(x=>x.classList.toggle('on',x===b));
+      _repValidate();
+    });
+    $('prof-rep-note').addEventListener('input',()=>{ $('prof-rep-count').textContent=$('prof-rep-note').value.length+'/300'; });
+
+    $('prof-rep-ev-grid').addEventListener('click',e=>{
+      if(_repBusy) return;
+      if(e.target.closest('#prof-rep-add')){ $('prof-rep-file').click(); return; }
+      const x=e.target.closest('.prof-rep-x'); if(!x) return;
+      const [f]=_repFiles.splice(+x.dataset.i,1); if(f) URL.revokeObjectURL(f.url);
+      _repRenderEv();
+    });
+    $('prof-rep-file').addEventListener('change',e=>{ _repAddFiles([...e.target.files]); e.target.value=''; });
+
+    $('prof-rep-send').addEventListener('click',async()=>{
+      if(!_repReason||_repBusy) return;
+      const q=_repQuota();
+      if(q.n>=_REP_DAILY_LIMIT){ toast('Слишком много жалоб за сегодня. Попробуйте завтра','err'); return; }
+      _repBusy=true; _repValidate(); _repRenderEv(); $('prof-rep-send').textContent='Отправляем…';
+      const target=allUsers[_repUid]||{};
+      const ref=doc(fdb,'reports',me.uid+'__'+_repUid);
+      try{
+        if((await getDoc(ref)).exists()){            // проверяем ДО загрузки файлов, чтобы не гонять трафик зря
+          Sheet.close('profreport'); toast('Вы уже отправляли жалобу на этот аккаунт');
+          return;
+        }
+        const evidence=_repFiles.length
+          ? await _repUploadAll(p=>{ $('prof-rep-send').textContent='Загрузка '+Math.round(p*100)+'%'; })
+          : [];
+        await setDoc(ref,{
+          reporterUid:me.uid, reporterName:uName(me),
+          targetUid:_repUid, targetName:uName(target), targetUsername:target.username||null,
+          reason:_repReason, note:$('prof-rep-note').value.trim(), evidence,
+          status:'new', ts:serverTimestamp(), clientTs:Date.now()
+        });
+        if(q.k){ try{ localStorage.setItem(q.k,String(q.n+1)); }catch(_){} }
+        Sheet.close('profreport'); toast('Спасибо, жалоба отправлена');
+      }catch(err){
+        console.error('report failed',err);
+        toast('Не удалось отправить жалобу. Проверьте сеть и попробуйте ещё раз','err');
+      }finally{
+        _repBusy=false; _repValidate(); _repRenderEv();
+        $('prof-rep-send').textContent='Отправить жалобу';
+      }
+    });
+  }
+  _repReset();
+  Sheet.open('profreport');
 }
 
 async function openUserProfile(uid){
@@ -3125,6 +3483,17 @@ async function openUserProfile(uid){
   $('prof-other-actions').style.display   = 'block';
 
   $('prof-btn-dm').onclick = ()=>{ Sheet.close('profile'); openOrCreateDM(uid); };
+  $('prof-quick').style.display = 'grid';
+  const _callFromProfile = async kind => {          // звонки живут в личном чате — открываем его и стартуем
+    Sheet.close('profile');
+    await openOrCreateDM(uid);
+    setTimeout(()=>window.VideoCall?.open(kind), 250);
+  };
+  $('prof-q-call').onclick  = () => _callFromProfile('audio');
+  $('prof-q-video').onclick = () => _callFromProfile('video');
+  $('prof-cover-report').onclick = () => _openReport(uid);
+  $('prof-q-sound').onclick = () => _openProfStub('Звук', '🔔', 'Здесь появятся настройки уведомлений для этого собеседника: отключить звук, выбрать мелодию.');
+  $('prof-q-more').onclick  = () => _openProfStub('Ещё', '⚙️', 'Здесь будут дополнительные действия: заблокировать, пожаловаться, очистить историю и другое.');
   await _profImgsReady();
   Sheet.open('profile');
 }
@@ -3132,7 +3501,7 @@ async function openUserProfile(uid){
 async function saveProfile(){
   const name     = $('profile-name-input').value.trim();
   const bio      = $('profile-bio-input').value.trim();
-  if(!name){ toast('Введите имя','err'); return; }
+  if(!name){ toast('Введите имя','warn'); return; }
   const btn = $('btn-save-profile'); btn.textContent='Сохранение…'; btn.disabled=true;
   try{
     await setDoc(doc(fdb,'users',me.uid),{displayName:name,bio,updatedAt:serverTimestamp()},{merge:true});   // аватар сохраняется отдельно (_setAvatar)
@@ -3248,7 +3617,7 @@ function onGroupsChanged(){
   if(_pendingJoin){
     const id=_pendingJoin;_pendingJoin=null;
     try{localStorage.removeItem('p_join');history.replaceState(null,'',location.pathname);}catch(e){}
-    if(_findGR(id))openChannel(id);else toast('Не найдено — возможно, удалено','err');
+    if(_findGR(id))openChannel(id);else toast('Не найдено — возможно, удалено','warn');
   }
 }
 
@@ -3305,15 +3674,15 @@ function _grpPickRender(){
   const q=($('grp-pick-inp').value||'').trim().toLowerCase();
   const users=Object.values(allUsers).filter(u=>u.uid!==me.uid)
     .filter(u=>_grpPickMode!=='add'||!(_gpGroup()?.members||[]).includes(u.uid))     // при добавлении — только те, кого ещё нет в группе
-    .filter(u=>!q||(u.displayName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q))
-    .sort((a,b)=>(a.displayName||a.email||'').localeCompare(b.displayName||b.email||'','ru'));
+    .filter(u=>!q||(u.displayName||'').toLowerCase().includes(q)||(u.username||'').includes(q.replace(/^@/,'')))
+    .sort((a,b)=>(uName(a)||'').localeCompare(uName(b)||'','ru'));
   if(!users.length){list.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">${q?'Никого не найдено':(_grpPickMode==='add'?(currentCh?.type==='room'?'Все пользователи уже в комнате':'Все пользователи уже в группе'):'Нет других пользователей')}</div>`;return;}
   list.innerHTML=users.map(u=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email));
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(uName(u)));
     return `<div class="ch-card${_grpPicked.has(u.uid)?' sel':''}" data-pick="${esc(u.uid)}" role="button" tabindex="0">
       <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
-      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(u.displayName||u.email||'—')}</span></div><div class="ch-preview">${esc(u.email||'')}</div></div>
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(uName(u)||'—')}</span></div><div class="ch-preview">${esc(uSub(u))}</div></div>
       <span class="grp-check">${_CHECK_SVG}</span></div>`;
   }).join('');
 }
@@ -3368,7 +3737,7 @@ function _grpBuild(){
   $('grp-ava-pick').addEventListener('click',()=>{if(!_grpBusy)$('grp-file').click();});
   $('grp-file').addEventListener('change',async e=>{
     const f=e.target.files[0];e.target.value='';if(!f)return;
-    if(!f.type.startsWith('image/')){toast('Выберите изображение','err');return;}
+    if(!f.type.startsWith('image/')){toast('Выберите изображение','warn');return;}
     try{
       _grpBlob=await _squareBlob(f,512);                          // квадрат 512×512, как у личного аватара
       if(_grpPrev)URL.revokeObjectURL(_grpPrev);
@@ -3397,7 +3766,7 @@ function _grpBuild(){
     <div class="store-search" style="padding:4px 16px 8px">
       <div class="store-search-in">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input id="grp-pick-inp" type="text" placeholder="Имя или email" autocomplete="off" autocapitalize="none" spellcheck="false"/>
+        <input id="grp-pick-inp" type="text" placeholder="Имя или @никнейм" autocomplete="off" autocapitalize="none" spellcheck="false"/>
       </div>
     </div>
     <div class="grp-pick-list" id="grp-pick-list"></div>
@@ -3420,7 +3789,7 @@ function openGroupCreate(){
 async function createGroup(){
   if(_grpBusy||!me)return;
   const name=$('grp-name').value.trim(),description=$('grp-desc').value.trim();
-  if(!name){toast('Введите название','err');return;}
+  if(!name){toast('Введите название','warn');return;}
   _grpBusy=true;_grpValid();$('grp-submit').textContent='Создание…';
   try{
     let photoURL='';
@@ -3508,11 +3877,11 @@ function fillGroupProfile(full){
   $('gp-members-lbl').textContent=`Участники · ${users.length}`;
   $('gp-members').innerHTML=users.map(u=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email));
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(uName(u)));
     const st=pr==='online'?'в сети':pr==='away'?'отошёл':'не в сети';
     return `<div class="ch-card" data-uid="${esc(u.uid)}" role="button" tabindex="0">
       <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
-      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(u.displayName||u.email||'—')}${u.uid===me.uid?' (вы)':''}</span>${u.uid===g.createdBy?'<span class="gp-role">Создатель</span>':''}</div>
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(uName(u)||'—')}${u.uid===me.uid?' (вы)':''}</span>${u.uid===g.createdBy?'<span class="gp-role">Создатель</span>':''}</div>
       <div class="ch-preview">${st}</div></div>
       ${(owner&&u.uid!==me.uid&&u.uid!==g.createdBy)?`<button class="gp-kick" data-kick="${esc(u.uid)}" type="button" aria-label="Исключить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 8l5 5M22 8l-5 5"/></svg></button>`:''}</div>`;
   }).join('')||'<div style="padding:24px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">Нет участников</div>';
@@ -3630,7 +3999,7 @@ async function openGroupProfile(){
 async function saveGroupProfile(){
   const g=_gpGroup();if(!g||!_gpIsOwner(g)||_gpBusy)return;
   const name=$('gp-name-input').value.trim(),description=$('gp-desc-input').value.trim();
-  if(!name){toast('Введите название','err');return;}
+  if(!name){toast('Введите название','warn');return;}
   _gpBusy=true;$('gp-save').textContent='Сохранение…';_gpDirty();
   try{
     await updateDoc(doc(fdb,'pulsar_channels',g.id),{name,description});
@@ -3644,7 +4013,7 @@ const _grpRef=id=>doc(fdb,'pulsar_channels',id);
 function toggleGroupMute(){
   const g=_gpGroup();if(!g)return;
   if(mutedChannels.has(g.id)){mutedChannels.delete(g.id);toast('Уведомления включены','ok');}
-  else{mutedChannels.add(g.id);toast('Уведомления выключены','ok');}
+  else{mutedChannels.add(g.id);toast('Уведомления выключены','info');}
   try{localStorage.setItem('p_muted',JSON.stringify([...mutedChannels]));}catch(e){}
   fillGroupProfile(false);renderGroupList();
 }
@@ -3710,7 +4079,7 @@ async function deleteGroup(){
 }
 async function kickMember(uid){
   const g=_gpGroup();if(!g||!_gpIsOwner(g)||uid===me.uid||uid===g.createdBy)return;
-  const nm=allUsers[uid]?.displayName||allUsers[uid]?.email||'участника';
+  const nm=uName(allUsers[uid])||'участника';
   if(!confirm(_gw(g).confirmKick(nm)))return;
   try{
     await updateDoc(_grpRef(g.id),{members:arrayRemove(uid),banned:arrayUnion(uid),...(g.type==='room'?_slotClear(g,uid):{})});
@@ -3748,7 +4117,7 @@ async function addGroupMembers(){
 // фото/обложка группы (вызывается из пикеров); true — сохранено
 async function _saveGroupMedia(fields,okMsg){
   const g=_gpGroup();
-  if(!g||!_gpIsOwner(g)||g.id!==_pickGrp){toast('Менять может только создатель','err');return false;}
+  if(!g||!_gpIsOwner(g)||g.id!==_pickGrp){toast('Менять может только создатель','warn');return false;}
   try{
     await updateDoc(doc(fdb,'pulsar_channels',g.id),fields);
     Object.assign(g,fields);
@@ -3895,8 +4264,8 @@ function renderRoomStage(){
   let html='';
   slots.forEach((uid,i)=>{
     if(!uid){html+=`<button class="rs-cell empty" type="button" data-slot="${i}" aria-label="Свободное место ${i+1}"><span class="rs-ava"><span class="rs-ava-in"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></span><span class="rs-name">Свободно</span></button>`;return;}
-    const u=allUsers[uid]||{uid},nm=(uid===me.uid?'Вы':(u.displayName||u.email||'Участник').split(' ')[0]);
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email||'?'));
+    const u=allUsers[uid]||{uid},nm=(uid===me.uid?'Вы':(uName(u)||'Участник').split(' ')[0]);
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(uName(u)||'?'));
     const muted=uid===me.uid&&(_roomAudio.deaf||!_roomAudio.mic);
     html+=`<button class="rs-cell${uid===me.uid?' me':''}" type="button" data-uid="${esc(uid)}"><span class="rs-ava"><span class="rs-ava-in">${avI}</span>${muted?`<span class="rs-mute">${_MICOFF_SVG}</span>`:''}</span><span class="rs-name">${esc(nm)}</span></button>`;
   });
@@ -3919,7 +4288,7 @@ async function joinRoomStage(idx){
   if((r.banned||[]).includes(me.uid)){toast('Вас исключили из этой комнаты','err');return;}
   const slots=_roomSlots(r);
   if(typeof idx!=='number'||slots[idx])idx=slots.findIndex(x=>!x);
-  if(idx<0){toast('Все места заняты','err');return;}
+  if(idx<0){toast('Все места заняты','warn');return;}
   if(slots[idx]===me.uid)return;
   _roomEnter(r);
   const old=[];slots.forEach((u,i)=>{if(u===me.uid)old.push(i);});
@@ -3952,12 +4321,12 @@ function leaveRoom(){
   renderRoomStage();updateRoomMini();
 }
 function _roomToggleMic(){
-  if(!_onStage()){toast('Сначала войдите в голос','err');return;}
+  if(!_onStage()){toast('Сначала войдите в голос','warn');return;}
   if(_roomAudio.deaf){_roomAudio.deaf=false;_roomAudio.mic=true;}else _roomAudio.mic=!_roomAudio.mic;
   renderRoomStage();
 }
 function _roomToggleDeaf(){
-  if(!_onStage()){toast('Сначала войдите в голос','err');return;}
+  if(!_onStage()){toast('Сначала войдите в голос','warn');return;}
   _roomAudio.deaf=!_roomAudio.deaf;
   renderRoomStage();
 }
@@ -4074,7 +4443,7 @@ function _raBuild(){
     <input type="range" min="0" max="100" value="80" disabled style="width:100%;accent-color:var(--accent)"/>
     <div class="grp-hint">Настройки подключим вместе с самим голосом — пока это заглушки.</div>
   </div>`;
-  Sheet.body('room-audio').addEventListener('click',e=>{if(e.target.closest('[data-stub]'))toast('Скоро будет доступно','ok');});
+  Sheet.body('room-audio').addEventListener('click',e=>{if(e.target.closest('[data-stub]'))toast('Скоро будет доступно','info');});
 }
 
 /* ── шторка «Новая голосовая комната» ── */
@@ -4133,7 +4502,7 @@ function _rcBuild(){
   $('rc-ava-pick').addEventListener('click',()=>{if(!_rcBusy)$('rc-file').click();});
   $('rc-file').addEventListener('change',async e=>{
     const f=e.target.files[0];e.target.value='';if(!f)return;
-    if(!f.type.startsWith('image/')){toast('Выберите изображение','err');return;}
+    if(!f.type.startsWith('image/')){toast('Выберите изображение','warn');return;}
     try{
       _rcBlob=await _squareBlob(f,512);
       if(_rcPrev)URL.revokeObjectURL(_rcPrev);
@@ -4158,7 +4527,7 @@ function openRoomCreate(){
 async function createRoom(){
   if(_rcBusy||!me)return;
   const name=$('rc-name').value.trim(),description=$('rc-desc').value.trim();
-  if(!name){toast('Введите название','err');return;}
+  if(!name){toast('Введите название','warn');return;}
   _rcBusy=true;_rcValid();$('rc-submit').textContent='Создание…';
   try{
     let photoURL='';
@@ -4214,11 +4583,11 @@ function openMembers(){
   Sheet.setTitle('members',`${currentCh.name||'Участники'} · ${users.length}`);
   $('sh-members-list').innerHTML=users.map(u=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email));
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(uName(u)));
     return `<div class="ch-card" data-uid="${esc(u.uid)}" role="button" tabindex="0">
       <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
-      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(u.displayName||u.email||'—')}${u.uid===me.uid?' (вы)':''}</span></div>
-      <div class="ch-preview">${esc(u.email||'')}</div></div></div>`;
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${esc(uName(u)||'—')}${u.uid===me.uid?' (вы)':''}</span></div>
+      <div class="ch-preview">${esc(uSub(u))}</div></div></div>`;
   }).join('')||'<div style="padding:24px;text-align:center;color:var(--muted);font-size:var(--fs-xs)">Нет участников</div>';
   Sheet.open('members');
 }
@@ -4252,8 +4621,8 @@ function _renderUserSearch(q){
   const ql=(q||'').toLowerCase().trim();
   const users=Object.values(allUsers)
     .filter(u=>u.uid!==me?.uid)
-    .filter(u=>!ql||(u.displayName||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql))
-    .sort((a,b)=>(a.displayName||a.email||'').localeCompare(b.displayName||b.email||'','ru'));
+    .filter(u=>!ql||(u.displayName||'').toLowerCase().includes(ql)||(u.username||'').includes(ql.replace(/^@/,'')))
+    .sort((a,b)=>(uName(a)||'').localeCompare(uName(b)||'','ru'));
 
   if(!users.length){
     list.innerHTML=msg(ql?'Никого не найдено':'Нет других пользователей');
@@ -4263,12 +4632,12 @@ function _renderUserSearch(q){
   const lbl=`<div class="gp-members-lbl">${ql?'Найдено':'Люди'} · ${users.length}</div>`;
   list.innerHTML=lbl+users.map(u=>{
     const pr=u.presence?.status||'offline';
-    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(u.displayName||u.email));
+    const avI=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(uName(u)));
     const prLabel=pr==='online'?'<span style="color:var(--green)">в сети</span>':pr==='away'?'<span style="color:var(--amber)">отошёл</span>':'';
     return `<div class="ch-card" data-uid="${esc(u.uid)}" role="button" tabindex="0">
       <div class="ch-ava-wrap"><div class="ch-ava"><span>${avI}</span></div><div class="ch-presence ${pr}"></div></div>
-      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${_shHl(u.displayName||u.email||'—',ql)}</span></div>
-        <div class="ch-preview">${_shHl(u.email||'',ql)}${prLabel?' · '+prLabel:''}</div></div>
+      <div class="ch-body"><div class="ch-row1"><span class="ch-title">${_shHl(uName(u)||'—',ql)}</span></div>
+        <div class="ch-preview">${_shHl(uSub(u),ql)}${prLabel?' · '+prLabel:''}</div></div>
       <svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
     </div>`;
   }).join('');
@@ -4481,7 +4850,7 @@ function initUI(){
       if (key === whoKey) return; whoKey = key;
       const meU = allUsers[me.uid] || {}, peer = allUsers[st.peerId] || {};
       const meName = me.displayName || meU.displayName || me.email, meImg = me.photoURL || meU.photoURL;
-      const peerName = peer.displayName || peer.email || 'Собеседник';
+      const peerName = uName(peer) || 'Собеседник';
       avaInto($v('vc-peer-ava'), sw ? meImg : peer.photoURL, sw ? meName : peerName);
       avaInto($v('vc-me-ava'),   sw ? peer.photoURL : meImg, sw ? peerName : meName);
     }
@@ -4768,8 +5137,8 @@ function initUI(){
             .then(() => { flushIce(); if (st.state === 'calling') setState('connecting'); clearTimeout(st.ringTimer); })
             .catch(e => console.warn('answer', e));
         }
-        if (d.status === 'declined'){ toast('Звонок отклонён','err'); end(true); }
-        else if (d.status === 'ended' || d.status === 'missed'){ toast('Звонок завершён'); end(true); }
+        if (d.status === 'declined'){ toast('Звонок отклонён','warn'); end(true); }
+        else if (d.status === 'ended' || d.status === 'missed'){ toast('Звонок завершён','info'); end(true); }
       }, e => console.warn('call watch', e)));
       st.unsubs.push(onSnapshot(collection(ref, candCol), snap => {
         if (my !== st.session) return;
@@ -4801,7 +5170,7 @@ function initUI(){
       ready = true; buf.splice(0).forEach(push);
       if (!st.mic) sendMicFlag();                         // микрофона нет / выключен ещё до звонка
       watchCall(ref, 'calleeCandidates');
-      st.ringTimer = setTimeout(() => { if (st.state === 'calling'){ toast('Не ответил','err'); end(false, 'missed'); } }, 45000);
+      st.ringTimer = setTimeout(() => { if (st.state === 'calling'){ toast('Не ответил','warn'); end(false, 'missed'); } }, 45000);
     }
 
     // Принимающий: offer ← Firestore, answer → Firestore
@@ -4816,7 +5185,7 @@ function initUI(){
         const ref = st.callRef = doc(fdb, 'pulsar_calls', c.id);
         const cur = (await getDoc(ref)).data();
         if (my !== st.session) return;
-        if (!cur || cur.status !== 'ringing'){ toast('Звонок уже завершён','err'); end(true); return; }
+        if (!cur || cur.status !== 'ringing'){ toast('Звонок уже завершён','warn'); end(true); return; }
         st.pendingIce = []; st.answered = true;
         const pc = st.pc = makePC();
         pc.onicecandidate = e => { if (e.candidate) addDoc(collection(ref, 'calleeCandidates'), candData(e.candidate)).catch(()=>{}); };
@@ -4840,7 +5209,7 @@ function initUI(){
 
     /* ── показать окно звонка ── */
     function showUI(peerId, ch, kind){
-      const o = allUsers[peerId] || {}, name = o.displayName || o.email || 'Собеседник';
+      const o = allUsers[peerId] || {}, name = uName(o) || 'Собеседник';
       st.ch = ch; st.peerId = peerId; st.session++; st.min = false; st.kind = kind === 'audio' ? 'audio' : 'video';
       vc.classList.toggle('audio', st.kind === 'audio'); vc.setAttribute('aria-label', st.kind === 'audio' ? 'Аудиозвонок' : 'Видеозвонок');
       st.facing = 'user'; st.corner = { h:'r', v:'t' }; st.mic = true; st.cam = st.kind !== 'audio'; st.remoteCamOff = false; st.swap = false; st.remoteMicOff = false; vc.classList.remove('ui-hidden');
@@ -4862,8 +5231,8 @@ function initUI(){
     /* ── публичное API ── */
     async function open(kind){
       if (st.state !== 'idle'){ expand(); return; }          // звонок уже идёт — просто вернуть окно
-      if (!currentCh || currentCh.type !== 'direct'){ toast('Звонки доступны только в личных чатах','err'); return; }
-      if (!window.RTCPeerConnection){ toast('Звонки не поддерживаются в этом браузере','err'); return; }
+      if (!currentCh || currentCh.type !== 'direct'){ toast('Звонки доступны только в личных чатах','warn'); return; }
+      if (!window.RTCPeerConnection){ toast('Звонки не поддерживаются в этом браузере','warn'); return; }
       if (incoming && incoming.chId === currentCh.id){ joinIncoming(); return; }   // нам уже звонят — просто отвечаем
       const oid = (currentCh.members || []).find(u => u !== me.uid);
       showUI(oid, currentCh, kind);
@@ -4877,7 +5246,7 @@ function initUI(){
     // Запись о звонке в переписке: «исходящий / входящий / пропущенный» (см. callCardHtml)
     async function logCall(ch, result, dur, kind){
       try {
-        const text = kind === 'audio' ? '📞 Аудиозвонок' : '📹 Видеозвонок', name = me.displayName || me.email;
+        const text = kind === 'audio' ? '📞 Аудиозвонок' : '📹 Видеозвонок', name = uName(me);
         const r = await addDoc(collection(fdb, 'pulsar_channels', ch.id, 'messages'), {
           type:'call', callKind:kind === 'audio' ? 'audio' : 'video', callResult:result, callDur:dur || 0, text,
           authorId: me.uid, authorName: name, ts: serverTimestamp(), clientTs: Date.now(),
@@ -4917,7 +5286,7 @@ function initUI(){
         const au = incoming.kind === 'audio';
         $v('cb-t').textContent = au ? 'Аудиозвонок' : 'Видеозвонок';
         $v('cb-ico').innerHTML = au ? CALL_ICO.tel : CALL_ICO.cam;
-        const o = allUsers[incoming.from] || {}; $v('cb-sub').textContent = (o.displayName || o.email || 'Собеседник') + ' звонит…'; }
+        const o = allUsers[incoming.from] || {}; $v('cb-sub').textContent = (uName(o) || 'Собеседник') + ' звонит…'; }
     }
     function stopRing(){ clearInterval(ringIv); ringIv = null; }
     function setIncoming(c){
@@ -4931,10 +5300,10 @@ function initUI(){
       if (c){
         incExpiry = setTimeout(() => { if (incoming?.id === c.id){ incoming = null; stopRing(); refreshBanner(); } }, Math.max(1000, 60000 - (Date.now() - c.ts)));
         if (c.id !== prev){
-          const o = allUsers[c.from] || {}, nm = o.displayName || o.email || 'Собеседник';
+          const o = allUsers[c.from] || {}, nm = uName(o) || 'Собеседник';
           const inChat = _curView() === 'conversation' && currentCh?.id === c.chId;
           const au = c.kind === 'audio';
-          if (!inChat) toast((au ? '📞 Аудиозвонок от ' : '📹 Видеозвонок от ') + nm + ' — откройте чат и нажмите «Присоединиться»');
+          if (!inChat) toast((au ? '📞 Аудиозвонок от ' : '📹 Видеозвонок от ') + nm + ' — откройте чат и нажмите «Присоединиться»','info');
           try { if (document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') new Notification(au ? 'Аудиозвонок' : 'Видеозвонок', { body: nm + ' звонит' }); } catch(e){}
           stopRing(); playNotifSound(); ringIv = setInterval(playNotifSound, 2800);
         }
@@ -5009,7 +5378,7 @@ function initUI(){
     <div class="store-search" id="sh-search-box" style="padding:4px 16px 8px">
       <div class="store-search-in">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input id="sh-search-inp" type="text" placeholder="Имя или email" autocomplete="off" autocapitalize="none" spellcheck="false"/>
+        <input id="sh-search-inp" type="text" placeholder="Имя или @никнейм" autocomplete="off" autocapitalize="none" spellcheck="false"/>
         <button class="store-search-x" id="sh-search-clear" type="button" aria-label="Очистить"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
     </div>
@@ -5071,7 +5440,7 @@ function initUI(){
   $('pinned-bar').addEventListener('click', () => {
     const p = pinnedMsgs[0]; if (!p) return;
     const g = document.querySelector(`.msg-group[data-msgid="${p.id}"]`);
-    if (!g) { toast('Сообщение вне загруженной истории','ok'); return; }
+    if (!g) { toast('Сообщение вне загруженной истории','info'); return; }
     g.scrollIntoView({behavior:'smooth', block:'center'});
     g.classList.add('flash'); setTimeout(() => g.classList.remove('flash'), 1400);
   });
@@ -5101,6 +5470,7 @@ function initUI(){
         <div class="prof-cover-img" id="profile-cover"></div>
         <button class="prof-cover-close" id="prof-cover-close" type="button" aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <button class="prof-cover-btn" id="prof-cover-btn" type="button" aria-label="Изменить фон" style="display:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button>
+        <button class="prof-cover-btn prof-cover-report" id="prof-cover-report" type="button" aria-label="Пожаловаться" style="display:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 2.8v5.7c0 4.4-3 7.9-7.5 9.5-4.5-1.6-7.5-5.1-7.5-9.5V5.8z"/><path d="M12 8.2v4.1"/><path d="M12 15.6h.01" stroke-width="2.8"/></svg></button>
       </div>
       <div class="prof-av-wrap" id="prof-av-wrap">
         <div class="prof-av-inner" id="profile-av-big">?</div>
@@ -5110,6 +5480,14 @@ function initUI(){
       <div class="prof-name" id="profile-display-name">—</div>
       <div class="prof-sub" id="profile-email-label"></div>
       <div class="prof-bio" id="prof-bio-view"></div>
+    </div>
+
+    <!-- Чужой профиль: быстрые действия -->
+    <div class="prof-quick" id="prof-quick" style="display:none">
+      <button class="prof-q" id="prof-q-call" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z"/></svg><span>Звонок</span></button>
+      <button class="prof-q" id="prof-q-video" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3z"/></svg><span>Видео</span></button>
+      <button class="prof-q" id="prof-q-sound" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span>Звук</span></button>
+      <button class="prof-q" id="prof-q-more" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg><span>Ещё</span></button>
     </div>
 
     <!-- Чужой профиль -->
@@ -5181,10 +5559,10 @@ function initUI(){
 
   // Mute (button optional — may be absent)
   $('btn-mute')?.addEventListener('click',()=>{
-    if(!currentCh){toast('Выберите канал','err');return;}
+    if(!currentCh){toast('Выберите канал','warn');return;}
     const id=currentCh.id;
     if(mutedChannels.has(id)){mutedChannels.delete(id);$('btn-mute')?.classList.remove('active');toast('Уведомления включены','ok');}
-    else{mutedChannels.add(id);$('btn-mute')?.classList.add('active');toast('Уведомления выключены','ok');}
+    else{mutedChannels.add(id);$('btn-mute')?.classList.add('active');toast('Уведомления выключены','info');}
     localStorage.setItem('p_muted',JSON.stringify([...mutedChannels]));
   });
 
