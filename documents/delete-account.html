@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║              ШАБЛОН DASTDAROZ — ПРАВИЛА ДЛЯ ИИ                  ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  ЕДИНСТВЕННАЯ ЗОНА РЕДАКТИРОВАНИЯ:                               ║
+║  Блок между метками КОНТЕНТ START и КОНТЕНТ END внутри .content  ║
+║                                                                  ║
+║  ЧТО ЗАПРЕЩЕНО ТРОГАТЬ:                                          ║
+║  ✗  <div class="header"> ... </div>   — топ-бар с логотипом     ║
+║  ✗  <div class="footer"> ... </div>   — контакты и соцсети      ║
+║  ✗  <div class="overlay"> ... </div>  — профиль bottom sheet     ║
+║  ✗  <style> ... </style>              — все CSS переменные       ║
+║  ✗  <script> ... </script>            — Firebase auth логика     ║
+║  ✗  Классы: header, logo, footer, divider, contacts,            ║
+║             socials-wrap, overlay, sheet и их дочерние эл-ты     ║
+║                                                                  ║
+║  ЧТО РАЗРЕШЕНО:                                                  ║
+║  ✓  Заменить содержимое между КОНТЕНТ START / КОНТЕНТ END        ║
+║  ✓  Добавлять новые CSS-классы в <style> для контента страницы   ║
+║  ✓  Добавлять JS для контента (НЕ трогая существующий <script>)  ║
+║  ✓  Менять <title> на название конкретной страницы               ║
+║  ✓  Добавлять страницы в массив SEARCH_PAGES в первом <script>   ║
+║                                                                  ║
+╠══════════════════════════════════════════════════════════════════╣
+║  КАК РАБОТАЕТ СКРОЛЛ И ФУТЕР — ВАЖНО                            ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  Скролл — как на обычном сайте (вся страница), футер всегда      ║
+║  внизу — даже если контента мало.                                ║
+║                                                                  ║
+║    body      → min-height:100svh + flex-column — тянется        ║
+║                минимум на весь экран, НО может быть длиннее      ║
+║    .header   → position:sticky; top:0 — прилипает к верху,      ║
+║                всегда виден, НЕ скроллится                       ║
+║    .scroll   → flex:1 — занимает всё свободное место,           ║
+║                толкает футер вниз при коротком контенте          ║
+║    .content  → обычный блок, растёт по контенту                  ║
+║    .footer   → всегда у низа экрана (или ниже при длинном        ║
+║                контенте), скроллится вместе со страницей         ║
+║                                                                  ║
+║  ✗  НЕ ДЕЛАЙ так (ломает скролл):                               ║
+║     • overflow:hidden на body — убивает скролл страницы          ║
+║     • height:100svh на body — обрезает контент (нужен min-height)║
+║     • overflow:auto/scroll на .scroll или .content               ║
+║     • position:fixed на .footer (он должен скроллиться!)         ║
+║                                                                  ║
+║  ✓  ДЕЛАЙ так:                                                   ║
+║     • Просто кидай контент между КОНТЕНТ START / КОНТЕНТ END     ║
+║     • Контент сам растёт, скролл страницы сам появляется         ║
+║     • Если нужен отступ снизу у последнего блока — только        ║
+║       margin-bottom на последнем элементе внутри .content        ║
+║                                                                  ║
+║  ДИЗАЙН-ТОКЕНЫ (используй их, не придумывай цвета):             ║
+║  --acc   #1a9e4a  — основной зелёный                             ║
+║  --acc2  #22c55e  — светлее                                      ║
+║  --accd  rgba(26,158,74,.09)  — фон акцента                      ║
+║  --bg    #f3f7f4  — фон страницы                                 ║
+║  --s1    #ffffff  — карточки / шапки                             ║
+║  --s2    #edf4ef  — вторичный фон                                ║
+║  --tx    #171f1a  — основной текст                               ║
+║  --tx2   #3d5244  — второстепенный                               ║
+║  --tx3   #7a9882  — подписи / плейсхолдеры                       ║
+║  --b0    rgba(0,0,0,.07)  — бордер                               ║
+║  --fd    'Unbounded' — заголовки (font-weight 700-900)           ║
+║  --fs    'Inter'   — текст                                       ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Удаление аккаунта — dastdaroz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap"/>
+<style>
+:root{
+  --acc:#1a9e4a;--acc2:#22c55e;--accd:rgba(26,158,74,.09);--accg:rgba(26,158,74,.2);
+  --bg:#f3f7f4;--s1:#ffffff;--s2:#edf4ef;
+  --b0:rgba(0,0,0,.07);--b1:rgba(0,0,0,.15);
+  --tx:#171f1a;--tx2:#3d5244;--tx3:#7a9882;--txd:#b0c4b8;
+  --fd:'Unbounded',sans-serif;--fs:'Inter',system-ui,sans-serif;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --ease:cubic-bezier(.32,0,.18,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:var(--fs);
+  min-height:100svh;
+  display:flex;flex-direction:column;
+  padding-top:var(--safe-t);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+
+/* ── HEADER ── */
+.header{
+  position:sticky;top:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  height:54px;
+  border-bottom:1px solid var(--b0);
+  background:var(--s1);
+  z-index:100;
+}
+.logo{
+  display:flex;align-items:center;
+  height:100%;
+}
+.logo img{
+  height:28px;width:auto;object-fit:contain;display:block;
+}
+.header-right{display:flex;align-items:center;gap:10px}
+
+/* ── AVATAR BUTTON ── */
+.avatar-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--s2);
+  border:2px solid var(--b0);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;outline:none;
+  transition:border-color .15s,background .15s;
+  color:var(--tx3);
+  font-family:var(--fd);font-weight:900;font-size:.75rem;
+}
+.avatar-btn:active{background:var(--accd);border-color:var(--acc)}
+.avatar-btn.authed{
+  background:var(--accd);
+  border-color:var(--accg);
+  color:var(--acc);
+}
+
+/* ── SEARCH BUTTON ── */
+.search-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--s2);
+  border:2px solid var(--b0);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;outline:none;
+  transition:border-color .15s,background .15s;
+  color:var(--tx3);
+}
+.search-btn:active{background:var(--accd);border-color:var(--acc)}
+.search-btn.active{background:var(--accd);border-color:var(--accg);color:var(--acc)}
+
+/* ── SEARCH PANEL ── */
+.search-panel{
+  position:sticky;
+  top:54px;
+  z-index:99;
+  background:var(--s1);
+  border-bottom:1px solid var(--b0);
+  display:none;
+}
+.search-panel.open{display:block}
+
+.search-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
+  border-bottom:1px solid var(--b0);
+}
+.search-bar-ico{color:var(--tx3);flex-shrink:0;display:flex}
+.search-input{
+  flex:1;border:none;outline:none;background:none;
+  font-family:var(--fs);font-size:.9rem;color:var(--tx);
+  caret-color:var(--acc);
+}
+.search-input::placeholder{color:var(--tx3)}
+.search-clear{
+  width:26px;height:26px;border-radius:50%;border:none;
+  background:var(--s2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--tx3);flex-shrink:0;
+  opacity:0;pointer-events:none;transition:opacity .12s;
+}
+.search-clear.visible{opacity:1;pointer-events:auto}
+.search-clear:active{background:var(--b0)}
+
+.search-results{max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+.search-result-item{
+  display:block;padding:12px 16px;
+  text-decoration:none;color:inherit;
+  border-bottom:1px solid var(--b0);
+  transition:background .1s;cursor:pointer;
+}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:active{background:var(--s2)}
+.sri-title{
+  font-family:var(--fd);font-weight:800;font-size:.85rem;
+  color:var(--tx);margin-bottom:3px;
+}
+.sri-snippet{
+  font-size:.75rem;color:var(--tx3);line-height:1.5;
+  overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.sri-snippet mark,.sri-title mark{
+  background:var(--accd);color:var(--acc);
+  border-radius:3px;padding:0 2px;font-weight:600;font-style:normal;
+}
+.search-status{
+  padding:22px 16px;text-align:center;
+  font-size:.82rem;color:var(--tx3);line-height:1.5;
+}
+
+/* ── SCROLL AREA — flex:1 толкает футер вниз, скролл по всей странице ── */
+.scroll{flex:1}
+
+/* ── MAIN CONTENT ── */
+.content{
+  padding:20px;
+}
+
+/* ── FOOTER — скроллится вместе со страницей ── */
+.footer{
+  background:var(--s1);
+  border-top:1px solid var(--b0);
+}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--b0);margin:0 20px}
+
+/* ── CONTACTS ── */
+.contacts{padding:3px 0}
+.contact-item{
+  display:flex;align-items:center;gap:12px;
+  padding:9px 20px;
+  text-decoration:none;color:inherit;
+  transition:background .1s;
+}
+.contact-item.clickable{cursor:pointer}
+.contact-item.clickable:active{background:var(--s2)}
+.ci-icon{
+  width:28px;height:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--tx3);
+}
+.ci-body{flex:1;min-width:0}
+.ci-val{font-family:var(--fd);font-size:.8rem;font-weight:700;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-sub{font-family:var(--fd);font-size:.55rem;font-weight:700;letter-spacing:.03em;color:var(--tx3);margin-top:1px}
+.ci-arrow{color:var(--txd);flex-shrink:0}
+
+/* ── SOCIALS ── */
+.socials-wrap{padding:8px 20px calc(10px + var(--safe-b))}
+.socials{display:flex;gap:9px}
+.soc-btn{
+  width:42px;height:42px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;cursor:pointer;
+  transition:opacity .12s,transform .12s;
+  flex-shrink:0;
+}
+.soc-btn:active{opacity:.7;transform:scale(.93)}
+.soc-btn.fb{background:#1877f2}
+.soc-btn.ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.soc-btn.tg{background:#2aabee}
+.soc-btn.yt{background:#ff0000}
+
+/* ══════════════════════════════════════
+   PROFILE MODAL (bottom sheet)
+══════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.38);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s;
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+}
+.overlay.open{opacity:1;pointer-events:auto}
+
+.sheet{
+  width:100%;
+  background:var(--s1);
+  border-radius:22px 22px 0 0;
+  padding-bottom:calc(20px + var(--safe-b));
+  transform:translateY(100%);
+  transition:transform .3s var(--ease);
+  overflow:hidden;
+}
+.overlay.open .sheet{transform:translateY(0)}
+
+.sheet-handle{
+  width:38px;height:4px;border-radius:2px;
+  background:var(--b1);
+  margin:12px auto 0;
+}
+.sheet-head{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--b0);
+}
+.sheet-ava{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  background:var(--accd);
+  border:2px solid var(--accg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-weight:900;font-size:1.3rem;
+  color:var(--acc);
+}
+.sheet-info{}
+.sheet-name{font-family:var(--fd);font-weight:900;font-size:1.05rem;color:var(--tx);line-height:1.2}
+.sheet-phone{font-size:.75rem;color:var(--tx3);margin-top:4px;font-weight:500;letter-spacing:.02em}
+
+.sheet-row{
+  display:flex;align-items:center;gap:13px;
+  padding:13px 20px;
+  border-bottom:1px solid var(--b0);
+  cursor:pointer;transition:background .1s;
+  text-decoration:none;color:inherit;
+}
+.sheet-row:active{background:var(--s2)}
+.sheet-row-ico{
+  width:32px;height:32px;border-radius:10px;
+  background:var(--s2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--tx3);flex-shrink:0;
+}
+.sheet-row-lbl{flex:1;font-size:.84rem;font-weight:600;color:var(--tx2)}
+.sheet-row-arr{color:var(--txd)}
+
+.sheet-logout{
+  margin:14px 20px 0;
+  width:calc(100% - 40px);
+  padding:14px;border:none;border-radius:13px;
+  background:rgba(220,38,38,.07);
+  color:#dc2626;
+  font-family:var(--fd);font-weight:900;font-size:.8rem;
+  letter-spacing:.07em;text-transform:uppercase;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .12s;
+}
+.sheet-logout:active{background:rgba(220,38,38,.15)}
+
+/* ── ЮРИДИЧЕСКАЯ СТРАНИЦА (классы контента) ── */
+.doc{max-width:760px;margin:0 auto;padding-bottom:12px}
+.doc-h1{font-family:var(--fd);font-weight:900;font-size:1.45rem;line-height:1.2;color:var(--tx)}
+.doc-sub{margin-top:8px;font-size:.95rem;color:var(--tx2);font-weight:500}
+.doc-meta{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}
+.chip{display:inline-block;padding:6px 11px;border-radius:99px;background:var(--s1);border:1px solid var(--b0);font-size:.72rem;font-weight:600;color:var(--tx2)}
+.doc-note{background:var(--accd);border:1px solid var(--accg);border-radius:14px;padding:14px 16px;margin-bottom:18px}
+.doc-note-t{font-family:var(--fd);font-weight:800;font-size:.8rem;color:var(--acc);margin-bottom:8px}
+.doc-note .sub{margin:0;color:var(--tx)}
+.doc-note-f{margin-top:8px;font-size:.72rem;color:var(--tx3)}
+.toc{background:var(--s1);border:1px solid var(--b0);border-radius:14px;padding:6px 6px;margin-bottom:8px}
+.toc-h{font-family:var(--fd);font-weight:800;font-size:.8rem;color:var(--tx);padding:10px 10px 6px}
+.toc-i{display:flex;align-items:baseline;gap:10px;padding:8px 10px;border-radius:9px;font-size:.84rem;font-weight:500;color:var(--tx2);transition:background .1s}
+.toc-i:active{background:var(--s2)}
+.toc-n{flex:0 0 22px;font-family:var(--fd);font-weight:800;font-size:.72rem;color:var(--acc)}
+.sec{scroll-margin-top:70px;padding-top:26px}
+.sec h2{font-family:var(--fd);font-weight:800;font-size:.98rem;line-height:1.35;color:var(--tx);margin-bottom:12px}
+.cl{display:flex;gap:10px;margin-bottom:10px;font-size:.88rem;line-height:1.65;color:var(--tx2)}
+.cl-n{flex:0 0 auto;min-width:34px;font-weight:700;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cl-t{flex:1;min-width:0;overflow-wrap:anywhere}
+.cl-t b{color:var(--tx);font-weight:600}
+.sub{margin:8px 0 0;padding-left:18px;list-style:disc}
+.sub li{margin-bottom:6px;padding-left:2px}
+.sub li::marker{color:var(--acc)}
+.lnk{color:var(--acc);font-weight:600;text-decoration:underline;text-decoration-color:var(--accg);text-underline-offset:2px}
+.ph{background:#fff3c4;color:#6b4e00;border-radius:4px;padding:0 4px;font-weight:600}
+.req{background:var(--s1);border:1px solid var(--b0);border-radius:14px;overflow:hidden}
+.req-r{display:flex;gap:14px;padding:11px 14px;border-bottom:1px solid var(--b0);font-size:.86rem;line-height:1.5}
+.req-r:last-child{border-bottom:none}
+.req-k{flex:0 0 108px;color:var(--tx3);font-weight:600}
+.req-v{flex:1;min-width:0;color:var(--tx);overflow-wrap:anywhere}
+.docs-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.doc-l{padding:9px 13px;border-radius:10px;background:var(--s1);border:1px solid var(--b0);font-size:.8rem;font-weight:600;color:var(--acc)}
+.doc-l:active{background:var(--accd)}
+.doc-end{margin-top:28px;padding-top:16px;border-top:1px solid var(--b0);font-size:.78rem;line-height:1.6;color:var(--tx3)}
+@media(min-width:720px){.doc-h1{font-size:1.8rem}.cl{font-size:.92rem}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.dt{background:var(--s1);border:1px solid var(--b0);border-radius:14px;overflow:hidden;margin:4px 0 6px}
+.dt-r{padding:12px 14px;border-bottom:1px solid var(--b0)}
+.dt-r:last-child{border-bottom:none}
+.dt-k{font-family:var(--fd);font-weight:800;font-size:.78rem;color:var(--tx);margin-bottom:4px}
+.dt-v{font-size:.84rem;line-height:1.6;color:var(--tx2)}
+.dt-v b{color:var(--tx);font-weight:600}
+@media(min-width:720px){.dt-r{display:flex;gap:18px}.dt-k{flex:0 0 190px;margin-bottom:0}.dt-v{flex:1}}
+.steps{list-style:none;margin:4px 0 0;padding:0;counter-reset:st}
+.steps li{counter-increment:st;position:relative;padding:12px 14px 12px 52px;background:var(--s1);border:1px solid var(--b0);border-radius:14px;margin-bottom:8px;font-size:.88rem;line-height:1.6;color:var(--tx2)}
+.steps li::before{content:counter(st);position:absolute;left:14px;top:12px;width:26px;height:26px;border-radius:50%;background:var(--accd);border:1px solid var(--accg);color:var(--acc);font-family:var(--fd);font-weight:900;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+.steps li b{color:var(--tx);font-weight:600}
+.way-t{font-size:.84rem;line-height:1.6;color:var(--tx2);margin-bottom:10px}
+.btn-a{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:13px 18px;border-radius:13px;background:var(--acc);color:#fff;font-family:var(--fd);font-weight:800;font-size:.8rem;transition:opacity .12s,transform .12s}
+.btn-a:active{opacity:.85;transform:scale(.98)}
+.warn{display:flex;gap:10px;margin:14px 0 0;padding:12px 14px;border-radius:14px;background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.18);font-size:.84rem;line-height:1.6;color:var(--tx2)}
+.warn b{color:#b91c1c;font-weight:700}
+.lst{margin:4px 0 0;padding-left:18px;font-size:.88rem;line-height:1.65;color:var(--tx2);list-style:disc}
+.lst li{margin-bottom:6px;padding-left:2px}.lst li::marker{color:var(--acc)}
+.lst b{color:var(--tx);font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER — НЕ ТРОГАТЬ (логотип + аватар, одинаковы на всех страницах) ── -->
+<div class="header">
+  <div class="logo">
+    <img src="dastdaroz.png" alt="dastdaroz"/>
+  </div>
+  <div class="header-right">
+    <!-- Кнопка поиска -->
+    <button class="search-btn" id="search-btn" aria-label="Поиск">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </button>
+    <!-- Кнопка аватарки: если не авторизован → login.html, если да → модалка -->
+    <button class="avatar-btn" id="avatar-btn" aria-label="Профиль">
+      <!-- Иконка по умолчанию (не авторизован) -->
+      <svg id="ava-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <!-- Инициалы (авторизован) -->
+      <span id="ava-initials" style="display:none"></span>
+    </button>
+  </div>
+</div>
+
+<!-- ── SEARCH PANEL — НЕ ТРОГАТЬ ── -->
+<div class="search-panel" id="search-panel">
+  <div class="search-bar">
+    <span class="search-bar-ico">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </span>
+    <input class="search-input" id="search-input" type="search"
+      placeholder="Поиск..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false"/>
+    <button class="search-clear" id="search-clear" aria-label="Очистить">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     SCROLL AREA — просто обёртка. Скролл идёт по всей странице.
+     .content растёт вниз по длине контента — без ограничений.
+     НЕ ставь overflow:auto/scroll сюда или на .content!
+─────────────────────────────────────────────────────────────── -->
+<div class="scroll">
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ▼▼▼  КОНТЕНТ START — ИИ РЕДАКТИРУЕТ ТОЛЬКО ЗДЕСЬ  ▼▼▼
+         Удали placeholder ниже и вставь содержимое страницы.
+         Используй CSS-переменные шаблона (см. правила выше).
+         Не добавляй header/footer/nav — они уже есть снаружи.
+    ════════════════════════════════════════════════════════════ -->
+
+<div class="doc">
+
+    <h1 class="doc-h1">Удаление аккаунта</h1>
+    <p class="doc-sub">мессенджер dastdaroz — как удалить аккаунт и данные</p>
+    <div class="doc-meta">
+      <span class="chip">Редакция от 19 октября 2026 г.</span>
+    </div>
+
+    <div class="doc-note">
+      <div class="doc-note-t">Кратко</div>
+      <ul class="sub">
+        <li>Аккаунт можно удалить в приложении или по запросу на почту, если приложения нет под рукой.</li>
+        <li>Мы удаляем данные в течение 30 дней; резервные копии стираются не позже чем через 90 дней.</li>
+        <li>Удаление необратимо: вернуть аккаунт, чаты и файлы после этого нельзя.</li>
+      </ul>
+    </div>
+
+    <div class="req" style="margin-bottom:6px">
+      <div class="req-r"><div class="req-k">Приложение</div><div class="req-v">dastdaroz — мессенджер (Android и веб-версия chat.dastdaroz.shop)</div></div>
+      <div class="req-r"><div class="req-k">Разработчик</div><div class="req-v">Абдусаломов Ибодло Сайфуллович</div></div>
+    </div>
+
+    <nav class="toc" aria-label="Содержание" style="margin-top:14px">
+      <div class="toc-h">Содержание</div>
+      <a class="toc-i" href="#in-app"><span class="toc-n">1</span><span>Удалить аккаунт в приложении</span></a>
+      <a class="toc-i" href="#by-mail"><span class="toc-n">2</span><span>Запросить удаление по почте</span></a>
+      <a class="toc-i" href="#what"><span class="toc-n">3</span><span>Что будет удалено</span></a>
+      <a class="toc-i" href="#kept"><span class="toc-n">4</span><span>Что может храниться и как долго</span></a>
+      <a class="toc-i" href="#part"><span class="toc-n">5</span><span>Удалить только часть данных</span></a>
+      <a class="toc-i" href="#before"><span class="toc-n">6</span><span>Перед удалением</span></a>
+      <a class="toc-i" href="#contacts"><span class="toc-n">7</span><span>Если что-то пошло не так</span></a>
+    </nav>
+
+    <section class="sec" id="in-app"><h2>1. Удалить аккаунт в приложении</h2>
+      <p class="way-t">Самый быстрый способ. Для подтверждения личности приложение может попросить ввести пароль или войти заново.</p>
+      <ol class="steps">
+        <li>Откройте приложение dastdaroz и перейдите на вкладку <b>профиля</b> (нижнее меню, справа).</li>
+        <li>Выберите <b>«Личные данные»</b> и прокрутите страницу вниз.</li>
+        <li>Нажмите <b>«Удалить аккаунт»</b>.</li>
+        <li>Прочитайте предупреждение и подтвердите удаление. Вы будете автоматически выведены из аккаунта.</li>
+      </ol>
+      <p class="way-t" style="margin-top:8px"><span class="ph">[проверьте названия пунктов после добавления кнопки удаления в приложении]</span></p>
+    </section>
+
+    <section class="sec" id="by-mail"><h2>2. Запросить удаление по почте</h2>
+      <p class="way-t">Подходит, если приложение уже удалено или у вас нет доступа к устройству. Отправьте письмо с адреса электронной почты, который привязан к аккаунту.</p>
+      <ol class="steps">
+        <li>Нажмите кнопку ниже или напишите на <a class="lnk" href="mailto:info@dastdaroz.shop">info@dastdaroz.shop</a> с темой <b>«Удаление аккаунта dastdaroz»</b>.</li>
+        <li>Укажите <b>адрес электронной почты аккаунта</b> и имя в профиле. Мы можем задать уточняющий вопрос, чтобы убедиться, что вы владелец аккаунта.</li>
+        <li>Мы удалим аккаунт и сообщим вам ответным письмом. Срок — не более 30 дней с момента подтверждения запроса.</li>
+      </ol>
+      <a class="btn-a" href="mailto:info@dastdaroz.shop?subject=%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B0%D0%BA%D0%BA%D0%B0%D1%83%D0%BD%D1%82%D0%B0%20dastdaroz&body=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%0A%0A%D0%9F%D1%80%D0%BE%D1%88%D1%83%20%D1%83%D0%B4%D0%B0%D0%BB%D0%B8%D1%82%D1%8C%20%D0%BC%D0%BE%D0%B9%20%D0%B0%D0%BA%D0%BA%D0%B0%D1%83%D0%BD%D1%82%20%D0%B2%20%D0%BC%D0%B5%D1%81%D1%81%D0%B5%D0%BD%D0%B4%D0%B6%D0%B5%D1%80%D0%B5%20dastdaroz%20%D0%B8%20%D1%81%D0%B2%D1%8F%D0%B7%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5%20%D1%81%20%D0%BD%D0%B8%D0%BC%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5.%0A%0A%D0%90%D0%B4%D1%80%D0%B5%D1%81%20%D1%8D%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B9%20%D0%BF%D0%BE%D1%87%D1%82%D1%8B%20%D0%B0%D0%BA%D0%BA%D0%B0%D1%83%D0%BD%D1%82%D0%B0%3A%20%0A%D0%98%D0%BC%D1%8F%20%D0%B2%20%D0%BF%D1%80%D0%BE%D1%84%D0%B8%D0%BB%D0%B5%3A%20%0A%0A%D0%9F%D0%BE%D0%B4%D1%82%D0%B2%D0%B5%D1%80%D0%B6%D0%B4%D0%B0%D1%8E%2C%20%D1%87%D1%82%D0%BE%20%D1%8F%20%D0%B2%D0%BB%D0%B0%D0%B4%D0%B5%D0%BB%D0%B5%D1%86%20%D0%B0%D0%BA%D0%BA%D0%B0%D1%83%D0%BD%D1%82%D0%B0%20%D0%B8%20%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D1%8E%2C%20%D1%87%D1%82%D0%BE%20%D1%83%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%BD%D0%B5%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D0%B8%D0%BC%D0%BE."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Написать запрос на удаление</span></a>
+      <p class="way-t" style="margin-top:10px">Если вы входили через Google, удаление аккаунта dastdaroz не затрагивает ваш аккаунт Google.</p>
+    </section>
+
+    <section class="sec" id="what"><h2>3. Что будет удалено</h2>
+      <div class="dt">
+        <div class="dt-r"><div class="dt-k">Аккаунт</div><div class="dt-v">Учётная запись и данные входа (адрес электронной почты, привязка к Google), идентификатор Аккаунта.</div></div>
+        <div class="dt-r"><div class="dt-k">Профиль</div><div class="dt-v">Имя, «О себе», аватар, фон профиля, статус присутствия; загруженные вами файлы аватара и фона.</div></div>
+        <div class="dt-r"><div class="dt-k">Уведомления</div><div class="dt-v">Идентификатор устройства для push-уведомлений (токен FCM).</div></div>
+        <div class="dt-r"><div class="dt-k">Техподдержка</div><div class="dt-v">История ваших обращений в службу поддержки и вложения к ним.</div></div>
+        <div class="dt-r"><div class="dt-k">Сообщения и файлы</div><div class="dt-v">Ваши сообщения и файлы удаляются или обезличиваются. Сообщения, которые вы отправили другим пользователям, могут некоторое время оставаться в их чатах, но ваше имя и аватар перестают рядом с ними отображаться.</div></div>
+      </div>
+    </section>
+
+    <section class="sec" id="kept"><h2>4. Что может храниться и как долго</h2>
+      <ul class="lst">
+        <li><b>Резервные копии</b> — до 90 дней после удаления, затем стираются безвозвратно. В этот период данные не используются и недоступны другим пользователям.</li>
+        <li><b>Сведения, которые мы обязаны хранить по закону</b>, а также данные, необходимые для защиты от злоупотреблений и расследования нарушений (например, о жалобах и блокировках) — в объёме и на срок, которые требуются законодательством.</li>
+        <li><b>Технические журналы Google</b> — хранятся в сроки, установленные Google (см. <a class="lnk" href="https://policies.google.com/privacy" rel="noopener">политику конфиденциальности Google</a>).</li>
+      </ul>
+      <p class="way-t" style="margin-top:10px">Подробнее о сроках хранения — в <a class="lnk" href="privacy.html">Политике конфиденциальности</a>.</p>
+    </section>
+
+    <section class="sec" id="part"><h2>5. Удалить только часть данных</h2>
+      <p class="way-t">Удалять аккаунт целиком необязательно. Вы можете:</p>
+      <ul class="lst">
+        <li>изменить или очистить имя, «О себе», аватар и фон в разделе <b>«Настройки → Личные данные»</b>;</li>
+        <li>удалить отдельные свои сообщения — долгим нажатием на сообщение, пункт «Удалить»;</li>
+        <li>отключить push-уведомления в настройках устройства;</li>
+        <li>запросить удаление отдельных данных (например, обращений в поддержку) письмом на <a class="lnk" href="mailto:info@dastdaroz.shop">info@dastdaroz.shop</a>.</li>
+      </ul>
+    </section>
+
+    <section class="sec" id="before"><h2>6. Перед удалением</h2>
+      <ul class="lst">
+        <li>Сохраните нужные файлы и переписку — после удаления восстановить их нельзя.</li>
+        <li>Если вы создатель группы, удалите группу или добавьте в неё других участников заранее.</li>
+        <li>После обработки запроса вы сможете зарегистрироваться снова с тем же адресом электронной почты, но это будет новый аккаунт без прежних данных.</li>
+      </ul>
+      <div class="warn"><span><b>Удаление необратимо.</b> Мы не сможем вернуть аккаунт, чаты и файлы после завершения удаления.</span></div>
+    </section>
+
+    <section class="sec" id="contacts"><h2>7. Если что-то пошло не так</h2>
+      <p class="way-t">Если кнопка удаления недоступна или вы не получили ответ в течение 30 дней, напишите нам — поможем вручную.</p>
+      <div class="req">
+        <div class="req-r"><div class="req-k">Эл. почта</div><div class="req-v"><a class="lnk" href="mailto:info@dastdaroz.shop">info@dastdaroz.shop</a></div></div>
+        <div class="req-r"><div class="req-k">Телефоны</div><div class="req-v"><a class="lnk" href="tel:+992977178800">+992 977 17 8800</a><br><a class="lnk" href="tel:+992878777788">+992 87 877 7788</a></div></div>
+        <div class="req-r"><div class="req-k">Режим работы</div><div class="req-v">Пн – Пт: 8:00 – 22:00 (UTC+5)</div></div>
+      </div>
+      <div class="docs-links">
+        <a class="doc-l" href="offer.html">Публичная оферта</a>
+        <a class="doc-l" href="privacy.html">Политика конфиденциальности</a>
+      </div>
+    </section>
+
+    </div>
+  
+    <!-- ▲▲▲  КОНТЕНТ END  ▲▲▲
+    ══════════════════════════════════════════════════════════════ -->
+
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     FOOTER — скроллится вместе со страницей, виден в конце.
+     НЕ делай position:fixed — он должен скроллиться!
+     НЕ ТРОГАТЬ — контакты и соцсети одинаковы на всех страницах.
+─────────────────────────────────────────────────────────────── -->
+<div class="footer">
+
+  <div class="divider"></div>
+
+  <div class="contacts">
+    <a href="tel:+992977178800" class="contact-item clickable">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.37 1.18 2 2 0 012.34 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-.77a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">+992 977 17 8800</div>
+        <div class="ci-sub">Служба поддержки</div>
+      </div>
+      <svg class="ci-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="tel:+992878777788" class="contact-item clickable">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.37 1.18 2 2 0 012.34 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-.77a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">+992 87 877 7788</div>
+        <div class="ci-sub">Служба поддержки</div>
+      </div>
+      <svg class="ci-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <div class="contact-item">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">Душанбе, Таджикистан</div>
+      </div>
+    </div>
+
+    <a href="mailto:info@dastdaroz.shop" class="contact-item clickable">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">info@dastdaroz.shop</div>
+      </div>
+    </a>
+
+    <div class="contact-item">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">Пн – Пт: 8:00 – 22:00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="socials-wrap">
+    <div class="socials">
+      <a href="#" class="soc-btn fb" aria-label="Facebook">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+      </a>
+      <a href="#" class="soc-btn ig" aria-label="Instagram">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="#" class="soc-btn tg" aria-label="Telegram">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c-.242-.213-.054-.333-.373-.12L7.17 13.267l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.978.292z"/></svg>
+      </a>
+      <a href="#" class="soc-btn yt" aria-label="YouTube">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PROFILE BOTTOM SHEET — НЕ ТРОГАТЬ (Firebase auth, одинаков на всех страницах) ── -->
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet">
+
+    <div class="sheet-handle"></div>
+
+    <!-- Шапка с данными пользователя -->
+    <div class="sheet-head">
+      <div class="sheet-ava" id="sheet-ava">?</div>
+      <div class="sheet-info">
+        <div class="sheet-name"  id="sheet-name">—</div>
+        <div class="sheet-phone" id="sheet-phone">—</div>
+      </div>
+    </div>
+
+    <!-- Доп. строки (можешь добавить свои) -->
+    <!-- Кнопка выхода -->
+    <button class="sheet-logout" id="btn-logout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Выйти
+    </button>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// ПОИСК — НАСТРОЙКА СТРАНИЦ
+// Добавляй/убирай страницы в массиве ниже.
+// Формат каждой записи: { title: 'Название', path: 'файл.html' }
+// ════════════════════════════════════════════════════════════════
+const SEARCH_PAGES = [
+  { title: 'Публичная оферта',          path: 'offer.html'           },
+  { title: 'Политика конфиденциальности', path: 'privacy.html'         },
+  { title: 'Удаление аккаунта',          path: 'delete-account.html'  },
+  // { title: 'Каталог',        path: 'catalog.html' },
+  // { title: 'О нас',          path: 'about.html'   },
+  // { title: 'Заказы',          path: 'orders.html'  },
+];
+// ════════════════════════════════════════════════════════════════
+
+(function(){
+  const searchBtn     = document.getElementById('search-btn');
+  const searchPanel   = document.getElementById('search-panel');
+  const searchInput   = document.getElementById('search-input');
+  const searchClear   = document.getElementById('search-clear');
+  const searchResults = document.getElementById('search-results');
+
+  let index    = null;   // null = ещё не загружен
+  let loading  = false;
+  let timer    = null;
+
+  /* ── Открыть/закрыть ── */
+  function open() {
+    searchPanel.classList.add('open');
+    searchBtn.classList.add('active');
+    searchInput.focus();
+    if (!index && !loading) buildIndex();
+  }
+  function close() {
+    searchPanel.classList.remove('open');
+    searchBtn.classList.remove('active');
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    searchResults.innerHTML = '';
+  }
+
+  searchBtn.addEventListener('click', () =>
+    searchPanel.classList.contains('open') ? close() : open()
+  );
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    searchResults.innerHTML = '';
+    searchInput.focus();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && searchPanel.classList.contains('open')) close();
+  });
+
+  /* ── Индексация ── */
+  async function buildIndex() {
+    if (!SEARCH_PAGES.length) { index = []; return; }
+    loading = true;
+    searchResults.innerHTML = '<div class="search-status">Загрузка…</div>';
+    const parser = new DOMParser();
+    index = [];
+    await Promise.all(SEARCH_PAGES.map(async page => {
+      try {
+        const res = await fetch(page.path);
+        if (!res.ok) return;
+        const html = await res.text();
+        const doc  = parser.parseFromString(html, 'text/html');
+        const el   = doc.querySelector('.content');
+        const text = (el ? el.textContent : '').replace(/\s+/g,' ').trim();
+        index.push({ title: page.title, path: page.path, text });
+      } catch(e) { /* пропустить недоступные */ }
+    }));
+    loading = false;
+    searchResults.innerHTML = '';
+    const q = searchInput.value.trim();
+    if (q.length >= 2) doSearch(q);
+  }
+
+  /* ── Поиск ── */
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    searchClear.classList.toggle('visible', q.length > 0);
+    clearTimeout(timer);
+    timer = setTimeout(() => doSearch(q), 180);
+  });
+
+  function esc(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function hi(text, q){
+    return esc(text).replace(
+      new RegExp(esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),
+      m => '<mark>'+m+'</mark>'
+    );
+  }
+
+  function doSearch(q) {
+    if (!q || q.length < 2) { searchResults.innerHTML = ''; return; }
+    if (loading || !index) {
+      searchResults.innerHTML = '<div class="search-status">Загрузка…</div>';
+      return;
+    }
+    if (!index.length) {
+      searchResults.innerHTML = '<div class="search-status">Страницы для поиска не добавлены</div>';
+      return;
+    }
+
+    const low  = q.toLowerCase();
+    const hits = [];
+
+    for (const page of index) {
+      const ti = page.title.toLowerCase().indexOf(low);
+      const tx = page.text.toLowerCase().indexOf(low);
+      if (ti === -1 && tx === -1) continue;
+
+      let snippet = '';
+      if (tx !== -1) {
+        const s = Math.max(0, tx - 45);
+        const e = Math.min(page.text.length, tx + q.length + 90);
+        snippet = (s > 0 ? '…' : '') + page.text.slice(s, e) + (e < page.text.length ? '…' : '');
+      } else {
+        snippet = page.text.slice(0, 130) + (page.text.length > 130 ? '…' : '');
+      }
+      hits.push({ page, snippet });
+    }
+
+    if (!hits.length) {
+      searchResults.innerHTML = `<div class="search-status">«${esc(q)}» не найдено</div>`;
+      return;
+    }
+
+    searchResults.innerHTML = hits.map(({page, snippet}) => `
+      <a href="${esc(page.path)}" class="search-result-item">
+        <div class="sri-title">${hi(page.title, q)}</div>
+        <div class="sri-snippet">${hi(snippet, q)}</div>
+      </a>
+    `).join('');
+  }
+})();
+</script>
+
+<script type="module">
+// ═══ НЕ ТРОГАТЬ — Firebase auth логика, одинакова на всех страницах ════════
+import { auth } from './firebase.js';
+import {
+  onAuthStateChanged,
+  signOut,
+} from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
+
+// ═══ Элементы ════════════════════════════════════════════════════
+const avatarBtn   = document.getElementById('avatar-btn');
+const avaIcon     = document.getElementById('ava-icon');
+const avaInitials = document.getElementById('ava-initials');
+const overlay     = document.getElementById('overlay');
+const sheetAva    = document.getElementById('sheet-ava');
+const sheetName   = document.getElementById('sheet-name');
+const sheetPhone  = document.getElementById('sheet-phone');
+const btnLogout   = document.getElementById('btn-logout');
+
+let currentUser = null;
+
+// ═══ Хелперы ═════════════════════════════════════════════════════
+
+/** Первые буквы имени: "Фируз Мирзоев" → "ФМ" */
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return p.length > 1
+    ? (p[0][0] + p[1][0]).toUpperCase()
+    : p[0][0].toUpperCase();
+}
+
+/** email вида 992901234567@phone.dastdaroz.id → "+992 90 123 45 67" */
+function emailToPhone(email) {
+  if (!email) return '—';
+  const m = email.match(/^992(\d{9})@/);
+  if (!m) return email;
+  const d = m[1];
+  return '+992 ' + d.slice(0,2) + ' ' + d.slice(2,5) + ' ' + d.slice(5,7) + ' ' + d.slice(7,9);
+}
+
+// ═══ Состояние auth ══════════════════════════════════════════════
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+
+  if (user) {
+    // Авторизован — показываем инициалы на аватарке
+    const ini = initials(user.displayName);
+    avaIcon.style.display     = 'none';
+    avaInitials.style.display = '';
+    avaInitials.textContent   = ini;
+    avatarBtn.classList.add('authed');
+
+    // Заполняем bottom sheet
+    sheetAva.textContent   = ini;
+    sheetName.textContent  = user.displayName || 'Пользователь';
+    sheetPhone.textContent = emailToPhone(user.email);
+  } else {
+    // Не авторизован — обычная иконка
+    avaIcon.style.display     = '';
+    avaInitials.style.display = 'none';
+    avatarBtn.classList.remove('authed');
+  }
+});
+
+// ═══ Клик по аватарке ════════════════════════════════════════════
+avatarBtn.addEventListener('click', () => {
+  if (currentUser) {
+    overlay.classList.add('open');        // показать bottom sheet
+  } else {
+    window.location.href = 'login.html'; // перейти на логин
+  }
+});
+
+// ═══ Закрытие sheet по тапу на фон ══════════════════════════════
+overlay.addEventListener('click', e => {
+  if (e.target === overlay) overlay.classList.remove('open');
+});
+
+// ═══ Выход ═══════════════════════════════════════════════════════
+btnLogout.addEventListener('click', async () => {
+  await signOut(auth);
+  overlay.classList.remove('open');
+  // currentUser обнулится через onAuthStateChanged автоматически
+});
+</script>
+
+</body>
+</html>

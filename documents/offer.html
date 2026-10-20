@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║              ШАБЛОН DASTDAROZ — ПРАВИЛА ДЛЯ ИИ                  ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  ЕДИНСТВЕННАЯ ЗОНА РЕДАКТИРОВАНИЯ:                               ║
+║  Блок между метками КОНТЕНТ START и КОНТЕНТ END внутри .content  ║
+║                                                                  ║
+║  ЧТО ЗАПРЕЩЕНО ТРОГАТЬ:                                          ║
+║  ✗  <div class="header"> ... </div>   — топ-бар с логотипом     ║
+║  ✗  <div class="footer"> ... </div>   — контакты и соцсети      ║
+║  ✗  <div class="overlay"> ... </div>  — профиль bottom sheet     ║
+║  ✗  <style> ... </style>              — все CSS переменные       ║
+║  ✗  <script> ... </script>            — Firebase auth логика     ║
+║  ✗  Классы: header, logo, footer, divider, contacts,            ║
+║             socials-wrap, overlay, sheet и их дочерние эл-ты     ║
+║                                                                  ║
+║  ЧТО РАЗРЕШЕНО:                                                  ║
+║  ✓  Заменить содержимое между КОНТЕНТ START / КОНТЕНТ END        ║
+║  ✓  Добавлять новые CSS-классы в <style> для контента страницы   ║
+║  ✓  Добавлять JS для контента (НЕ трогая существующий <script>)  ║
+║  ✓  Менять <title> на название конкретной страницы               ║
+║  ✓  Добавлять страницы в массив SEARCH_PAGES в первом <script>   ║
+║                                                                  ║
+╠══════════════════════════════════════════════════════════════════╣
+║  КАК РАБОТАЕТ СКРОЛЛ И ФУТЕР — ВАЖНО                            ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  Скролл — как на обычном сайте (вся страница), футер всегда      ║
+║  внизу — даже если контента мало.                                ║
+║                                                                  ║
+║    body      → min-height:100svh + flex-column — тянется        ║
+║                минимум на весь экран, НО может быть длиннее      ║
+║    .header   → position:sticky; top:0 — прилипает к верху,      ║
+║                всегда виден, НЕ скроллится                       ║
+║    .scroll   → flex:1 — занимает всё свободное место,           ║
+║                толкает футер вниз при коротком контенте          ║
+║    .content  → обычный блок, растёт по контенту                  ║
+║    .footer   → всегда у низа экрана (или ниже при длинном        ║
+║                контенте), скроллится вместе со страницей         ║
+║                                                                  ║
+║  ✗  НЕ ДЕЛАЙ так (ломает скролл):                               ║
+║     • overflow:hidden на body — убивает скролл страницы          ║
+║     • height:100svh на body — обрезает контент (нужен min-height)║
+║     • overflow:auto/scroll на .scroll или .content               ║
+║     • position:fixed на .footer (он должен скроллиться!)         ║
+║                                                                  ║
+║  ✓  ДЕЛАЙ так:                                                   ║
+║     • Просто кидай контент между КОНТЕНТ START / КОНТЕНТ END     ║
+║     • Контент сам растёт, скролл страницы сам появляется         ║
+║     • Если нужен отступ снизу у последнего блока — только        ║
+║       margin-bottom на последнем элементе внутри .content        ║
+║                                                                  ║
+║  ДИЗАЙН-ТОКЕНЫ (используй их, не придумывай цвета):             ║
+║  --acc   #1a9e4a  — основной зелёный                             ║
+║  --acc2  #22c55e  — светлее                                      ║
+║  --accd  rgba(26,158,74,.09)  — фон акцента                      ║
+║  --bg    #f3f7f4  — фон страницы                                 ║
+║  --s1    #ffffff  — карточки / шапки                             ║
+║  --s2    #edf4ef  — вторичный фон                                ║
+║  --tx    #171f1a  — основной текст                               ║
+║  --tx2   #3d5244  — второстепенный                               ║
+║  --tx3   #7a9882  — подписи / плейсхолдеры                       ║
+║  --b0    rgba(0,0,0,.07)  — бордер                               ║
+║  --fd    'Unbounded' — заголовки (font-weight 700-900)           ║
+║  --fs    'Inter'   — текст                                       ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Публичная оферта — dastdaroz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap"/>
+<style>
+:root{
+  --acc:#1a9e4a;--acc2:#22c55e;--accd:rgba(26,158,74,.09);--accg:rgba(26,158,74,.2);
+  --bg:#f3f7f4;--s1:#ffffff;--s2:#edf4ef;
+  --b0:rgba(0,0,0,.07);--b1:rgba(0,0,0,.15);
+  --tx:#171f1a;--tx2:#3d5244;--tx3:#7a9882;--txd:#b0c4b8;
+  --fd:'Unbounded',sans-serif;--fs:'Inter',system-ui,sans-serif;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --ease:cubic-bezier(.32,0,.18,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:var(--fs);
+  min-height:100svh;
+  display:flex;flex-direction:column;
+  padding-top:var(--safe-t);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+
+/* ── HEADER ── */
+.header{
+  position:sticky;top:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  height:54px;
+  border-bottom:1px solid var(--b0);
+  background:var(--s1);
+  z-index:100;
+}
+.logo{
+  display:flex;align-items:center;
+  height:100%;
+}
+.logo img{
+  height:28px;width:auto;object-fit:contain;display:block;
+}
+.header-right{display:flex;align-items:center;gap:10px}
+
+/* ── AVATAR BUTTON ── */
+.avatar-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--s2);
+  border:2px solid var(--b0);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;outline:none;
+  transition:border-color .15s,background .15s;
+  color:var(--tx3);
+  font-family:var(--fd);font-weight:900;font-size:.75rem;
+}
+.avatar-btn:active{background:var(--accd);border-color:var(--acc)}
+.avatar-btn.authed{
+  background:var(--accd);
+  border-color:var(--accg);
+  color:var(--acc);
+}
+
+/* ── SEARCH BUTTON ── */
+.search-btn{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--s2);
+  border:2px solid var(--b0);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;outline:none;
+  transition:border-color .15s,background .15s;
+  color:var(--tx3);
+}
+.search-btn:active{background:var(--accd);border-color:var(--acc)}
+.search-btn.active{background:var(--accd);border-color:var(--accg);color:var(--acc)}
+
+/* ── SEARCH PANEL ── */
+.search-panel{
+  position:sticky;
+  top:54px;
+  z-index:99;
+  background:var(--s1);
+  border-bottom:1px solid var(--b0);
+  display:none;
+}
+.search-panel.open{display:block}
+
+.search-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
+  border-bottom:1px solid var(--b0);
+}
+.search-bar-ico{color:var(--tx3);flex-shrink:0;display:flex}
+.search-input{
+  flex:1;border:none;outline:none;background:none;
+  font-family:var(--fs);font-size:.9rem;color:var(--tx);
+  caret-color:var(--acc);
+}
+.search-input::placeholder{color:var(--tx3)}
+.search-clear{
+  width:26px;height:26px;border-radius:50%;border:none;
+  background:var(--s2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--tx3);flex-shrink:0;
+  opacity:0;pointer-events:none;transition:opacity .12s;
+}
+.search-clear.visible{opacity:1;pointer-events:auto}
+.search-clear:active{background:var(--b0)}
+
+.search-results{max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+.search-result-item{
+  display:block;padding:12px 16px;
+  text-decoration:none;color:inherit;
+  border-bottom:1px solid var(--b0);
+  transition:background .1s;cursor:pointer;
+}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:active{background:var(--s2)}
+.sri-title{
+  font-family:var(--fd);font-weight:800;font-size:.85rem;
+  color:var(--tx);margin-bottom:3px;
+}
+.sri-snippet{
+  font-size:.75rem;color:var(--tx3);line-height:1.5;
+  overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.sri-snippet mark,.sri-title mark{
+  background:var(--accd);color:var(--acc);
+  border-radius:3px;padding:0 2px;font-weight:600;font-style:normal;
+}
+.search-status{
+  padding:22px 16px;text-align:center;
+  font-size:.82rem;color:var(--tx3);line-height:1.5;
+}
+
+/* ── SCROLL AREA — flex:1 толкает футер вниз, скролл по всей странице ── */
+.scroll{flex:1}
+
+/* ── MAIN CONTENT ── */
+.content{
+  padding:20px;
+}
+
+/* ── FOOTER — скроллится вместе со страницей ── */
+.footer{
+  background:var(--s1);
+  border-top:1px solid var(--b0);
+}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--b0);margin:0 20px}
+
+/* ── CONTACTS ── */
+.contacts{padding:3px 0}
+.contact-item{
+  display:flex;align-items:center;gap:12px;
+  padding:9px 20px;
+  text-decoration:none;color:inherit;
+  transition:background .1s;
+}
+.contact-item.clickable{cursor:pointer}
+.contact-item.clickable:active{background:var(--s2)}
+.ci-icon{
+  width:28px;height:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--tx3);
+}
+.ci-body{flex:1;min-width:0}
+.ci-val{font-family:var(--fd);font-size:.8rem;font-weight:700;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-sub{font-family:var(--fd);font-size:.55rem;font-weight:700;letter-spacing:.03em;color:var(--tx3);margin-top:1px}
+.ci-arrow{color:var(--txd);flex-shrink:0}
+
+/* ── SOCIALS ── */
+.socials-wrap{padding:8px 20px calc(10px + var(--safe-b))}
+.socials{display:flex;gap:9px}
+.soc-btn{
+  width:42px;height:42px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;cursor:pointer;
+  transition:opacity .12s,transform .12s;
+  flex-shrink:0;
+}
+.soc-btn:active{opacity:.7;transform:scale(.93)}
+.soc-btn.fb{background:#1877f2}
+.soc-btn.ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.soc-btn.tg{background:#2aabee}
+.soc-btn.yt{background:#ff0000}
+
+/* ══════════════════════════════════════
+   PROFILE MODAL (bottom sheet)
+══════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.38);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s;
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+}
+.overlay.open{opacity:1;pointer-events:auto}
+
+.sheet{
+  width:100%;
+  background:var(--s1);
+  border-radius:22px 22px 0 0;
+  padding-bottom:calc(20px + var(--safe-b));
+  transform:translateY(100%);
+  transition:transform .3s var(--ease);
+  overflow:hidden;
+}
+.overlay.open .sheet{transform:translateY(0)}
+
+.sheet-handle{
+  width:38px;height:4px;border-radius:2px;
+  background:var(--b1);
+  margin:12px auto 0;
+}
+.sheet-head{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--b0);
+}
+.sheet-ava{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  background:var(--accd);
+  border:2px solid var(--accg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-weight:900;font-size:1.3rem;
+  color:var(--acc);
+}
+.sheet-info{}
+.sheet-name{font-family:var(--fd);font-weight:900;font-size:1.05rem;color:var(--tx);line-height:1.2}
+.sheet-phone{font-size:.75rem;color:var(--tx3);margin-top:4px;font-weight:500;letter-spacing:.02em}
+
+.sheet-row{
+  display:flex;align-items:center;gap:13px;
+  padding:13px 20px;
+  border-bottom:1px solid var(--b0);
+  cursor:pointer;transition:background .1s;
+  text-decoration:none;color:inherit;
+}
+.sheet-row:active{background:var(--s2)}
+.sheet-row-ico{
+  width:32px;height:32px;border-radius:10px;
+  background:var(--s2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--tx3);flex-shrink:0;
+}
+.sheet-row-lbl{flex:1;font-size:.84rem;font-weight:600;color:var(--tx2)}
+.sheet-row-arr{color:var(--txd)}
+
+.sheet-logout{
+  margin:14px 20px 0;
+  width:calc(100% - 40px);
+  padding:14px;border:none;border-radius:13px;
+  background:rgba(220,38,38,.07);
+  color:#dc2626;
+  font-family:var(--fd);font-weight:900;font-size:.8rem;
+  letter-spacing:.07em;text-transform:uppercase;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .12s;
+}
+.sheet-logout:active{background:rgba(220,38,38,.15)}
+
+/* ── ЮРИДИЧЕСКАЯ СТРАНИЦА (классы контента) ── */
+.doc{max-width:760px;margin:0 auto;padding-bottom:12px}
+.doc-h1{font-family:var(--fd);font-weight:900;font-size:1.45rem;line-height:1.2;color:var(--tx)}
+.doc-sub{margin-top:8px;font-size:.95rem;color:var(--tx2);font-weight:500}
+.doc-meta{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}
+.chip{display:inline-block;padding:6px 11px;border-radius:99px;background:var(--s1);border:1px solid var(--b0);font-size:.72rem;font-weight:600;color:var(--tx2)}
+.doc-note{background:var(--accd);border:1px solid var(--accg);border-radius:14px;padding:14px 16px;margin-bottom:18px}
+.doc-note-t{font-family:var(--fd);font-weight:800;font-size:.8rem;color:var(--acc);margin-bottom:8px}
+.doc-note .sub{margin:0;color:var(--tx)}
+.doc-note-f{margin-top:8px;font-size:.72rem;color:var(--tx3)}
+.toc{background:var(--s1);border:1px solid var(--b0);border-radius:14px;padding:6px 6px;margin-bottom:8px}
+.toc-h{font-family:var(--fd);font-weight:800;font-size:.8rem;color:var(--tx);padding:10px 10px 6px}
+.toc-i{display:flex;align-items:baseline;gap:10px;padding:8px 10px;border-radius:9px;font-size:.84rem;font-weight:500;color:var(--tx2);transition:background .1s}
+.toc-i:active{background:var(--s2)}
+.toc-n{flex:0 0 22px;font-family:var(--fd);font-weight:800;font-size:.72rem;color:var(--acc)}
+.sec{scroll-margin-top:70px;padding-top:26px}
+.sec h2{font-family:var(--fd);font-weight:800;font-size:.98rem;line-height:1.35;color:var(--tx);margin-bottom:12px}
+.cl{display:flex;gap:10px;margin-bottom:10px;font-size:.88rem;line-height:1.65;color:var(--tx2)}
+.cl-n{flex:0 0 auto;min-width:34px;font-weight:700;color:var(--tx3);font-variant-numeric:tabular-nums}
+.cl-t{flex:1;min-width:0;overflow-wrap:anywhere}
+.cl-t b{color:var(--tx);font-weight:600}
+.sub{margin:8px 0 0;padding-left:18px;list-style:disc}
+.sub li{margin-bottom:6px;padding-left:2px}
+.sub li::marker{color:var(--acc)}
+.lnk{color:var(--acc);font-weight:600;text-decoration:underline;text-decoration-color:var(--accg);text-underline-offset:2px}
+.ph{background:#fff3c4;color:#6b4e00;border-radius:4px;padding:0 4px;font-weight:600}
+.req{background:var(--s1);border:1px solid var(--b0);border-radius:14px;overflow:hidden}
+.req-r{display:flex;gap:14px;padding:11px 14px;border-bottom:1px solid var(--b0);font-size:.86rem;line-height:1.5}
+.req-r:last-child{border-bottom:none}
+.req-k{flex:0 0 108px;color:var(--tx3);font-weight:600}
+.req-v{flex:1;min-width:0;color:var(--tx);overflow-wrap:anywhere}
+.docs-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.doc-l{padding:9px 13px;border-radius:10px;background:var(--s1);border:1px solid var(--b0);font-size:.8rem;font-weight:600;color:var(--acc)}
+.doc-l:active{background:var(--accd)}
+.doc-end{margin-top:28px;padding-top:16px;border-top:1px solid var(--b0);font-size:.78rem;line-height:1.6;color:var(--tx3)}
+@media(min-width:720px){.doc-h1{font-size:1.8rem}.cl{font-size:.92rem}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER — НЕ ТРОГАТЬ (логотип + аватар, одинаковы на всех страницах) ── -->
+<div class="header">
+  <div class="logo">
+    <img src="dastdaroz.png" alt="dastdaroz"/>
+  </div>
+  <div class="header-right">
+    <!-- Кнопка поиска -->
+    <button class="search-btn" id="search-btn" aria-label="Поиск">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </button>
+    <!-- Кнопка аватарки: если не авторизован → login.html, если да → модалка -->
+    <button class="avatar-btn" id="avatar-btn" aria-label="Профиль">
+      <!-- Иконка по умолчанию (не авторизован) -->
+      <svg id="ava-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <!-- Инициалы (авторизован) -->
+      <span id="ava-initials" style="display:none"></span>
+    </button>
+  </div>
+</div>
+
+<!-- ── SEARCH PANEL — НЕ ТРОГАТЬ ── -->
+<div class="search-panel" id="search-panel">
+  <div class="search-bar">
+    <span class="search-bar-ico">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </span>
+    <input class="search-input" id="search-input" type="search"
+      placeholder="Поиск..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false"/>
+    <button class="search-clear" id="search-clear" aria-label="Очистить">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     SCROLL AREA — просто обёртка. Скролл идёт по всей странице.
+     .content растёт вниз по длине контента — без ограничений.
+     НЕ ставь overflow:auto/scroll сюда или на .content!
+─────────────────────────────────────────────────────────────── -->
+<div class="scroll">
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         ▼▼▼  КОНТЕНТ START — ИИ РЕДАКТИРУЕТ ТОЛЬКО ЗДЕСЬ  ▼▼▼
+         Удали placeholder ниже и вставь содержимое страницы.
+         Используй CSS-переменные шаблона (см. правила выше).
+         Не добавляй header/footer/nav — они уже есть снаружи.
+    ════════════════════════════════════════════════════════════ -->
+
+<div class="doc">
+
+    <h1 class="doc-h1">Публичная оферта</h1>
+    <p class="doc-sub">на использование мессенджера dastdaroz</p>
+    <div class="doc-meta">
+      <span class="chip">Редакция от 19 октября 2026 г.</span>
+      <span class="chip">Действует с момента публикации</span>
+    </div>
+
+    <div class="doc-note">
+      <div class="doc-note-t">Кратко</div>
+      <ul class="sub">
+        <li>Сервис бесплатный, платных функций нет. Регистрируясь или пользуясь им, вы принимаете эти условия.</li>
+        <li>Пользоваться можно с 18 лет. Вы отвечаете за свой аккаунт и за то, что пишете и отправляете.</li>
+        <li>Запрещены незаконный контент, травля, спам, мошенничество и взлом. Нарушителей мы блокируем.</li>
+        <li>Как обрабатываются ваши данные — в <a class="lnk" href="privacy.html">Политике конфиденциальности</a>; удалить аккаунт можно в любой момент.</li>
+      </ul>
+      <p class="doc-note-f">Этот блок — пояснение, он не заменяет полный текст ниже.</p>
+    </div>
+
+    <nav class="toc" aria-label="Содержание">
+      <div class="toc-h">Содержание</div>
+      <a class="toc-i" href="#s1"><span class="toc-n">1</span><span>Термины и определения</span></a><a class="toc-i" href="#s2"><span class="toc-n">2</span><span>Общие положения</span></a><a class="toc-i" href="#s3"><span class="toc-n">3</span><span>Предмет Оферты</span></a><a class="toc-i" href="#s4"><span class="toc-n">4</span><span>Регистрация, возраст и Аккаунт</span></a><a class="toc-i" href="#s5"><span class="toc-n">5</span><span>Права и обязанности Оператора</span></a><a class="toc-i" href="#s6"><span class="toc-n">6</span><span>Обязанности и запреты для Пользователя</span></a><a class="toc-i" href="#s7"><span class="toc-n">7</span><span>Пользовательский контент и модерация</span></a><a class="toc-i" href="#s8"><span class="toc-n">8</span><span>Конфиденциальность и персональные данные</span></a><a class="toc-i" href="#s9"><span class="toc-n">9</span><span>Уведомления и связь</span></a><a class="toc-i" href="#s10"><span class="toc-n">10</span><span>Бесплатность Сервиса, промокоды и достижения</span></a><a class="toc-i" href="#s11"><span class="toc-n">11</span><span>Техническая поддержка</span></a><a class="toc-i" href="#s12"><span class="toc-n">12</span><span>Интеллектуальная собственность</span></a><a class="toc-i" href="#s13"><span class="toc-n">13</span><span>Доступность Сервиса и отсутствие гарантий</span></a><a class="toc-i" href="#s14"><span class="toc-n">14</span><span>Ответственность Сторон</span></a><a class="toc-i" href="#s15"><span class="toc-n">15</span><span>Приостановка, блокировка и прекращение использования</span></a><a class="toc-i" href="#s16"><span class="toc-n">16</span><span>Изменение Оферты</span></a><a class="toc-i" href="#s17"><span class="toc-n">17</span><span>Применимое право и разрешение споров</span></a><a class="toc-i" href="#s18"><span class="toc-n">18</span><span>Заключительные положения</span></a><a class="toc-i" href="#s19"><span class="toc-n">19</span><span>Контакты Оператора</span></a>
+    </nav>
+
+    <section class="sec" id="s1"><h2>1. Термины и определения</h2>
+<div class="cl"><span class="cl-n">1.1.</span><div class="cl-t">В настоящей Публичной оферте (далее — «Оферта») используются следующие термины:
+<ul class="sub"><li><b>«Оператор»</b> — физическое лицо Абдусаломов Ибодло Сайфуллович, разработчик, правообладатель и владелец Сервиса, контактные данные которого указаны в разделе 19. Оператор не является индивидуальным предпринимателем или юридическим лицом и предоставляет Сервис безвозмездно, не в целях извлечения прибыли.</li><li><b>«Сервис»</b> — мессенджер dastdaroz, включая мобильное приложение для ОС Android (далее — «Приложение»), веб-версию, размещённую на сайте chat.dastdaroz.shop, а также связанное серверное программное обеспечение и сопутствующие функции.</li><li><b>«Пользователь»</b> — любое дееспособное физическое лицо, которое акцептовало настоящую Оферту и использует Сервис.</li><li><b>«Аккаунт»</b> — учётная запись Пользователя в Сервисе, создаваемая при регистрации и позволяющая получить доступ к функциям Сервиса.</li><li><b>«Профиль»</b> — часть Аккаунта, видимая другим Пользователям: имя, сведения «О себе», аватар, фон профиля, индикатор присутствия («в сети» и т.п.).</li><li><b>«Контент»</b> — любая информация, размещаемая или передаваемая через Сервис: текстовые сообщения, изображения, файлы, ссылки, данные Профиля, а также иные материалы.</li><li><b>«Чат»</b> — личная переписка между двумя Пользователями («личный чат») либо групповое пространство для общения нескольких Пользователей («группа», «канал», «комната»).</li><li><b>«Техподдержка»</b> — раздел Приложения и контактные каналы, указанные в разделе 11, через которые Пользователь может обратиться к Оператору.</li><li><b>«Акцепт»</b> — полное и безоговорочное принятие Пользователем условий Оферты способом, указанным в разделе 2.</li><li><b>«Политика конфиденциальности»</b> (далее — «Политика») — отдельный документ Оператора, определяющий порядок обработки персональных данных Пользователей. Размещён на странице <a class="lnk" href="privacy.html">privacy.html</a>.</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">1.2.</span><div class="cl-t">Заголовки разделов приведены для удобства и не влияют на толкование условий Оферты. Термины, определённые в единственном числе, могут использоваться во множественном, и наоборот.
+</div></div>
+</section>
+<section class="sec" id="s2"><h2>2. Общие положения</h2>
+<div class="cl"><span class="cl-n">2.1.</span><div class="cl-t">Настоящий документ является официальным публичным предложением (офертой) Оператора заключить договор об использовании Сервиса на условиях, изложенных ниже, с любым дееспособным лицом, принявшим эти условия, в соответствии с Гражданским кодексом Республики Таджикистан и иным применимым законодательством.
+</div></div>
+<div class="cl"><span class="cl-n">2.2.</span><div class="cl-t">Договор считается заключённым с момента Акцепта. Акцептом Оферты является любое из следующих действий:
+<ul class="sub"><li>создание Аккаунта в Приложении или веб-версии Сервиса, в том числе проставление отметки о согласии с Офертой и Политикой;</li><li>вход в существующий Аккаунт после публикации актуальной редакции Оферты;</li><li>фактическое использование Сервиса — отправка сообщений, загрузка файлов, изменение Профиля и т.п.</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">2.3.</span><div class="cl-t">Договор заключается в электронной форме, что признаётся Сторонами равнозначным письменной форме. Отдельного подписания бумажного экземпляра не требуется.
+</div></div>
+<div class="cl"><span class="cl-n">2.4.</span><div class="cl-t">Актуальная редакция Оферты размещена в открытом доступе на странице <a class="lnk" href="offer.html">offer.html</a>, а также доступна из Приложения и из карточки Приложения в магазине Google Play.
+</div></div>
+<div class="cl"><span class="cl-n">2.5.</span><div class="cl-t">Неотъемлемыми частями Оферты являются: Политика конфиденциальности (<a class="lnk" href="privacy.html">privacy.html</a>), порядок удаления Аккаунта (<a class="lnk" href="delete-account.html">delete-account.html</a>), а также правила и уведомления, опубликованные в Приложении. При противоречии между Офертой и иными документами приоритет имеет Оферта, а в вопросах обработки персональных данных — Политика.
+</div></div>
+<div class="cl"><span class="cl-n">2.6.</span><div class="cl-t">Пользователь, не согласный с какими-либо условиями Оферты, обязан воздержаться от регистрации и использования Сервиса.
+</div></div>
+<div class="cl"><span class="cl-n">2.7.</span><div class="cl-t">Приложение распространяется через магазин Google Play. Google LLC и её аффилированные лица не являются стороной настоящей Оферты, не несут ответственности за Сервис, его поддержку и обслуживание, а также за претензии Пользователей к Оператору. Пользователь при этом обязан соблюдать применимые условия использования Google Play.
+</div></div>
+</section>
+<section class="sec" id="s3"><h2>3. Предмет Оферты</h2>
+<div class="cl"><span class="cl-n">3.1.</span><div class="cl-t">Оператор безвозмездно предоставляет Пользователю неисключительное, непередаваемое, отзывное право использовать Сервис по его прямому назначению и на условиях Оферты. На дату редакции Оферты Сервис включает следующие функции:
+<ul class="sub"><li>регистрация и ведение Аккаунта и Профиля (имя, сведения «О себе», аватар, фон профиля);</li><li>личные чаты и группы: отправка текстовых сообщений, ответы и обсуждения (ветки), упоминания участников, закрепление, редактирование и удаление собственных сообщений, форматирование текста и блоки кода;</li><li>создание групп, добавление участников и приглашение по ссылке-приглашению;</li><li>отправка и получение изображений и файлов (изображения, документы, архивы, аудио и видео в поддерживаемых форматах);</li><li>голосовые комнаты и иные функции голосового общения — по мере их доступности в Приложении;</li><li>индикаторы присутствия, набора текста и статуса доставки сообщений;</li><li>поиск пользователей и чатов;</li><li>уведомления о новых сообщениях (в том числе push-уведомления и уведомления браузера);</li><li>обращение в Техподдержку непосредственно из Приложения;</li><li>промокоды, достижения и иные акционные механики по мере их появления в Сервисе.</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">3.2.</span><div class="cl-t">Состав и внешний вид функций Сервиса могут изменяться: Оператор вправе добавлять, изменять, временно приостанавливать или прекращать отдельные функции, в том числе в целях безопасности, соблюдения закона и развития Сервиса.
+</div></div>
+<div class="cl"><span class="cl-n">3.3.</span><div class="cl-t">Оператор является информационным посредником: он предоставляет техническую возможность обмена информацией, не является стороной переписки между Пользователями, не создаёт, не редактирует и, как правило, не проверяет Контент заранее.
+</div></div>
+<div class="cl"><span class="cl-n">3.4.</span><div class="cl-t">Право использования Сервиса не включает права передавать Аккаунт или доступ к Сервису третьим лицам, а также использовать Сервис в коммерческих целях (массовые рассылки, реклама, перепродажа доступа и т.п.) без письменного согласия Оператора.
+</div></div>
+</section>
+<section class="sec" id="s4"><h2>4. Регистрация, возраст и Аккаунт</h2>
+<div class="cl"><span class="cl-n">4.1.</span><div class="cl-t">Для использования Сервиса необходимо создать Аккаунт. Регистрация и вход осуществляются по адресу электронной почты и паролю либо с помощью учётной записи Google («Продолжить с Google»). Имя и дополнительные данные Профиля (аватар, фон, «О себе») указываются Пользователем самостоятельно и по желанию. При первом входе по адресу электронной почты Аккаунт создаётся автоматически.
+</div></div>
+<div class="cl"><span class="cl-n">4.2.</span><div class="cl-t">Пользователем может быть лицо, достигшее 18 лет. Лицам младше 18 лет регистрация и использование Сервиса запрещены; при выявлении такого Аккаунта Оператор вправе его заблокировать и удалить.
+</div></div>
+<div class="cl"><span class="cl-n">4.3.</span><div class="cl-t">Пользователь гарантирует, что предоставленные при регистрации сведения достоверны, и обязуется поддерживать их актуальность. Запрещается регистрироваться на чужие данные или выдавать себя за другое лицо.
+</div></div>
+<div class="cl"><span class="cl-n">4.4.</span><div class="cl-t">Один Пользователь вправе иметь один Аккаунт, если иное прямо не разрешено Оператором. Передача, продажа, аренда и иное отчуждение Аккаунта запрещены.
+</div></div>
+<div class="cl"><span class="cl-n">4.5.</span><div class="cl-t">Пользователь самостоятельно обеспечивает конфиденциальность своих учётных данных и несёт ответственность за все действия, совершённые с использованием его Аккаунта. При подозрении на несанкционированный доступ Пользователь обязан незамедлительно сменить пароль и сообщить об этом в Техподдержку.
+</div></div>
+<div class="cl"><span class="cl-n">4.6.</span><div class="cl-t">Оператор вправе потребовать подтверждения адреса электронной почты или иных данных, а также ограничить доступ к функциям Сервиса до прохождения проверки.
+</div></div>
+</section>
+<section class="sec" id="s5"><h2>5. Права и обязанности Оператора</h2>
+<div class="cl"><span class="cl-n">5.1.</span><div class="cl-t">Оператор вправе:
+<ul class="sub"><li>изменять, обновлять и совершенствовать Сервис, устанавливать технические ограничения (размер файлов, длину сообщений, частоту запросов и т.п.);</li><li>осуществлять модерацию, удалять Контент и ограничивать доступ к Аккаунту в случаях, предусмотренных Офертой;</li><li>направлять Пользователю служебные уведомления, связанные с работой Сервиса, безопасностью и изменением условий;</li><li>привлекать подрядчиков и технических партнёров для обеспечения работы Сервиса, в том числе провайдеров облачной инфраструктуры (Google Firebase);</li><li>раскрывать информацию о Пользователе по законному требованию уполномоченных государственных органов, а также в случаях, необходимых для защиты прав, имущества и безопасности Оператора, Пользователей и третьих лиц.</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">5.2.</span><div class="cl-t">Оператор обязуется:
+<ul class="sub"><li>обеспечивать работу Сервиса с разумной степенью заботливости и осмотрительности;</li><li>обрабатывать персональные данные Пользователя в соответствии с Политикой и законодательством;</li><li>рассматривать обращения Пользователей, поступившие в Техподдержку, в сроки, указанные в разделе 11;</li><li>публиковать изменения Оферты в порядке, предусмотренном разделом 16.</li></ul>
+</div></div>
+</section>
+<section class="sec" id="s6"><h2>6. Обязанности и запреты для Пользователя</h2>
+<div class="cl"><span class="cl-n">6.1.</span><div class="cl-t">Пользователь обязан соблюдать законодательство Республики Таджикистан и страны своего местонахождения, условия настоящей Оферты, уважать права и достоинство других Пользователей.
+</div></div>
+<div class="cl"><span class="cl-n">6.2.</span><div class="cl-t">При использовании Сервиса запрещается:
+<ul class="sub"><li>размещать, передавать или распространять Контент, нарушающий закон, включая материалы с сексуальной эксплуатацией несовершеннолетних, пропаганду терроризма и экстремизма, призывы к насилию, разжиганию национальной, расовой, религиозной или иной вражды;</li><li>оскорблять, преследовать, запугивать, шантажировать, травить других Пользователей, распространять заведомо ложные сведения, порочащие честь и достоинство;</li><li>публиковать чужие персональные данные, частную переписку, интимные материалы без согласия соответствующих лиц;</li><li>рассылать спам, навязчивую рекламу, цепочки сообщений, вести мошенническую деятельность, фишинг, а также предлагать запрещённые товары и услуги;</li><li>распространять вредоносное программное обеспечение, вирусы, ссылки на вредоносные ресурсы, а также файлы, способные нарушить работу Сервиса или устройств других лиц;</li><li>нарушать авторские, смежные, товарные и иные права интеллектуальной собственности;</li><li>выдавать себя за другого человека, представителя Оператора или организации, вводить в заблуждение относительно своей личности;</li><li>получать несанкционированный доступ к Аккаунтам, серверам и данным, обходить меры защиты и технические ограничения Сервиса;</li><li>использовать автоматизированные средства (боты, скрипты, парсеры) для массового сбора данных, создания Аккаунтов или отправки сообщений;</li><li>создавать чрезмерную нагрузку на инфраструктуру Сервиса, проводить тестирование уязвимостей без письменного согласия Оператора;</li><li>декомпилировать, модифицировать, копировать исходный код Приложения, создавать производные работы, за исключением случаев, прямо разрешённых законом;</li><li>использовать Сервис в целях, противоречащих закону или нравственности, а также способствовать совершению таких действий другими лицами.</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">6.3.</span><div class="cl-t">Оператор вправе по собственному усмотрению квалифицировать действия Пользователя как нарушение настоящего раздела с применением мер, указанных в разделе 15.
+</div></div>
+</section>
+<section class="sec" id="s7"><h2>7. Пользовательский контент и модерация</h2>
+<div class="cl"><span class="cl-n">7.1.</span><div class="cl-t">Пользователь несёт полную ответственность за Контент, который он создаёт, загружает, отправляет или иным образом делает доступным через Сервис.
+</div></div>
+<div class="cl"><span class="cl-n">7.2.</span><div class="cl-t">Пользователь гарантирует, что обладает необходимыми правами на размещаемый Контент и что Контент не нарушает закон и права третьих лиц.
+</div></div>
+<div class="cl"><span class="cl-n">7.3.</span><div class="cl-t">Пользователь предоставляет Оператору неисключительную, безвозмездную, действующую на всей территории мира лицензию на использование Контента на срок его хранения в Сервисе — исключительно в объёме, необходимом для работы Сервиса: хранение, воспроизведение, передача выбранным адресатам, отображение, а также технические преобразования (сжатие, кадрирование и создание уменьшенных копий изображений, например аватаров и фонов Профиля). Лицензия не даёт Оператору права использовать личные сообщения Пользователей в рекламных целях или передавать их третьим лицам, за исключением случаев, предусмотренных Офертой, Политикой и законом.
+</div></div>
+<div class="cl"><span class="cl-n">7.4.</span><div class="cl-t">Оператор не обязан предварительно проверять Контент, но вправе в любое время удалить или скрыть Контент, который нарушает Оферту или закон, поступил в виде жалобы либо удаление которого требуется компетентным органом.
+</div></div>
+<div class="cl"><span class="cl-n">7.5.</span><div class="cl-t">Пользователь может сообщить о нарушении, направив обращение в Техподдержку (из Приложения) или на электронную почту info@dastdaroz.shop. В обращении рекомендуется указать: Аккаунт или чат, в котором обнаружено нарушение, описание проблемы, скриншоты или иные подтверждающие материалы. Оператор рассматривает такие обращения в разумный срок, как правило в течение 3 дней; обращения о явно незаконном контенте рассматриваются в приоритетном порядке.
+</div></div>
+<div class="cl"><span class="cl-n">7.6.</span><div class="cl-t">Оператор придерживается политики нулевой терпимости к материалам, содержащим сексуальную эксплуатацию несовершеннолетних, а также к угрозам жизни и здоровью. Такие материалы удаляются незамедлительно, соответствующие Аккаунты блокируются, а информация передаётся компетентным правоохранительным органам.
+</div></div>
+<div class="cl"><span class="cl-n">7.7.</span><div class="cl-t">Ссылка-приглашение в группу открывает доступ любому лицу, которому она передана. Пользователь, создавший или распространяющий такую ссылку, самостоятельно отвечает за состав участников группы и вправе в любой момент прекратить использование ссылки способами, предусмотренными в Приложении.
+</div></div>
+<div class="cl"><span class="cl-n">7.8.</span><div class="cl-t">Пользователь понимает, что отправленный им Контент может быть сохранён, скопирован или переслан получателями (в том числе в виде снимков экрана). Оператор не контролирует такие действия и не отвечает за них.
+</div></div>
+<div class="cl"><span class="cl-n">7.9.</span><div class="cl-t">Удаление Пользователем сообщения или Аккаунта прекращает доступ к соответствующему Контенту в Сервисе, однако копии могут временно сохраняться в резервных хранилищах в течение срока, указанного в Политике.
+</div></div>
+</section>
+<section class="sec" id="s8"><h2>8. Конфиденциальность и персональные данные</h2>
+<div class="cl"><span class="cl-n">8.1.</span><div class="cl-t">Обработка персональных данных осуществляется в соответствии с Политикой конфиденциальности и законодательством Республики Таджикистан о защите персональных данных.
+</div></div>
+<div class="cl"><span class="cl-n">8.2.</span><div class="cl-t">Совершая Акцепт, Пользователь подтверждает, что ознакомлен с Политикой, и даёт согласие на обработку своих персональных данных в целях, объёме и порядке, описанных в Политике. К таким данным относятся, в частности: имя, адрес электронной почты, данные, которые передаёт Google при входе через Google (имя, адрес электронной почты, фото профиля), данные Профиля (аватар, фон, «О себе», статус присутствия), содержание сообщений и файлов, технические данные (идентификатор устройства для push-уведомлений, IP-адрес, сведения о версии Приложения и ошибках). Оператором персональных данных выступает физическое лицо, указанное в разделе 19.
+</div></div>
+<div class="cl"><span class="cl-n">8.3.</span><div class="cl-t">Для работы Сервиса используется облачная инфраструктура Google (Firebase Authentication, Cloud Firestore, Cloud Storage, Cloud Messaging). Серверы Google могут находиться за пределами Республики Таджикистан, в связи с чем Пользователь соглашается на трансграничную передачу данных в объёме, необходимом для работы Сервиса.
+</div></div>
+<div class="cl"><span class="cl-n">8.4.</span><div class="cl-t">Данные Профиля (имя, аватар, фон, «О себе», статус присутствия) могут быть видны другим Пользователям Сервиса. Пользователь самостоятельно определяет объём сведений о себе, размещаемых в Профиле.
+</div></div>
+<div class="cl"><span class="cl-n">8.5.</span><div class="cl-t">Оператор не раскрывает содержание личных сообщений третьим лицам, кроме случаев, когда это требуется законом, необходимо для рассмотрения жалобы на нарушение Оферты либо для защиты прав и безопасности Пользователей и Оператора.
+</div></div>
+<div class="cl"><span class="cl-n">8.6.</span><div class="cl-t">Передача данных между Приложением и серверами осуществляется по защищённому каналу связи (TLS). Если иное прямо не указано в Приложении, сквозное (end-to-end) шифрование сообщений не применяется.
+</div></div>
+</section>
+<section class="sec" id="s9"><h2>9. Уведомления и связь</h2>
+<div class="cl"><span class="cl-n">9.1.</span><div class="cl-t">Пользователь соглашается получать от Оператора служебные уведомления: push-уведомления о новых сообщениях, сообщения о безопасности, изменении Оферты и Политики, а также ответы Техподдержки.
+</div></div>
+<div class="cl"><span class="cl-n">9.2.</span><div class="cl-t">Push-уведомления и уведомления браузера можно отключить в настройках устройства или браузера. Служебные сообщения, связанные с безопасностью Аккаунта и изменением условий, могут направляться независимо от этих настроек.
+</div></div>
+<div class="cl"><span class="cl-n">9.3.</span><div class="cl-t">Для работы отдельных функций Приложение может запрашивать у Пользователя разрешения операционной системы: на отправку уведомлений, доступ к файлам и мультимедиа (для вложений и выбора изображений) и к микрофону (для голосовых функций, если они доступны). Отказ в разрешении может ограничить работу соответствующей функции; разрешения можно изменить в настройках устройства.
+</div></div>
+<div class="cl"><span class="cl-n">9.4.</span><div class="cl-t">Оператор не рассылает рекламные сообщения без отдельного согласия Пользователя.
+</div></div>
+</section>
+<section class="sec" id="s10"><h2>10. Бесплатность Сервиса, промокоды и достижения</h2>
+<div class="cl"><span class="cl-n">10.1.</span><div class="cl-t">Сервис предоставляется Пользователям безвозмездно. В Сервисе отсутствуют платные функции, подписки и внутренние покупки; Оператор не принимает платежей и не запрашивает платёжные данные Пользователей.
+</div></div>
+<div class="cl"><span class="cl-n">10.2.</span><div class="cl-t">Если в будущем в Сервисе появятся платные функции, они будут вводиться только после отдельного уведомления Пользователей, на отдельных условиях, доведённых до сведения до совершения платежа, и только с явного согласия Пользователя. Настоящая Оферта сама по себе не обязывает Пользователя к каким-либо платежам.
+</div></div>
+<div class="cl"><span class="cl-n">10.3.</span><div class="cl-t">Промокоды и иные акционные предложения (при их наличии) действуют на условиях, указанных в Приложении или в объявлении об акции: срок действия, количество активаций, условия получения вознаграждения. Промокод не является денежным эквивалентом, не подлежит передаче или продаже и может быть аннулирован при злоупотреблении (например, массовом создании Аккаунтов для получения вознаграждений).
+</div></div>
+<div class="cl"><span class="cl-n">10.4.</span><div class="cl-t">«Достижения», награды и иные игровые отметки в Сервисе носят информационный характер, не являются имуществом Пользователя и не подлежат обмену на денежные средства.
+</div></div>
+<div class="cl"><span class="cl-n">10.5.</span><div class="cl-t">Оператор вправе изменять условия акций и прекращать их проведение, уведомив об этом Пользователей в Приложении.
+</div></div>
+</section>
+<section class="sec" id="s11"><h2>11. Техническая поддержка</h2>
+<div class="cl"><span class="cl-n">11.1.</span><div class="cl-t">Пользователь может обратиться в Техподдержку следующими способами:
+<ul class="sub"><li>через раздел «Техподдержка» в Приложении;</li><li>по телефонам: +992 977 17 8800, +992 87 877 7788;</li><li>по электронной почте: <a class="lnk" href="mailto:info@dastdaroz.shop">info@dastdaroz.shop</a>.</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">11.2.</span><div class="cl-t">Служба поддержки работает с понедельника по пятницу с 8:00 до 22:00 (время Душанбе, UTC+5). Обращения, поступившие вне этого времени, обрабатываются в ближайший рабочий день.
+</div></div>
+<div class="cl"><span class="cl-n">11.3.</span><div class="cl-t">Оператор стремится отвечать на обращения в течение 1–3 рабочих дней. Срок рассмотрения сложных обращений может быть увеличен с уведомлением Пользователя.
+</div></div>
+</section>
+<section class="sec" id="s12"><h2>12. Интеллектуальная собственность</h2>
+<div class="cl"><span class="cl-n">12.1.</span><div class="cl-t">Все исключительные права на Сервис, Приложение, программный код, дизайн, интерфейсы, логотипы, товарный знак dastdaroz, графические материалы (включая предустановленные аватары и фоны профиля) и иные элементы Сервиса принадлежат Оператору или его лицензиарам и охраняются законодательством об интеллектуальной собственности.
+</div></div>
+<div class="cl"><span class="cl-n">12.2.</span><div class="cl-t">Оферта не передаёт Пользователю никаких исключительных прав. Пользователь получает только ограниченное право использования Сервиса, указанное в разделе 3.
+</div></div>
+<div class="cl"><span class="cl-n">12.3.</span><div class="cl-t">Копирование, воспроизведение, распространение и иное использование элементов Сервиса вне его штатных функций без письменного разрешения Оператора запрещено.
+</div></div>
+<div class="cl"><span class="cl-n">12.4.</span><div class="cl-t">Права на Контент, созданный Пользователем, остаются за Пользователем с учётом лицензии, предоставленной Оператору по разделу 7.
+</div></div>
+<div class="cl"><span class="cl-n">12.5.</span><div class="cl-t">Если Вы считаете, что Контент в Сервисе нарушает Ваши авторские или смежные права, направьте обращение на info@dastdaroz.shop с указанием спорного материала и подтверждением Ваших прав. Оператор рассмотрит обращение и при наличии оснований удалит материал.
+</div></div>
+</section>
+<section class="sec" id="s13"><h2>13. Доступность Сервиса и отсутствие гарантий</h2>
+<div class="cl"><span class="cl-n">13.1.</span><div class="cl-t">Оператор стремится обеспечить бесперебойную работу Сервиса, но не гарантирует отсутствия перерывов, сбоев и ошибок. Возможны плановые технические работы и вынужденные перерывы, в том числе по причинам, не зависящим от Оператора (сбои сетей связи, работа Google и иных провайдеров инфраструктуры, действия третьих лиц).
+</div></div>
+<div class="cl"><span class="cl-n">13.2.</span><div class="cl-t">Сервис предоставляется на условиях «как есть» («as is»). Оператор не гарантирует, что Сервис будет соответствовать конкретным ожиданиям или целям Пользователя, в той мере, в какой это допускается законодательством.
+</div></div>
+<div class="cl"><span class="cl-n">13.3.</span><div class="cl-t">Пользователь самостоятельно обеспечивает работоспособность своего устройства и доступ в интернет, а также своевременное обновление Приложения. Рекомендуется сохранять копии важной информации: Сервис не предназначен для использования в качестве единственного хранилища данных.
+</div></div>
+<div class="cl"><span class="cl-n">13.4.</span><div class="cl-t">Сервис не предназначен для вызова экстренных служб и передачи критически важных сообщений, нарушение доставки которых может причинить вред жизни, здоровью или имуществу.
+</div></div>
+</section>
+<section class="sec" id="s14"><h2>14. Ответственность Сторон</h2>
+<div class="cl"><span class="cl-n">14.1.</span><div class="cl-t">Пользователь несёт ответственность за нарушение условий Оферты и законодательства при использовании Сервиса. Пользователь обязуется возместить Оператору убытки, возникшие в связи с претензиями третьих лиц и государственных органов, вызванными нарушением Пользователем Оферты или закона, в той мере, в какой это допускается законодательством.
+</div></div>
+<div class="cl"><span class="cl-n">14.2.</span><div class="cl-t">Оператор не несёт ответственности за Контент, создаваемый Пользователями, и за действия Пользователей, а также за последствия использования информации, полученной через Сервис.
+</div></div>
+<div class="cl"><span class="cl-n">14.3.</span><div class="cl-t">Оператор не отвечает за косвенные убытки, упущенную выгоду, утрату данных, репутационный ущерб, возникшие в результате использования или невозможности использования Сервиса, кроме случаев, когда такая ответственность не может быть исключена по закону.
+</div></div>
+<div class="cl"><span class="cl-n">14.4.</span><div class="cl-t">Поскольку Сервис предоставляется безвозмездно, в пределах, допускаемых законодательством, ответственность Оператора перед Пользователем ограничивается случаями умысла и прямым документально подтверждённым ущербом; Оператор не несёт ответственности за ущерб, возникший в результате использования бесплатного Сервиса в обычном режиме, включая временную недоступность и сбои.
+</div></div>
+<div class="cl"><span class="cl-n">14.5.</span><div class="cl-t">Стороны освобождаются от ответственности за полное или частичное неисполнение обязательств, вызванное обстоятельствами непреодолимой силы (стихийные бедствия, военные действия, акты государственных органов, масштабные сбои сетей связи, кибератаки и т.п.), если эти обстоятельства непосредственно повлияли на исполнение.
+</div></div>
+<div class="cl"><span class="cl-n">14.6.</span><div class="cl-t">Ничто в Оферте не исключает и не ограничивает ответственность, которая в соответствии с законодательством не может быть исключена или ограничена, и не ущемляет права Пользователя как потребителя, предоставленные ему императивными нормами закона.
+</div></div>
+</section>
+<section class="sec" id="s15"><h2>15. Приостановка, блокировка и прекращение использования</h2>
+<div class="cl"><span class="cl-n">15.1.</span><div class="cl-t">Оператор вправе ограничить функциональность, временно приостановить, заблокировать или удалить Аккаунт, а также удалить Контент — с предварительным уведомлением или без него — в следующих случаях:
+<ul class="sub"><li>нарушение Пользователем условий Оферты или законодательства;</li><li>получение обоснованной жалобы на Пользователя или его Контент;</li><li>требование уполномоченного государственного органа;</li><li>угроза безопасности Сервиса, других Пользователей или третьих лиц;</li><li>выявление Аккаунта лица, не достигшего минимального возраста, указанного в разделе 4;</li><li>отсутствие активности в Аккаунте более 24 месяцев (в этом случае Оператор предварительно уведомляет Пользователя не менее чем за 30 дней).</li></ul>
+</div></div>
+<div class="cl"><span class="cl-n">15.2.</span><div class="cl-t">Если Аккаунт заблокирован, Пользователь может обратиться в Техподдержку для выяснения причин и обжалования решения.
+</div></div>
+<div class="cl"><span class="cl-n">15.3.</span><div class="cl-t">Пользователь вправе в любой момент прекратить использование Сервиса и удалить свой Аккаунт — через соответствующий раздел Приложения и/или в порядке, описанном на странице <a class="lnk" href="delete-account.html">delete-account.html</a>. Запрос также можно направить на info@dastdaroz.shop с адреса или с номера, привязанных к Аккаунту.
+</div></div>
+<div class="cl"><span class="cl-n">15.4.</span><div class="cl-t">При удалении Аккаунта доступ к Сервису прекращается, Профиль перестаёт отображаться другим Пользователям, а персональные данные удаляются или обезличиваются в сроки, указанные в Политике, за исключением сведений, которые Оператор обязан хранить по закону. Сообщения, ранее отправленные другим Пользователям, могут оставаться в их чатах.
+</div></div>
+<div class="cl"><span class="cl-n">15.5.</span><div class="cl-t">Прекращение действия Оферты не освобождает Стороны от ответственности за нарушения, допущенные до даты прекращения.
+</div></div>
+</section>
+<section class="sec" id="s16"><h2>16. Изменение Оферты</h2>
+<div class="cl"><span class="cl-n">16.1.</span><div class="cl-t">Оператор вправе в одностороннем порядке изменять условия Оферты. Новая редакция вступает в силу с момента публикации на странице <a class="lnk" href="offer.html">offer.html</a>, если иной срок не указан в самой редакции.
+</div></div>
+<div class="cl"><span class="cl-n">16.2.</span><div class="cl-t">О существенных изменениях Оператор уведомляет Пользователей через Приложение или иным доступным способом не менее чем за 10 дней до их вступления в силу, если иное не требуется для соблюдения закона или обеспечения безопасности.
+</div></div>
+<div class="cl"><span class="cl-n">16.3.</span><div class="cl-t">Продолжение использования Сервиса после вступления в силу новой редакции означает согласие Пользователя с изменениями. Если Пользователь с ними не согласен, он обязан прекратить использование Сервиса и удалить Аккаунт.
+</div></div>
+<div class="cl"><span class="cl-n">16.4.</span><div class="cl-t">Дата актуальной редакции указана в начале документа.
+</div></div>
+</section>
+<section class="sec" id="s17"><h2>17. Применимое право и разрешение споров</h2>
+<div class="cl"><span class="cl-n">17.1.</span><div class="cl-t">Оферта и все отношения, возникающие из неё, регулируются законодательством Республики Таджикистан.
+</div></div>
+<div class="cl"><span class="cl-n">17.2.</span><div class="cl-t">Споры разрешаются путём переговоров. До обращения в суд Сторона направляет другой Стороне письменную или электронную претензию (Оператору — на info@dastdaroz.shop). Срок ответа на претензию — 30 календарных дней с момента её получения.
+</div></div>
+<div class="cl"><span class="cl-n">17.3.</span><div class="cl-t">При недостижении согласия спор передаётся на рассмотрение в суд по месту нахождения Оператора (г. Душанбе, Республика Таджикистан) в порядке, установленном законодательством, если императивными нормами не предусмотрена иная подсудность.
+</div></div>
+<div class="cl"><span class="cl-n">17.4.</span><div class="cl-t">Если Пользователь является потребителем и проживает за пределами Республики Таджикистан, ему сохраняется защита, предоставляемая обязательными нормами законодательства страны его проживания.
+</div></div>
+</section>
+<section class="sec" id="s18"><h2>18. Заключительные положения</h2>
+<div class="cl"><span class="cl-n">18.1.</span><div class="cl-t">Если какое-либо положение Оферты будет признано недействительным или неисполнимым, это не влияет на действительность остальных положений.
+</div></div>
+<div class="cl"><span class="cl-n">18.2.</span><div class="cl-t">Оферта составлена на русском языке. Переводы на другие языки могут предоставляться для удобства; при расхождениях приоритет имеет русский текст.
+</div></div>
+<div class="cl"><span class="cl-n">18.3.</span><div class="cl-t">Оферта не создаёт между Сторонами трудовых, агентских, партнёрских или иных отношений, кроме предусмотренных настоящим документом.
+</div></div>
+<div class="cl"><span class="cl-n">18.4.</span><div class="cl-t">Оператор вправе передать свои права и обязанности по Оферте третьему лицу в связи с реорганизацией или передачей Сервиса, уведомив об этом Пользователей. Пользователь не вправе передавать свои права и обязанности по Оферте без письменного согласия Оператора.
+</div></div>
+<div class="cl"><span class="cl-n">18.5.</span><div class="cl-t">Электронные сообщения, направленные через Приложение или на адреса электронной почты, указанные в Оферте, имеют юридическую силу и считаются надлежащим уведомлением.
+</div></div>
+<div class="cl"><span class="cl-n">18.6.</span><div class="cl-t">Бездействие или задержка Оператора в осуществлении прав по Оферте не означает отказа от этих прав.
+</div></div>
+<div class="cl"><span class="cl-n">18.7.</span><div class="cl-t">Оферта действует бессрочно — до момента её отзыва Оператором или прекращения использования Сервиса Пользователем.
+</div></div>
+</section>
+<section class="sec" id="s19"><h2>19. Контакты Оператора</h2>
+<div class="req">
+<div class="req-r"><div class="req-k">Оператор</div><div class="req-v">Абдусаломов Ибодло Сайфуллович, физическое лицо</div></div>
+<div class="req-r"><div class="req-k">Местонахождение</div><div class="req-v">г. Душанбе, Республика Таджикистан</div></div>
+<div class="req-r"><div class="req-k">Эл. почта</div><div class="req-v"><a class="lnk" href="mailto:info@dastdaroz.shop">info@dastdaroz.shop</a></div></div>
+<div class="req-r"><div class="req-k">Телефоны</div><div class="req-v"><a class="lnk" href="tel:+992977178800">+992 977 17 8800</a><br><a class="lnk" href="tel:+992878777788">+992 87 877 7788</a></div></div>
+<div class="req-r"><div class="req-k">Режим работы</div><div class="req-v">Пн – Пт: 8:00 – 22:00 (UTC+5)</div></div>
+<div class="req-r"><div class="req-k">Сайты</div><div class="req-v">dastdaroz.shop · chat.dastdaroz.shop</div></div>
+</div>
+<p class="cl-t" style="margin-top:12px;font-size:.8rem;color:var(--tx3)">Юридически значимые сообщения и претензии направляются на указанный адрес электронной почты; они считаются полученными в день отправки при отсутствии сообщения о недоставке.</p>
+<div class="docs-links">
+<a class="doc-l" href="privacy.html">Политика конфиденциальности</a>
+<a class="doc-l" href="delete-account.html">Удаление аккаунта</a>
+</div>
+</section>
+
+    <p class="doc-end">Оферта опубликована Оператором — физическим лицом — и является публичным предложением. Вопросы по документу — <a class="lnk" href="mailto:info@dastdaroz.shop">info@dastdaroz.shop</a>.</p>
+
+    </div>
+  
+    <!-- ▲▲▲  КОНТЕНТ END  ▲▲▲
+    ══════════════════════════════════════════════════════════════ -->
+
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     FOOTER — скроллится вместе со страницей, виден в конце.
+     НЕ делай position:fixed — он должен скроллиться!
+     НЕ ТРОГАТЬ — контакты и соцсети одинаковы на всех страницах.
+─────────────────────────────────────────────────────────────── -->
+<div class="footer">
+
+  <div class="divider"></div>
+
+  <div class="contacts">
+    <a href="tel:+992977178800" class="contact-item clickable">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.37 1.18 2 2 0 012.34 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-.77a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">+992 977 17 8800</div>
+        <div class="ci-sub">Служба поддержки</div>
+      </div>
+      <svg class="ci-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <a href="tel:+992878777788" class="contact-item clickable">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.37 1.18 2 2 0 012.34 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-.77a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">+992 87 877 7788</div>
+        <div class="ci-sub">Служба поддержки</div>
+      </div>
+      <svg class="ci-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+
+    <div class="contact-item">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">Душанбе, Таджикистан</div>
+      </div>
+    </div>
+
+    <a href="mailto:info@dastdaroz.shop" class="contact-item clickable">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">info@dastdaroz.shop</div>
+      </div>
+    </a>
+
+    <div class="contact-item">
+      <div class="ci-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="ci-body">
+        <div class="ci-val">Пн – Пт: 8:00 – 22:00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="socials-wrap">
+    <div class="socials">
+      <a href="#" class="soc-btn fb" aria-label="Facebook">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+      </a>
+      <a href="#" class="soc-btn ig" aria-label="Instagram">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="#" class="soc-btn tg" aria-label="Telegram">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c-.242-.213-.054-.333-.373-.12L7.17 13.267l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.978.292z"/></svg>
+      </a>
+      <a href="#" class="soc-btn yt" aria-label="YouTube">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PROFILE BOTTOM SHEET — НЕ ТРОГАТЬ (Firebase auth, одинаков на всех страницах) ── -->
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet">
+
+    <div class="sheet-handle"></div>
+
+    <!-- Шапка с данными пользователя -->
+    <div class="sheet-head">
+      <div class="sheet-ava" id="sheet-ava">?</div>
+      <div class="sheet-info">
+        <div class="sheet-name"  id="sheet-name">—</div>
+        <div class="sheet-phone" id="sheet-phone">—</div>
+      </div>
+    </div>
+
+    <!-- Доп. строки (можешь добавить свои) -->
+    <!-- Кнопка выхода -->
+    <button class="sheet-logout" id="btn-logout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Выйти
+    </button>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// ПОИСК — НАСТРОЙКА СТРАНИЦ
+// Добавляй/убирай страницы в массиве ниже.
+// Формат каждой записи: { title: 'Название', path: 'файл.html' }
+// ════════════════════════════════════════════════════════════════
+const SEARCH_PAGES = [
+  { title: 'Публичная оферта',          path: 'offer.html'           },
+  { title: 'Политика конфиденциальности', path: 'privacy.html'         },
+  { title: 'Удаление аккаунта',          path: 'delete-account.html'  },
+  // { title: 'Каталог',        path: 'catalog.html' },
+  // { title: 'О нас',          path: 'about.html'   },
+  // { title: 'Заказы',          path: 'orders.html'  },
+];
+// ════════════════════════════════════════════════════════════════
+
+(function(){
+  const searchBtn     = document.getElementById('search-btn');
+  const searchPanel   = document.getElementById('search-panel');
+  const searchInput   = document.getElementById('search-input');
+  const searchClear   = document.getElementById('search-clear');
+  const searchResults = document.getElementById('search-results');
+
+  let index    = null;   // null = ещё не загружен
+  let loading  = false;
+  let timer    = null;
+
+  /* ── Открыть/закрыть ── */
+  function open() {
+    searchPanel.classList.add('open');
+    searchBtn.classList.add('active');
+    searchInput.focus();
+    if (!index && !loading) buildIndex();
+  }
+  function close() {
+    searchPanel.classList.remove('open');
+    searchBtn.classList.remove('active');
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    searchResults.innerHTML = '';
+  }
+
+  searchBtn.addEventListener('click', () =>
+    searchPanel.classList.contains('open') ? close() : open()
+  );
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    searchResults.innerHTML = '';
+    searchInput.focus();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && searchPanel.classList.contains('open')) close();
+  });
+
+  /* ── Индексация ── */
+  async function buildIndex() {
+    if (!SEARCH_PAGES.length) { index = []; return; }
+    loading = true;
+    searchResults.innerHTML = '<div class="search-status">Загрузка…</div>';
+    const parser = new DOMParser();
+    index = [];
+    await Promise.all(SEARCH_PAGES.map(async page => {
+      try {
+        const res = await fetch(page.path);
+        if (!res.ok) return;
+        const html = await res.text();
+        const doc  = parser.parseFromString(html, 'text/html');
+        const el   = doc.querySelector('.content');
+        const text = (el ? el.textContent : '').replace(/\s+/g,' ').trim();
+        index.push({ title: page.title, path: page.path, text });
+      } catch(e) { /* пропустить недоступные */ }
+    }));
+    loading = false;
+    searchResults.innerHTML = '';
+    const q = searchInput.value.trim();
+    if (q.length >= 2) doSearch(q);
+  }
+
+  /* ── Поиск ── */
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    searchClear.classList.toggle('visible', q.length > 0);
+    clearTimeout(timer);
+    timer = setTimeout(() => doSearch(q), 180);
+  });
+
+  function esc(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function hi(text, q){
+    return esc(text).replace(
+      new RegExp(esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),
+      m => '<mark>'+m+'</mark>'
+    );
+  }
+
+  function doSearch(q) {
+    if (!q || q.length < 2) { searchResults.innerHTML = ''; return; }
+    if (loading || !index) {
+      searchResults.innerHTML = '<div class="search-status">Загрузка…</div>';
+      return;
+    }
+    if (!index.length) {
+      searchResults.innerHTML = '<div class="search-status">Страницы для поиска не добавлены</div>';
+      return;
+    }
+
+    const low  = q.toLowerCase();
+    const hits = [];
+
+    for (const page of index) {
+      const ti = page.title.toLowerCase().indexOf(low);
+      const tx = page.text.toLowerCase().indexOf(low);
+      if (ti === -1 && tx === -1) continue;
+
+      let snippet = '';
+      if (tx !== -1) {
+        const s = Math.max(0, tx - 45);
+        const e = Math.min(page.text.length, tx + q.length + 90);
+        snippet = (s > 0 ? '…' : '') + page.text.slice(s, e) + (e < page.text.length ? '…' : '');
+      } else {
+        snippet = page.text.slice(0, 130) + (page.text.length > 130 ? '…' : '');
+      }
+      hits.push({ page, snippet });
+    }
+
+    if (!hits.length) {
+      searchResults.innerHTML = `<div class="search-status">«${esc(q)}» не найдено</div>`;
+      return;
+    }
+
+    searchResults.innerHTML = hits.map(({page, snippet}) => `
+      <a href="${esc(page.path)}" class="search-result-item">
+        <div class="sri-title">${hi(page.title, q)}</div>
+        <div class="sri-snippet">${hi(snippet, q)}</div>
+      </a>
+    `).join('');
+  }
+})();
+</script>
+
+<script type="module">
+// ═══ НЕ ТРОГАТЬ — Firebase auth логика, одинакова на всех страницах ════════
+import { auth } from './firebase.js';
+import {
+  onAuthStateChanged,
+  signOut,
+} from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
+
+// ═══ Элементы ════════════════════════════════════════════════════
+const avatarBtn   = document.getElementById('avatar-btn');
+const avaIcon     = document.getElementById('ava-icon');
+const avaInitials = document.getElementById('ava-initials');
+const overlay     = document.getElementById('overlay');
+const sheetAva    = document.getElementById('sheet-ava');
+const sheetName   = document.getElementById('sheet-name');
+const sheetPhone  = document.getElementById('sheet-phone');
+const btnLogout   = document.getElementById('btn-logout');
+
+let currentUser = null;
+
+// ═══ Хелперы ═════════════════════════════════════════════════════
+
+/** Первые буквы имени: "Фируз Мирзоев" → "ФМ" */
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return p.length > 1
+    ? (p[0][0] + p[1][0]).toUpperCase()
+    : p[0][0].toUpperCase();
+}
+
+/** email вида 992901234567@phone.dastdaroz.id → "+992 90 123 45 67" */
+function emailToPhone(email) {
+  if (!email) return '—';
+  const m = email.match(/^992(\d{9})@/);
+  if (!m) return email;
+  const d = m[1];
+  return '+992 ' + d.slice(0,2) + ' ' + d.slice(2,5) + ' ' + d.slice(5,7) + ' ' + d.slice(7,9);
+}
+
+// ═══ Состояние auth ══════════════════════════════════════════════
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+
+  if (user) {
+    // Авторизован — показываем инициалы на аватарке
+    const ini = initials(user.displayName);
+    avaIcon.style.display     = 'none';
+    avaInitials.style.display = '';
+    avaInitials.textContent   = ini;
+    avatarBtn.classList.add('authed');
+
+    // Заполняем bottom sheet
+    sheetAva.textContent   = ini;
+    sheetName.textContent  = user.displayName || 'Пользователь';
+    sheetPhone.textContent = emailToPhone(user.email);
+  } else {
+    // Не авторизован — обычная иконка
+    avaIcon.style.display     = '';
+    avaInitials.style.display = 'none';
+    avatarBtn.classList.remove('authed');
+  }
+});
+
+// ═══ Клик по аватарке ════════════════════════════════════════════
+avatarBtn.addEventListener('click', () => {
+  if (currentUser) {
+    overlay.classList.add('open');        // показать bottom sheet
+  } else {
+    window.location.href = 'login.html'; // перейти на логин
+  }
+});
+
+// ═══ Закрытие sheet по тапу на фон ══════════════════════════════
+overlay.addEventListener('click', e => {
+  if (e.target === overlay) overlay.classList.remove('open');
+});
+
+// ═══ Выход ═══════════════════════════════════════════════════════
+btnLogout.addEventListener('click', async () => {
+  await signOut(auth);
+  overlay.classList.remove('open');
+  // currentUser обнулится через onAuthStateChanged автоматически
+});
+</script>
+
+</body>
+</html>
