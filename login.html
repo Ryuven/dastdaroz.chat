@@ -501,8 +501,8 @@ body {
       <div class="terms-check">
         <span class="terms-text">
           Продолжая, вы соглашаетесь с
-          <button type="button" onclick="SheetPdf.open('terms')">Публичной офертой</button> и
-          <button type="button" onclick="SheetPdf.open('privacy')">Политикой конфиденциальности</button> dastdaroz.
+          <a href="https://chat.dastdaroz.shop/documents/offer.html" target="_blank" rel="noopener">Публичной офертой</a> и
+          <a href="https://chat.dastdaroz.shop/documents/privacy.html" target="_blank" rel="noopener">Политикой конфиденциальности</a> dastdaroz.
         </span>
       </div>
     </div>
@@ -545,8 +545,8 @@ body {
       <div class="terms-check">
         <span class="terms-text">
           Продолжая, вы соглашаетесь с
-          <button type="button" onclick="SheetPdf.open('terms')">Публичной офертой</button> и
-          <button type="button" onclick="SheetPdf.open('privacy')">Политикой конфиденциальности</button> dastdaroz.
+          <a href="https://chat.dastdaroz.shop/documents/offer.html" target="_blank" rel="noopener">Публичной офертой</a> и
+          <a href="https://chat.dastdaroz.shop/documents/privacy.html" target="_blank" rel="noopener">Политикой конфиденциальности</a> dastdaroz.
         </span>
       </div>
     </div>
@@ -558,7 +558,6 @@ body {
 
 <script type="module">
 import { auth, db } from './firebase.js';
-import { SheetPdf } from './sheet-pdf.js';
 import {
   onAuthStateChanged,
   setPersistence,
@@ -574,23 +573,6 @@ import {
 
 // ─── Константы ────────────────────────────────────────────────
 const HOME = 'pulsar.html';
-
-// ─── PDF Sheets (Оферта / Политика) ───────────────────────────
-SheetPdf.define({
-  id:     'terms',
-  title:  'Публичная оферта',
-  url:    'https://dastdaroz.shop/help/terms.pdf',
-  zIndex: 900,
-});
-SheetPdf.define({
-  id:     'privacy',
-  title:  'Политика конфиденциальности',
-  url:    'https://dastdaroz.shop/help/privacy.pdf',
-  zIndex: 900,
-});
-
-// Экспорт в window для onclick в HTML
-window.SheetPdf = SheetPdf;
 
 // ─── Rate Limiter ─────────────────────────────────────────────
 const RL = (() => {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <title>Pulsar — Galelium</title>
+  <title>dastdaroz</title>
   <meta name="robots" content="noindex,nofollow"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -1123,6 +1123,7 @@ a{color:inherit;text-decoration:none}
       <button class="acc-row" data-act="lang"><div class="acc-row-ico" style="background:#0EA5E9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Поменять язык</div><div class="acc-row-sub">Русский</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
       <a class="acc-row" href="help.html"><div class="acc-row-ico" style="background:#64748B"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg></div><div class="acc-row-body"><div class="acc-row-title">FAQ / Ёрдам</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a>
       <button class="acc-row" data-act="oferta"><div class="acc-row-ico" style="background:#7C3AED"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Публичная оферта</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="acc-row" data-act="privacy"><div class="acc-row-ico" style="background:#0F766E"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Политика конфиденциальности</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
 
     <div class="acc-lbl">Аккаунт</div>
@@ -1176,7 +1177,6 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js';
 import { ref as sRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js';
 import { Sheet }                    from './sheet.js';
-import { SheetPdf }                 from './sheet-pdf.js';
 import { auth, db as fdb, storage } from './firebase.js';
 
 /* ════════════════════════════════════════════════════════════════
@@ -1351,7 +1351,7 @@ function showInAppNotif(msg,chName){
   card.addEventListener('click',()=>{openChannel(msg.chId);card.remove();});
   bar.appendChild(card);
   playNotifSound();
-  if(typeof Notification!=='undefined'&&Notification.permission==='granted'&&!document.hasFocus()){try{new Notification('Pulsar · '+chName,{body:msg.authorName+': '+(msg.text||'Файл').slice(0,80)});}catch(e){}}
+  if(typeof Notification!=='undefined'&&Notification.permission==='granted'&&!document.hasFocus()){try{new Notification('dastdaroz · '+chName,{body:msg.authorName+': '+(msg.text||'Файл').slice(0,80)});}catch(e){}}
   setTimeout(()=>{card.classList.add('fade');setTimeout(()=>card.remove(),300);},5000);
 }
 
@@ -1792,7 +1792,7 @@ function startMessageListener(chId){
       if(_isGR(currentCh))markGroupRead(chId);          // группа открыта — всё, что пришло, прочитано
       if(m.authorId!==me.uid&&isNew){
         showInAppNotif(m,currentCh?.name||'DM');
-        if(document.hidden||!document.hasFocus())document.title='(!) Pulsar — Galelium';
+        if(document.hidden||!document.hasFocus())document.title='(!) dastdaroz';
         if(!stuck){newMsgCount++;updateScrollBtn();}
       }
     });
@@ -2593,13 +2593,21 @@ async function _bgpUploadFile(file){
 }
 
 /* действия строк меню «Настройки» (data-act) */
+/* Юридические документы — обычные страницы по ссылке (открываются в браузере) */
+const DOCS_BASE='https://chat.dastdaroz.shop/documents/';
+function openDoc(name){
+  const url=DOCS_BASE+name+'.html';
+  const w=window.open(url,'_blank','noopener');
+  if(!w) location.href=url;      // если WebView не даёт открыть новое окно
+}
 const _accActs={
   profile:      ()=>openMyProfile(),
   promo:        ()=>{ Sheet.open('promo'); setTimeout(()=>$('promo-inp')?.focus(),350); },
   achievements: ()=>Sheet.open('achievements'),
   support:      ()=>openSupport(),
   lang:         ()=>Sheet.open('lang'),
-  oferta:       ()=>SheetPdf.open('oferta'),
+  oferta:       ()=>openDoc('offer'),
+  privacy:      ()=>openDoc('privacy'),
 };
 
 /* Под-шторки меню «Настройки» создаются один раз, при первом заходе во вкладку */
@@ -2652,8 +2660,6 @@ function buildAccountSheets(){
     <div style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text);margin-bottom:8px">Скоро</div>
     <div style="font-size:var(--fs-xs);color:var(--muted);text-align:center;line-height:1.6;max-width:220px">Выбор языка интерфейса появится в ближайшем обновлении</div>`;
 
-  // Публичная оферта (PDF-sheet)
-  SheetPdf.define({ id: 'oferta', title: 'Публичная оферта', url: 'https://dastdaroz.shop/help/terms.pdf', zIndex: 700 });
 
 
 }
@@ -2743,7 +2749,7 @@ async function sendSupportMsg(){
   btn.disabled=false;
 }
 
-/* ── ДОСТИЖЕНИЯ (пока — список участников Pulsar, как в home) ── */
+/* ── ДОСТИЖЕНИЯ (пока — список участников dastdaroz, как в home) ── */
 function renderAchievements(){
   const body=Sheet.body('achievements'); if(!body||!me) return;
   const others=Object.entries(allUsers).filter(([id])=>id!==me.uid)
@@ -2880,7 +2886,7 @@ async function shareGroupLink(){
   const g=_gpGroup();if(!g)return;
   const url=groupLink(g.id);
   if(navigator.share){
-    try{await navigator.share({title:g.name,text:g.type==='room'?`Заходите в голосовую комнату «${g.name}» в Pulsar`:`Вступайте в группу «${g.name}» в Pulsar`,url});return;}
+    try{await navigator.share({title:g.name,text:g.type==='room'?`Заходите в голосовую комнату «${g.name}» в dastdaroz`:`Вступайте в группу «${g.name}» в dastdaroz`,url});return;}
     catch(e){if(e&&e.name==='AbortError')return;}
   }
   try{await navigator.clipboard.writeText(url);toast('Ссылка скопирована','ok');}
@@ -2925,7 +2931,7 @@ function renderGroupList(){
   if(!vis.length){
     list.innerHTML=q
       ?'<div style="padding:20px 14px;font-size:var(--fs-xs);color:var(--muted-2);text-align:center">Ничего не найдено</div>'
-      :`<div class="grp-empty"><div class="grp-empty-ico">${GRP_ICON.replace('width="34" height="34"','width="28" height="28"')}</div><div class="grp-empty-t">Групп пока нет</div><div class="grp-empty-s">Создайте первую — её увидят все пользователи Pulsar</div></div>`;
+      :`<div class="grp-empty"><div class="grp-empty-ico">${GRP_ICON.replace('width="34" height="34"','width="28" height="28"')}</div><div class="grp-empty-t">Групп пока нет</div><div class="grp-empty-s">Создайте первую — её увидят все пользователи dastdaroz</div></div>`;
     return;
   }
   const mine=vis.filter(g=>(g.members||[]).includes(me.uid)),other=vis.filter(g=>!(g.members||[]).includes(me.uid));
@@ -3550,7 +3556,7 @@ function renderRoomList(){
   if(!vis.length){
     list.innerHTML=q
       ?'<div style="padding:20px 14px;font-size:var(--fs-xs);color:var(--muted-2);text-align:center">Ничего не найдено</div>'
-      :`<div class="grp-empty"><div class="grp-empty-ico">${ROOM_ICON.replace('width="34" height="34"','width="28" height="28"')}</div><div class="grp-empty-t">Комнат пока нет</div><div class="grp-empty-s">Создайте первую голосовую комнату — её увидят все пользователи Pulsar</div></div>`;
+      :`<div class="grp-empty"><div class="grp-empty-ico">${ROOM_ICON.replace('width="34" height="34"','width="28" height="28"')}</div><div class="grp-empty-t">Комнат пока нет</div><div class="grp-empty-s">Создайте первую голосовую комнату — её увидят все пользователи dastdaroz</div></div>`;
     return;
   }
   const onAir=vis.filter(r=>_roomLive(r).length),rest=vis.filter(r=>!_roomLive(r).length);
@@ -4041,7 +4047,7 @@ function initUI(){
     if(scrollRaf)return;
     scrollRaf=requestAnimationFrame(()=>{
       scrollRaf=0;
-      if(isNearBottom()){newMsgCount=0;updateScrollBtn();$('scroll-btn').classList.remove('show');document.title='Pulsar — Galelium';}
+      if(isNearBottom()){newMsgCount=0;updateScrollBtn();$('scroll-btn').classList.remove('show');document.title='dastdaroz';}
       else $('scroll-btn').classList.add('show');
     });
   },{passive:true});
@@ -4107,7 +4113,7 @@ function initUI(){
         </svg>
       </div>
       <div style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text)">Скоро</div>
-      <div style="font-size:var(--fs-xs);color:var(--muted);max-width:210px;line-height:1.7">Голосовые звонки появятся в следующем обновлении Pulsar</div>
+      <div style="font-size:var(--fs-xs);color:var(--muted);max-width:210px;line-height:1.7">Голосовые звонки появятся в следующем обновлении dastdaroz</div>
     </div>
   `;
   $('btn-call')?.addEventListener('click', () => Sheet.open('call'));
@@ -4120,7 +4126,7 @@ function initUI(){
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".14"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3"/></svg>
       </div>
       <div style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text)">Скоро</div>
-      <div style="font-size:var(--fs-xs);color:var(--muted);max-width:210px;line-height:1.7">Видеозвонки появятся в следующем обновлении Pulsar</div>
+      <div style="font-size:var(--fs-xs);color:var(--muted);max-width:210px;line-height:1.7">Видеозвонки появятся в следующем обновлении dastdaroz</div>
     </div>
   `;
   $('btn-video')?.addEventListener('click', () => Sheet.open('video'));
@@ -4329,7 +4335,7 @@ function initUI(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('lightbox').classList.contains('open')){closeLightbox();return;}document.querySelectorAll('.modal-overlay.open').forEach(el=>closeModal(el.id));}});
 
   // Reset title on focus
-  window.addEventListener('focus',()=>{document.title='Pulsar — Galelium';});
+  window.addEventListener('focus',()=>{document.title='dastdaroz';});
 
   // Navigation
   $('btn-back-to-chats').addEventListener('click',()=>{ leaveConversation(); });
@@ -4339,7 +4345,7 @@ function initUI(){
 
   // Logout
   $('acc-logout')?.addEventListener('click',async()=>{
-    if(!confirm('Выйти из Pulsar?'))return;
+    if(!confirm('Выйти из dastdaroz?'))return;
     stopSupport(); closeAvatarPicker(); closeBgPicker();
     await updatePresence('offline');clearTyping();
     // Убираем FCM-токен этого устройства из профиля, чтобы пуши не приходили после выхода
