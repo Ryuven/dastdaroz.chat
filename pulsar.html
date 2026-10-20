@@ -642,6 +642,14 @@ a{color:inherit;text-decoration:none}
 .acc-logout{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:12px 16px;background:var(--red-dim);border:1.5px solid rgba(220,38,38,.18);border-radius:var(--r-lg);cursor:pointer;transition:background var(--tf)}
 .acc-logout:active{background:rgba(220,38,38,.18)}
 .acc-logout-ico{width:36px;height:36px;border-radius:11px;flex-shrink:0;background:rgba(220,38,38,.12);display:flex;align-items:center;justify-content:center}
+.del-warn{padding:12px 14px;border-radius:var(--r-lg);background:var(--red-dim);border:1px solid rgba(220,38,38,.18);font-size:.84rem;line-height:1.6;color:var(--text)}
+.del-warn b{color:var(--red)}
+.del-list{margin:14px 0 16px;padding-left:18px;font-size:.84rem;line-height:1.65;color:var(--muted);list-style:disc}
+.del-list li{margin-bottom:6px}
+.del-link{display:inline-block;margin-top:14px;font-size:.8rem;font-weight:600;color:var(--accent);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline}
+.del-btn{width:100%;margin-top:12px;padding:14px;border-radius:var(--r-lg);border:none;background:var(--red);color:#fff;font-family:var(--font-display);font-weight:800;font-size:var(--fs-xs);letter-spacing:.04em;cursor:pointer;transition:opacity var(--tf),transform .12s}
+.del-btn:disabled{opacity:.4;cursor:not-allowed}
+.del-btn:not(:disabled):active{transform:scale(.98)}
 .acc-logout-t{font-size:.90625rem;font-weight:600;color:var(--red)}
 .acc-logout-s{font-size:.75rem;color:rgba(220,38,38,.55);margin-top:1px}
 /* Промокод */
@@ -1108,7 +1116,7 @@ a{color:inherit;text-decoration:none}
 
     <div class="acc-lbl">Маълумот</div>
     <div class="acc-group">
-      <button class="acc-row" data-act="profile"><div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Личные данные</div><div class="acc-row-sub">Имя и о себе</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="acc-row" data-act="personal"><div class="acc-row-ico" style="background:#3B82F6"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="acc-row-body"><div class="acc-row-title">Личные данные</div><div class="acc-row-sub">Аккаунт и безопасность</div></div><svg class="acc-row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
 
     <div class="acc-lbl">Акции</div>
@@ -2593,6 +2601,39 @@ async function _bgpUploadFile(file){
 }
 
 /* действия строк меню «Настройки» (data-act) */
+/* ── УДАЛЕНИЕ АККАУНТА ──
+   DELETE_ACCOUNT_URL — адрес эндпоинта на VPS (POST, заголовок Authorization: Bearer <Firebase ID token>).
+   Пока он пустой, кнопка открывает готовое письмо с запросом на info@dastdaroz.shop. */
+const DELETE_ACCOUNT_URL='';
+let _delBusy=false;
+function _delSync(){
+  const v=($('delacc-inp')?.value||'').trim().toUpperCase();
+  const b=$('delacc-btn'); if(b) b.disabled=_delBusy||v!=='УДАЛИТЬ';
+}
+async function deleteMyAccount(){
+  if(!me||_delBusy) return;
+  if(!DELETE_ACCOUNT_URL){
+    const subj=encodeURIComponent('Удаление аккаунта dastdaroz');
+    const body=encodeURIComponent('Здравствуйте!\n\nПрошу удалить мой аккаунт dastdaroz и связанные с ним данные.\n\nАдрес электронной почты аккаунта: '+(me.email||'')+'\n\nПодтверждаю, что я владелец аккаунта и понимаю, что удаление необратимо.');
+    toast('Отправьте письмо на info@dastdaroz.shop','ok');
+    location.href='mailto:info@dastdaroz.shop?subject='+subj+'&body='+body;
+    return;
+  }
+  _delBusy=true; _delSync();
+  const btn=$('delacc-btn'); const txt=btn.textContent; btn.textContent='Удаление…';
+  try{
+    const token=await auth.currentUser.getIdToken(true);
+    const r=await fetch(DELETE_ACCOUNT_URL,{method:'POST',headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok) throw new Error((await r.text().catch(()=>''))||('Ошибка '+r.status));
+    try{window.AndroidBridge?.onLogout?.();}catch(e){}
+    try{await signOut(auth);}catch(e){}
+    location.replace('login.html');
+  }catch(e){
+    toast('Не удалось удалить аккаунт: '+e.message,'err');
+    _delBusy=false; btn.textContent=txt; _delSync();
+  }
+}
+
 /* Юридические документы — обычные страницы по ссылке (открываются в браузере) */
 const DOCS_BASE='https://chat.dastdaroz.shop/documents/';
 function openDoc(name){
@@ -2608,12 +2649,44 @@ const _accActs={
   lang:         ()=>Sheet.open('lang'),
   oferta:       ()=>openDoc('offer'),
   privacy:      ()=>openDoc('privacy'),
+  personal:     ()=>Sheet.open('personal'),
 };
 
 /* Под-шторки меню «Настройки» создаются один раз, при первом заходе во вкладку */
 let _accBuilt=false;
 function buildAccountSheets(){
   if(_accBuilt) return; _accBuilt=true;
+  // Личные данные (глубокие настройки аккаунта)
+  Sheet.define({ id: 'personal', title: 'Личные данные', zIndex: 700 });
+  const _pd = Sheet.body('personal');
+  _pd.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:20px 20px calc(var(--safe-b) + 24px)';
+  _pd.innerHTML = `
+    <div class="acc-lbl" style="padding-top:0">Аккаунт</div>
+    <button class="acc-logout" id="btn-delete-account" type="button">
+      <div class="acc-logout-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div>
+      <div><div class="acc-logout-t">Удалить аккаунт</div><div class="acc-logout-s">Безвозвратно удалить аккаунт и данные профиля</div></div>
+    </button>`;
+  $('btn-delete-account').addEventListener('click', () => Sheet.open('delacc'));
+
+  // Подтверждение удаления аккаунта
+  Sheet.define({ id: 'delacc', title: 'Удаление аккаунта', zIndex: 750,
+    onClose: () => { const i=$('delacc-inp'); if(i) i.value=''; _delSync(); } });
+  const _db = Sheet.body('delacc');
+  _db.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:20px 20px calc(var(--safe-b) + 24px)';
+  _db.innerHTML = `
+    <div class="del-warn"><b>Это действие необратимо.</b> После удаления вернуть аккаунт и его данные будет нельзя.</div>
+    <ul class="del-list">
+      <li>Будут удалены профиль, аватар, фон и данные для входа.</li>
+      <li>Будут удалены ваши обращения в поддержку и токен уведомлений.</li>
+      <li>Сообщения в чатах могут сохраняться до 90 дней, после чего удаляются.</li>
+    </ul>
+    <input class="promo-inp" id="delacc-inp" type="text" placeholder="Введите УДАЛИТЬ для подтверждения" autocomplete="off" autocapitalize="characters"/>
+    <button class="del-btn" id="delacc-btn" type="button" disabled>Удалить аккаунт</button>
+    <button class="del-link" id="delacc-more" type="button">Как удаляются данные</button>`;
+  $('delacc-inp').addEventListener('input', _delSync);
+  $('delacc-btn').addEventListener('click', deleteMyAccount);
+  $('delacc-more').addEventListener('click', () => openDoc('delete-account'));
+
   // Промокод
   Sheet.define({ id: 'promo', title: 'Промокод', zIndex: 700 });
   const _pb = Sheet.body('promo');
