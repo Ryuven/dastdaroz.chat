@@ -290,11 +290,10 @@ a{color:inherit;text-decoration:none}
 .msg-ts-inline{--ts-drop:9px;float:right;display:inline-flex;align-items:center;gap:4px;margin:var(--ts-drop) 0 calc(4px - var(--ts-drop)) 10px;font-size:var(--fs-2xs);color:var(--muted-2);white-space:nowrap;line-height:1}
 .msg-edited-inline{font-style:italic}
 .msg-row.is-me .msg-ts-inline{color:rgba(13,46,24,.45)}
-/* Статус доставки: ⏱ отправляется · ✓ на сервере · ✓✓ доставлено · ● прочитано (только свои, личные чаты) */
+/* Статус доставки: ⏱ отправляется · ✓ на сервере · ✓✓ доставлено · зелёные ✓✓ прочитано (только свои, личные чаты) */
 .msg-st{display:inline-flex;align-items:center;color:inherit}
 .msg-st:empty{display:none}
 .msg-st svg{display:block;width:17px;height:11px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.msg-st .st-dot{fill:currentColor;stroke:none}
 .msg-st[data-st="3"]{color:var(--accent)}
 /* Mention */
 .mention{color:var(--accent);background:var(--accent-dim);padding:0 4px;border-radius:var(--r-sm);font-weight:500;cursor:pointer;transition:background var(--tf)}
@@ -911,18 +910,21 @@ a{color:inherit;text-decoration:none}
 
 /* ── Запись о звонке в переписке (исходящий / входящий / пропущенный) ── */
 .msg-text.msg-call{white-space:normal}
-.mc-row{display:flex;align-items:center;gap:10px;min-width:210px;padding:2px 0}
+.mc-row{display:flex;align-items:center;gap:12px;min-width:240px;padding:0}
 .mc-ico{width:40px;height:40px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--accent);color:var(--on-accent)}
 .mc-ico svg{width:20px;height:20px}
 .mc-info{flex:1;min-width:0}
-.mc-title{font-size:var(--fs-sm);font-weight:700;line-height:1.25}
+.mc-title{font-size:var(--fs-sm);font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mc-sub{display:flex;align-items:center;gap:4px;margin-top:1px;font-size:var(--fs-xs);line-height:1.3;opacity:.75;font-variant-numeric:tabular-nums}
-.mc-sub svg{width:12px;height:12px;flex:0 0 auto;color:var(--accent)}
+.mc-sub>svg{width:12px;height:12px;flex:0 0 auto;color:var(--accent)}
+
+.mc-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
+.mc-side .msg-ts-inline{float:none;margin:0}
 .mc-back{width:36px;height:36px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);color:var(--accent);transition:transform var(--tf)}
 .mc-back svg{width:18px;height:18px}
 .mc-back:active{transform:scale(.92)}
 .msg-call.missed .mc-ico{background:var(--red);color:#fff}
-.msg-call.missed .mc-title,.msg-call.missed .mc-sub svg{color:var(--red)}
+.msg-call.missed .mc-title,.msg-call.missed .mc-sub>svg{color:var(--red)}
 
 /* ── VIDEO CALL (полноэкранное окно, не шторка) ── */
 #vc{position:fixed;inset:0;z-index:7000;display:flex;flex-direction:column;overflow:hidden;background:#0a120d;color:#fff;
@@ -1028,6 +1030,10 @@ a{color:inherit;text-decoration:none}
 /* на связи без видео собеседника: имя уже в шапке, в центре — аватарка и статус */
 #vc:not(.calling) .vc-peer-name{display:none}
 #vc:not(.calling) .vc-peer-ava{margin-bottom:18px}
+/* аудиозвонок: нет камеры — прячем плитку, кнопки камеры и переворота; имя остаётся по центру */
+#vc.audio .vc-pip,#vc.audio #vc-cam,#vc.audio #vc-flip{display:none}
+#vc.audio .vc-peer-name{display:block}
+#vc.audio .vc-peer-ava{margin-bottom:24px}
 @media (prefers-reduced-motion:reduce){#vc,.vc-pip,.vc-ring,#vc-mini{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -1116,10 +1122,10 @@ a{color:inherit;text-decoration:none}
         </div>
       </div>
 
-      <!-- Входящий видеозвонок -->
+      <!-- Входящий звонок (аудио / видео) -->
       <div class="call-banner" id="call-banner">
-        <div class="cb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".2"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3"/></svg></div>
-        <div class="cb-text"><div class="cb-t">Видеозвонок</div><div class="cb-s" id="cb-sub"></div></div>
+        <div class="cb-ico" id="cb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".2"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3"/></svg></div>
+        <div class="cb-text"><div class="cb-t" id="cb-t">Видеозвонок</div><div class="cb-s" id="cb-sub"></div></div>
         <button class="cb-btn cb-no" id="cb-decline" type="button" aria-label="Отклонить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <button class="cb-btn cb-yes" id="cb-join" type="button">Присоединиться</button>
       </div>
@@ -1312,7 +1318,7 @@ a{color:inherit;text-decoration:none}
 
 
 <div id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
-<!-- Видеозвонок: полноэкранное окно + свёрнутая плавающая плитка (заглушка с базой под WebRTC) -->
+<!-- Звонок (видео / аудио): полноэкранное окно + свёрнутая плавающая плитка -->
 <div id="vc" role="dialog" aria-modal="true" aria-label="Видеозвонок" aria-hidden="true">
   <div class="vc-bg"></div>
   <div class="vc-bg-photo" id="vc-bg-photo"></div>
@@ -2096,14 +2102,14 @@ function msgTs(msg){return msg.ts?.toDate?.()||new Date(msg.clientTs||Date.now()
 function shouldGroup(msg,pAId,pTs){return msg.authorId===pAId&&((msg.clientTs||0)-pTs)<300000&&!msg.replyTo;}
 
 /* ── СТАТУС ДОСТАВКИ (личные чаты) ──
- * ⏱ отправляется · ✓ сообщение на сервере · ✓✓ дошло до собеседника · ● собеседник увидел
+ * ⏱ отправляется · ✓ сообщение на сервере · ✓✓ дошло до собеседника · зелёные ✓✓ собеседник увидел
  * В документе сообщения: deliveredTo / readBy — массивы uid. Их пишет клиент ПОЛУЧАТЕЛЯ.
  * Если более позднее моё сообщение доставлено/прочитано — более ранние тоже (достаточно отметить последнее). */
 const ST_ICON={
   0:'<svg viewBox="0 0 18 11"><circle cx="9" cy="5.5" r="4"/><path d="M9 3.4v2.3l1.5.9"/></svg>',
   1:'<svg viewBox="0 0 18 11"><path d="M6 5.8l3 3L15 2.2"/></svg>',
   2:'<svg viewBox="0 0 18 11"><path d="M1.5 5.8l3 3L10.5 2.2M6 5.8l3 3L15 2.2"/></svg>',
-  3:'<svg viewBox="0 0 18 11"><circle class="st-dot" cx="9" cy="5.5" r="4"/></svg>'
+  3:'<svg viewBox="0 0 18 11"><path d="M1.5 5.8l3 3L10.5 2.2M6 5.8l3 3L15 2.2"/></svg>'
 };
 const ST_TITLE=['Отправляется…','Отправлено','Доставлено','Прочитано'];
 
@@ -2211,6 +2217,7 @@ function makeAttachHtml(msg){
  * Документ сообщения: type:'call', callResult: 'ended' | 'declined' | 'missed' | 'cancelled', callDur — секунды.
  * Пишет только звонящий (authorId = звонящий); каждый видит звонок со своей стороны: исходящий / входящий / пропущенный. */
 const CALL_ICO={
+  tel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" fill-opacity=".18" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.36 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>',
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".18"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3"/></svg>',
   out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M8 7h9v9"/></svg>',
   inn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7L7 17M16 17H7V8"/></svg>'
@@ -2221,13 +2228,13 @@ function fmtCallDur(s){
   return (h?h+':'+String(m).padStart(2,'0'):String(m))+':'+String(x).padStart(2,'0');
 }
 function callCardHtml(msg,isMe,tsInline){
-  const r=msg.callResult||'ended';
+  const r=msg.callResult||'ended',au=msg.callKind==='audio',kn=au?'аудиозвонок':'видеозвонок',ico=au?CALL_ICO.tel:CALL_ICO.cam;
   let title,sub,missed=false;
-  if(r==='ended'){title=isMe?'Исходящий видеозвонок':'Входящий видеозвонок';sub=fmtCallDur(msg.callDur);}
-  else if(isMe){title='Исходящий видеозвонок';sub=r==='declined'?'Отклонён':r==='missed'?'Нет ответа':'Отменён';}
-  else if(r==='declined'){title='Входящий видеозвонок';sub='Вы отклонили';}
-  else{title='Пропущенный видеозвонок';sub=r==='missed'?'Вы не ответили':'Вызов отменён';missed=true;}
-  return `<div class="msg-text msg-call${missed?' missed':''}" data-msgid="${esc(msg.id)}"><div class="mc-row"><div class="mc-ico">${CALL_ICO.cam}</div><div class="mc-info"><div class="mc-title">${title}</div><div class="mc-sub">${isMe?CALL_ICO.out:CALL_ICO.inn}<span>${sub}</span></div></div><button class="mc-back" type="button" aria-label="Перезвонить" title="Перезвонить">${CALL_ICO.cam}</button></div>${tsInline}</div>`;
+  if(r==='ended'){title=(isMe?'Исходящий ':'Входящий ')+kn;sub=fmtCallDur(msg.callDur);}
+  else if(isMe){title='Исходящий '+kn;sub=r==='declined'?'Отклонён':r==='missed'?'Нет ответа':'Отменён';}
+  else if(r==='declined'){title='Входящий '+kn;sub='Вы отклонили';}
+  else{title='Пропущенный '+kn;sub=r==='missed'?'Вы не ответили':'Вызов отменён';missed=true;}
+  return `<div class="msg-text msg-call${missed?' missed':''}" data-msgid="${esc(msg.id)}"><div class="mc-row"><div class="mc-ico">${ico}</div><div class="mc-info"><div class="mc-title">${title}</div><div class="mc-sub">${isMe?CALL_ICO.out:CALL_ICO.inn}<span>${sub}</span></div></div><div class="mc-side"><button class="mc-back" type="button" data-kind="${au?'audio':'video'}" aria-label="Перезвонить" title="Перезвонить">${ico}</button>${tsInline}</div></div></div>`;
 }
 
 function makeMsgEl(msg, grouped, animate){
@@ -2254,7 +2261,7 @@ function makeMsgEl(msg, grouped, animate){
   </div>` : '';
 
   // Время внутри пузырька (малое, справа внизу) — для своих и при группировке
-  // + значок статуса (⏱/✓/✓✓/●) — только у своих сообщений в личной переписке; заполняет refreshStatuses()
+  // + значок статуса (⏱/✓/✓✓/зелёные ✓✓) — только у своих сообщений в личной переписке; заполняет refreshStatuses()
   const stHtml = (isMe && isDM && !msg.deleted) ? '<span class="msg-st"></span>' : '';
   const editedInl = (msg.edited && !showMeta) ? '<span class="msg-edited-inline">изм.</span>' : '';   // без меты «изм.» рядом со временем
   const tsInline = (isMe || grouped || isDM || isGrp) ? `<span class="msg-ts-inline">${editedInl}<span class="msg-ts-time">${ts}</span>${stHtml}</span>` : '';
@@ -2304,7 +2311,7 @@ function initMessageEvents(){
       navigator.clipboard.writeText(el.dataset.code||'').then(()=>{el.textContent='Скопировано';el.classList.add('copied');setTimeout(()=>{el.textContent='Скопировать';el.classList.remove('copied');},2000);}).catch(()=>toast('Не удалось скопировать','err'));
       return;
     }
-    if((el=t.closest('.mc-back'))){e.stopPropagation();window.VideoCall?.open();return;}          // «перезвонить» из записи о звонке
+    if((el=t.closest('.mc-back'))){e.stopPropagation();window.VideoCall?.open(el.dataset.kind);return;}          // «перезвонить» тем же способом, каким звонили
     if((el=t.closest('.reaction-btn'))){e.stopPropagation();toggleReact(el.dataset.msgid,el.dataset.emoji);return;}
     if((el=t.closest('[data-scroll]'))){const g=document.querySelector(`.msg-group[data-msgid="${el.dataset.scroll}"]`);if(g)g.scrollIntoView({behavior:'smooth',block:'center'});return;}
     if((el=t.closest('[data-lightbox]'))){e.stopPropagation();openLightbox(el.dataset.lightbox);return;}
@@ -4295,7 +4302,7 @@ function leaveConversation(){
  * (закрыла шторку/окно/чат), false — приложению можно закрыться как обычно.
  * Порядок: самое верхнее закрываем первым. */
 window.handleBack=function(){
-  // 0. Окно видеозвонка — сворачиваем в плавающую плитку
+  // 0. Окно звонка — сворачиваем в плавающую плитку
   if(window.VideoCall?.visible){window.VideoCall.minimize();return true;}
   // 1. Просмотр фото
   if($('lightbox')?.classList.contains('open')){closeLightbox();return true;}
@@ -4389,22 +4396,8 @@ function initUI(){
   main.addEventListener('dragover',e=>e.preventDefault());
   main.addEventListener('drop',e=>{e.preventDefault();dragCounter=0;$('drag-overlay').classList.remove('active');const f=e.dataTransfer.files[0];if(f&&currentCh)handleFileSelect(f);});
 
-  // ── Call Sheet ───────────────────────────────────────────────
-  Sheet.define({ id: 'call', title: 'Звонок', zIndex: 650 });
-  Sheet.body('call').innerHTML = `
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:48px 40px;text-align:center">
-      <div style="width:68px;height:68px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:6px">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 012 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-        </svg>
-      </div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:var(--fs-xl);color:var(--text)">Скоро</div>
-      <div style="font-size:var(--fs-xs);color:var(--muted);max-width:210px;line-height:1.7">Голосовые звонки появятся в следующем обновлении dastdaroz</div>
-    </div>
-  `;
-  $('btn-call')?.addEventListener('click', () => Sheet.open('call'));
-
-  // ── Видеозвонок (WebRTC + Firestore-сигнализация) ───────────────
+  // ── Звонки: видео и аудио (WebRTC + Firestore-сигнализация) ─────
+  // Тип звонка — поле kind ('video' | 'audio') в документе pulsar_calls/{id}. Аудио — тот же поток без камеры.
   // Звонящий пишет offer в pulsar_calls/{id}; собеседник видит в чате баннер «Присоединиться»,
   // отвечает answer'ом. ICE-кандидаты идут через подколлекции callerCandidates / calleeCandidates.
   // «Назад» сворачивает окно в плавающую плитку (#vc-mini) с камерой собеседника.
@@ -4424,7 +4417,7 @@ function initUI(){
       camX: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor" fill-opacity=".14"/><path d="M15.5 10.5l4.9-3a.6.6 0 01.9.5v8a.6.6 0 01-.9.5l-4.9-3M3 3l18 18"/></svg>'
     };
     const st = {
-      state:'idle', min:false, ch:null, peerId:null, stream:null, facing:'user', mic:true, cam:true, session:0, t0:0, timer:null, corner:{h:'r', v:'t'}, swap:false, remoteMicOff:false,
+      state:'idle', kind:'video', min:false, ch:null, peerId:null, stream:null, facing:'user', mic:true, cam:true, session:0, t0:0, timer:null, corner:{h:'r', v:'t'}, swap:false, remoteMicOff:false,
       role:null, callRef:null, callStatus:null, pc:null, txA:null, txV:null, remote:null, remoteCamOff:false, answered:false,
       pendingIce:[], unsubs:[], ringTimer:null, dropTimer:null
     };
@@ -4508,7 +4501,7 @@ function initUI(){
       pip.classList.toggle('mic-off', !st.mic && !sw);     // значок «мой микрофон выключен» — только на моей плитке
       $v('vc-top-mic').toggleAttribute('hidden', !(st.state === 'connected' && st.remoteMicOff));   // у собеседника выключен микрофон
       paintWho(sw);
-      if (st.state === 'connected' && !bigLive) $v('vc-peer-status').textContent = (sw || st.remoteCamOff) ? 'Камера выключена' : 'На связи';
+      if (st.state === 'connected' && !bigLive) $v('vc-peer-status').textContent = (st.kind !== 'audio' && (sw || st.remoteCamOff)) ? 'Камера выключена' : 'На связи';
     }
 
     /* ── локальная камера ── */
@@ -4521,9 +4514,16 @@ function initUI(){
     }
     async function acquire(){
       const my = st.session;
-      if (!navigator.mediaDevices?.getUserMedia){ toast('Камера недоступна в этом браузере','err'); st.cam = false; paintCam(false); return; }
-      const vid = VID();
       let stream = null;
+      if (!navigator.mediaDevices?.getUserMedia){ toast(st.kind === 'audio' ? 'Микрофон недоступен в этом браузере' : 'Камера недоступна в этом браузере','err'); st.cam = false; st.mic = st.kind === 'audio' ? false : st.mic; paintCam(false); paintMic(st.mic); return; }
+      if (st.kind === 'audio'){
+        try { stream = await navigator.mediaDevices.getUserMedia({ audio: AUD }); }
+        catch(e){ toast('Нет доступа к микрофону','err'); st.mic = false; paintMic(false); return; }
+        if (my !== st.session){ stream.getTracks().forEach(t => t.stop()); return; }
+        st.stream = stream; stream.getAudioTracks().forEach(t => t.enabled = st.mic);
+        bindVideos(true); return;
+      }
+      const vid = VID();
       try { stream = await navigator.mediaDevices.getUserMedia({ video: vid, audio: AUD }); }
       catch(e1){
         try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); toast('Нет доступа к камере','err'); st.cam = false; paintCam(false); }
@@ -4784,7 +4784,7 @@ function initUI(){
       const pc = st.pc = makePC();
       const a = st.stream?.getAudioTracks()[0], v = st.stream?.getVideoTracks()[0];
       st.txA = pc.addTransceiver(a || 'audio', { direction:'sendrecv' });
-      st.txV = pc.addTransceiver(v || 'video', { direction:'sendrecv' });
+      st.txV = st.kind === 'audio' ? null : pc.addTransceiver(v || 'video', { direction:'sendrecv' });
       const ref = st.callRef = doc(collection(fdb, 'pulsar_calls'));
       const buf = []; let ready = false;
       const push = c => addDoc(collection(ref, 'callerCandidates'), c).catch(()=>{});
@@ -4792,7 +4792,7 @@ function initUI(){
       const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
       if (my !== st.session) return;
       await setDoc(ref, {
-        chId: st.ch.id, from: me.uid, to: peerId, status: 'ringing',
+        chId: st.ch.id, from: me.uid, to: peerId, status: 'ringing', kind: st.kind,
         offer: { type: offer.type, sdp: offer.sdp }, cam: { [me.uid]: st.cam },
         createdAt: serverTimestamp(), clientTs: Date.now(), expireAt: new Date(Date.now() + DAY)
       });
@@ -4807,7 +4807,7 @@ function initUI(){
     // Принимающий: offer ← Firestore, answer → Firestore
     async function join(c){
       if (st.state !== 'idle'){ expand(); return; }
-      showUI(c.from, { id: c.chId });
+      showUI(c.from, { id: c.chId }, c.kind);
       st.role = 'callee'; setState('connecting');
       const my = st.session;
       await acquire();
@@ -4839,11 +4839,12 @@ function initUI(){
     }
 
     /* ── показать окно звонка ── */
-    function showUI(peerId, ch){
+    function showUI(peerId, ch, kind){
       const o = allUsers[peerId] || {}, name = o.displayName || o.email || 'Собеседник';
-      st.ch = ch; st.peerId = peerId; st.session++; st.min = false;
-      st.facing = 'user'; st.corner = { h:'r', v:'t' }; st.mic = true; st.cam = true; st.remoteCamOff = false; st.swap = false; st.remoteMicOff = false; vc.classList.remove('ui-hidden');
-      paintMic(true); paintCam(true); $v('vc-flip').hidden = false;
+      st.ch = ch; st.peerId = peerId; st.session++; st.min = false; st.kind = kind === 'audio' ? 'audio' : 'video';
+      vc.classList.toggle('audio', st.kind === 'audio'); vc.setAttribute('aria-label', st.kind === 'audio' ? 'Аудиозвонок' : 'Видеозвонок');
+      st.facing = 'user'; st.corner = { h:'r', v:'t' }; st.mic = true; st.cam = st.kind !== 'audio'; st.remoteCamOff = false; st.swap = false; st.remoteMicOff = false; vc.classList.remove('ui-hidden');
+      paintMic(true); paintCam(st.cam); $v('vc-flip').hidden = false;
       bindVideos(true);
       $v('vc-peer-name').textContent = name; $v('vc-top-name').textContent = name;
       avaInto($v('vc-peer-ava'), o.photoURL, name);
@@ -4859,13 +4860,13 @@ function initUI(){
     }
 
     /* ── публичное API ── */
-    async function open(){
+    async function open(kind){
       if (st.state !== 'idle'){ expand(); return; }          // звонок уже идёт — просто вернуть окно
-      if (!currentCh || currentCh.type !== 'direct'){ toast('Видеозвонки доступны только в личных чатах','err'); return; }
+      if (!currentCh || currentCh.type !== 'direct'){ toast('Звонки доступны только в личных чатах','err'); return; }
       if (!window.RTCPeerConnection){ toast('Звонки не поддерживаются в этом браузере','err'); return; }
       if (incoming && incoming.chId === currentCh.id){ joinIncoming(); return; }   // нам уже звонят — просто отвечаем
       const oid = (currentCh.members || []).find(u => u !== me.uid);
-      showUI(oid, currentCh);
+      showUI(oid, currentCh, kind);
       setState('calling');
       const my = st.session;
       await acquire();
@@ -4874,11 +4875,11 @@ function initUI(){
       catch(e){ console.warn('call invite', e); if (my === st.session){ toast('Не удалось начать звонок','err'); end(true); } }
     }
     // Запись о звонке в переписке: «исходящий / входящий / пропущенный» (см. callCardHtml)
-    async function logCall(ch, result, dur){
+    async function logCall(ch, result, dur, kind){
       try {
-        const text = '📹 Видеозвонок', name = me.displayName || me.email;
+        const text = kind === 'audio' ? '📞 Аудиозвонок' : '📹 Видеозвонок', name = me.displayName || me.email;
         const r = await addDoc(collection(fdb, 'pulsar_channels', ch.id, 'messages'), {
-          type:'call', callKind:'video', callResult:result, callDur:dur || 0, text,
+          type:'call', callKind:kind === 'audio' ? 'audio' : 'video', callResult:result, callDur:dur || 0, text,
           authorId: me.uid, authorName: name, ts: serverTimestamp(), clientTs: Date.now(),
           edited:false, deleted:false, pinned:false, reactions:{}, replyTo:null, threadCount:0
         });
@@ -4889,7 +4890,7 @@ function initUI(){
     async function end(remote = false, status = 'ended'){
       if (st.state === 'idle') return;
       const ref = st.callRef, cs = st.callStatus;
-      const logCh = st.ch, asCaller = st.role === 'caller', wasLive = st.state === 'connected';
+      const logCh = st.ch, kind = st.kind, asCaller = st.role === 'caller', wasLive = st.state === 'connected';
       const dur = wasLive ? Math.round((Date.now() - st.t0) / 1000) : 0;
       st.session++; clearInterval(st.timer); clearTimeout(st.ringTimer); clearTimeout(st.dropTimer);
       st.unsubs.splice(0).forEach(u => { try { u(); } catch(e){} });
@@ -4899,8 +4900,8 @@ function initUI(){
       if (ref && !remote && cs && cs !== 'ended' && cs !== 'declined' && cs !== 'missed')
         updateDoc(ref, { status, endedBy: me.uid, endedAt: serverTimestamp() }).catch(()=>{});
       if (asCaller && cs && logCh?.id)                       // запись в чат пишет только звонящий — один документ на звонок
-        logCall(logCh, wasLive ? 'ended' : cs === 'declined' ? 'declined' : status === 'missed' ? 'missed' : 'cancelled', dur);
-      Object.assign(st, { state:'idle', min:false, ch:null, peerId:null, role:null, callRef:null, callStatus:null, pc:null, txA:null, txV:null,
+        logCall(logCh, wasLive ? 'ended' : cs === 'declined' ? 'declined' : status === 'missed' ? 'missed' : 'cancelled', dur, kind);
+      Object.assign(st, { state:'idle', kind:'video', min:false, ch:null, peerId:null, role:null, callRef:null, callStatus:null, pc:null, txA:null, txV:null,
                           remote:null, remoteCamOff:false, answered:false, pendingIce:[], swap:false, remoteMicOff:false });
       vc.classList.remove('open', 'has-remote', 'calling', 'ui-hidden'); vc.setAttribute('aria-hidden', 'true');
       mini.style.display = 'none'; mini.classList.remove('has-remote');
@@ -4912,7 +4913,11 @@ function initUI(){
       const b = $v('call-banner'); if (!b) return;
       const show = !!incoming && !!currentCh && currentCh.id === incoming.chId;
       b.style.display = show ? 'flex' : 'none';
-      if (show){ const o = allUsers[incoming.from] || {}; $v('cb-sub').textContent = (o.displayName || o.email || 'Собеседник') + ' звонит…'; }
+      if (show){
+        const au = incoming.kind === 'audio';
+        $v('cb-t').textContent = au ? 'Аудиозвонок' : 'Видеозвонок';
+        $v('cb-ico').innerHTML = au ? CALL_ICO.tel : CALL_ICO.cam;
+        const o = allUsers[incoming.from] || {}; $v('cb-sub').textContent = (o.displayName || o.email || 'Собеседник') + ' звонит…'; }
     }
     function stopRing(){ clearInterval(ringIv); ringIv = null; }
     function setIncoming(c){
@@ -4928,8 +4933,9 @@ function initUI(){
         if (c.id !== prev){
           const o = allUsers[c.from] || {}, nm = o.displayName || o.email || 'Собеседник';
           const inChat = _curView() === 'conversation' && currentCh?.id === c.chId;
-          if (!inChat) toast('📹 Видеозвонок от ' + nm + ' — откройте чат и нажмите «Присоединиться»');
-          try { if (document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') new Notification('Видеозвонок', { body: nm + ' звонит' }); } catch(e){}
+          const au = c.kind === 'audio';
+          if (!inChat) toast((au ? '📞 Аудиозвонок от ' : '📹 Видеозвонок от ') + nm + ' — откройте чат и нажмите «Присоединиться»');
+          try { if (document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') new Notification(au ? 'Аудиозвонок' : 'Видеозвонок', { body: nm + ' звонит' }); } catch(e){}
           stopRing(); playNotifSound(); ringIv = setInterval(playNotifSound, 2800);
         }
       } else stopRing();
@@ -4981,7 +4987,8 @@ function initUI(){
              get visible(){ return vc.classList.contains('open'); }, get active(){ return st.state !== 'idle'; } };
   })();
   window.VideoCall = VideoCall;
-  $('btn-video')?.addEventListener('click', () => VideoCall.open());
+  $('btn-call')?.addEventListener('click', () => VideoCall.open('audio'));
+  $('btn-video')?.addEventListener('click', () => VideoCall.open('video'));
 
   // Compose btn — открывает sheet поиска аккаунтов
   Sheet.define({
