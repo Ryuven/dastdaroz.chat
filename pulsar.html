@@ -21,7 +21,7 @@
   --green:#1a9e4a;--red:#dc2626;--amber:#d97706;--blue:#2563eb;
   --font-display:'Unbounded',sans-serif;--font:'Inter',system-ui,sans-serif;
   --mono:'JetBrains Mono','Fira Code','Consolas',monospace;
-  --topbar-h:56px;--mob-nav-h:58px;--thread-w:340px;
+  --topbar-h:56px;--mob-nav-h:58px;
   --safe-b:env(safe-area-inset-bottom,0px);--spring:cubic-bezier(.34,1.56,.64,1);
   --tf:.14s;--ease:cubic-bezier(.4,0,.2,1);
   /* шкала размеров */
@@ -55,7 +55,6 @@ a{color:inherit;text-decoration:none}
 /* ── SHELL ── */
 #shell{display:grid;height:100svh;grid-template-columns:1fr;grid-template-areas:"main"}
 #shell.active{display:grid}
-#shell.thread-open{grid-template-columns:1fr var(--thread-w);grid-template-areas:"main thread"}
 
 /* Шапка сайдбара — как в Telegram */
 .sb-head{
@@ -287,7 +286,7 @@ a{color:inherit;text-decoration:none}
 /* Время (и статус) — в правом нижнем углу пузырька: рядом с последней строкой, если влезает, иначе строкой ниже справа */
 /* --ts-drop — насколько опустить время относительно строки текста (больше = ниже).
    Общая высота (drop + 11px + нижний отступ) всегда 15px, поэтому высота пузыря от drop не зависит. */
-.msg-ts-inline{--ts-drop:9px;float:right;display:inline-flex;align-items:center;gap:4px;margin:var(--ts-drop) 0 calc(4px - var(--ts-drop)) 10px;font-size:var(--fs-2xs);color:var(--muted-2);white-space:nowrap;line-height:1}
+.msg-ts-inline{--ts-drop:9px;float:right;display:inline-flex;align-items:center;gap:4px;margin:var(--ts-drop) -2px calc(4px - var(--ts-drop)) 10px;font-size:var(--fs-2xs);color:var(--muted-2);white-space:nowrap;line-height:1}
 .msg-edited-inline{font-style:italic}
 .msg-row.is-me .msg-ts-inline{color:rgba(13,46,24,.45)}
 /* Статус доставки: ⏱ отправляется · ✓ на сервере · ✓✓ доставлено · зелёные ✓✓ прочитано (только свои, личные чаты) */
@@ -335,9 +334,6 @@ a{color:inherit;text-decoration:none}
 .reaction-btn.active{border-color:var(--accent-mid);background:var(--accent-dim)}
 .reaction-count{font-size:var(--fs-2xs);color:var(--muted)}
 .reaction-btn.active .reaction-count{color:var(--accent)}
-/* Thread button */
-.msg-thread-btn{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:var(--fs-2xs);color:var(--blue);cursor:pointer;border-radius:var(--r-sm);padding:2px 6px;transition:background var(--tf)}
-.msg-thread-btn:hover{background:rgba(106,159,216,.08)}
 /* ── МЕНЮ СООБЩЕНИЯ ── */
 #msg-menu{position:fixed;inset:0;z-index:var(--z-menu);display:none}
 #msg-menu.open{display:block}
@@ -448,8 +444,8 @@ a{color:inherit;text-decoration:none}
   transition:border-color var(--tf),background var(--tf);
 }
 .input-field:focus-within{background:var(--surface);border-color:var(--accent-mid)}
-#msg-input,#thread-input{flex:1;min-width:0;background:none;color:var(--text);font-size:var(--fs-md);line-height:1.45;resize:none;min-height:22px;max-height:140px;overflow-y:auto;padding:3px 0;tab-size:4}
-#msg-input::placeholder,#thread-input::placeholder{color:var(--muted-2)}
+#msg-input{flex:1;min-width:0;background:none;color:var(--text);font-size:var(--fs-md);line-height:1.45;resize:none;min-height:22px;max-height:140px;overflow-y:auto;padding:3px 0;tab-size:4}
+#msg-input::placeholder{color:var(--muted-2)}
 
 .input-icon-btn{width:var(--ctl-lg);height:var(--ctl-lg);display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--muted);transition:color var(--tf),background var(--tf);flex-shrink:0;cursor:pointer}
 .input-icon-btn:hover{color:var(--accent);background:var(--accent-dim)}
@@ -465,30 +461,52 @@ a{color:inherit;text-decoration:none}
 .char-count.over{color:var(--red)}
 
 
-/* ── THREAD ── */
-#thread-panel{grid-area:thread;background:var(--surface);border-left:1px solid var(--border);display:none;flex-direction:column;overflow:hidden}
-#thread-panel.open{display:flex;animation:slideFromRight .22s var(--ease)}
-@keyframes slideFromRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.thread-head{height:var(--topbar-h);display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
-.thread-title{font-size:var(--fs-sm);font-weight:600;flex:1;color:var(--text)}
-.thread-close{color:var(--muted);padding:4px;border-radius:var(--r-sm);transition:color var(--tf),background var(--tf)}
-.thread-close:hover{color:var(--text);background:var(--surface-3)}
-.thread-root{padding:16px 16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(26,158,74,.05),transparent);flex-shrink:0}
-.thread-root-author{font-size:var(--fs-xs);font-weight:700;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.thread-root-time{font-weight:300;color:var(--muted-2);font-size:var(--fs-2xs)}
-.thread-root-text{font-size:var(--fs-xs);color:var(--text);line-height:1.55;white-space:pre-wrap;word-break:break-word}
-#thread-msgs{flex:1;overflow-y:auto;padding:6px 0}
-.thread-reply-row{display:flex;align-items:flex-start;gap:12px;padding:4px 16px;transition:background var(--tf)}
-.thread-reply-row:hover{background:rgba(0,0,0,.025)}
-.thread-reply-av{width:var(--av-sm);height:var(--av-sm);border-radius:7px;background:var(--accent-dim);border:1px solid var(--accent-mid);display:flex;align-items:center;justify-content:center;font-size:var(--fs-2xs);font-weight:700;color:var(--accent);flex-shrink:0;overflow:hidden;position:relative}
-.thread-reply-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.thread-reply-body{flex:1;min-width:0}
-.thread-reply-meta{display:flex;gap:8px;align-items:baseline;margin-bottom:2px}
-.thread-reply-author{font-size:var(--fs-xs);font-weight:600;color:var(--text)}
-.thread-reply-time{font-size:var(--fs-2xs);color:var(--muted-2)}
-.thread-reply-text{font-size:var(--fs-xs);color:var(--text);line-height:1.55;white-space:pre-wrap;word-break:break-word}
-/* Поле ввода в треде — те же .input-wrap / .input-box / .input-field / .input-send, что и в основном чате */
-#thread-panel .input-wrap{border-top:1px solid var(--border);border-radius:0}
+/* ── Строка ввода основного чата: «скрепка» → галерея внутри таблетки; пусто → микрофон ── */
+/* высота строки = высоте нижней навигации главного окна (66px): 44px элемент + по 11px сверху и снизу */
+#input-box{--ib:44px;padding:11px 12px}
+#input-box .input-field{padding:0 18px 0 2px;gap:4px;min-height:var(--ib);align-items:flex-end}
+#input-box #msg-input{padding:9.5px 0}
+#input-box .input-send{width:var(--ib);height:var(--ib);position:relative;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.input-attach{width:41px;height:41px;margin-bottom:.5px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--muted);flex-shrink:0;cursor:pointer;transition:color var(--tf),background var(--tf)}
+.input-attach:hover,.input-attach:active{color:var(--accent);background:var(--accent-dim)}
+.input-attach svg{display:block;width:27px;height:27px}
+.input-send .i-arrow{display:none}
+.input-send[data-mode="send"] .i-mic{display:none}
+.input-send[data-mode="send"] .i-arrow{display:block}
+.input-send:disabled{opacity:1}
+/* пока пусто — микрофон спокойный серый (как неактивная кнопка), зелёный только когда есть что отправлять */
+.input-send[data-mode="mic"]:not(:disabled){background:var(--surface-2);color:var(--muted);box-shadow:none}
+.input-send[data-mode="mic"]:not(:disabled):active{background:var(--accent-dim);color:var(--accent)}
+.input-send.holding{transform:scale(1.18)!important}
+.input-send.busy::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2.5px solid transparent;border-top-color:var(--accent);animation:vmSpin .8s linear infinite;pointer-events:none}
+@keyframes vmSpin{to{transform:rotate(360deg)}}
+/* запись голосового: вместо поля — полоса с таймером */
+.rec-bar{display:none;flex:1;min-width:0;align-items:center;gap:8px;height:var(--ib,44px);padding:0 14px 0 2px;background:var(--surface-2);border-radius:22px}
+.input-box.recording .input-field{display:none}
+.input-box.recording .rec-bar{display:flex}
+.rec-cancel{width:41px;height:41px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--red);flex-shrink:0;transition:background var(--tf)}
+.rec-cancel:hover,.rec-cancel:active{background:var(--red-dim)}
+.rec-dot{width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;animation:recBlink 1.1s ease-in-out infinite}
+@keyframes recBlink{50%{opacity:.25}}
+.rec-time{font-size:var(--fs-md);font-weight:600;font-variant-numeric:tabular-nums;color:var(--text);min-width:34px}
+.rec-hint{flex:1;min-width:0;text-align:right;font-size:var(--fs-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:clip}
+@media (prefers-reduced-motion:reduce){.rec-dot{animation:none}}
+
+/* ── Голосовое сообщение в переписке ── */
+.msg-text.msg-voice{white-space:normal}
+.vm{display:flex;align-items:center;gap:10px;width:min(240px,100%);min-width:190px;padding:2px 0}
+.vm-play{width:40px;height:40px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--accent);color:var(--on-accent);transition:transform var(--tf)}
+.vm-play:active{transform:scale(.92)}
+.vm-play svg{width:20px;height:20px;display:block}
+.vm-play .i-pause{display:none}
+.vm.playing .vm-play .i-play{display:none}
+.vm.playing .vm-play .i-pause{display:block}
+.vm-body{flex:1;min-width:0}
+.vm-wave{display:flex;align-items:center;gap:2px;height:26px;cursor:pointer}
+.vm-wave i{flex:1;min-width:2px;max-width:4px;border-radius:2px;background:rgba(13,46,24,.22);transition:background .1s}
+.msg-row:not(.is-me) .vm-wave i{background:rgba(0,0,0,.18)}
+.vm-wave i.on{background:var(--accent)}
+.vm-time{margin-top:1px;font-size:var(--fs-2xs);line-height:1.2;opacity:.7;font-variant-numeric:tabular-nums}
 
 /* ── LIGHTBOX ── */
 #lightbox{position:fixed;inset:0;z-index:var(--z-lightbox);background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;animation:fadeIn .2s ease}
@@ -801,10 +819,8 @@ a{color:inherit;text-decoration:none}
 .mob-overlay.open{opacity:1;pointer-events:auto}
 
 @media(max-width:780px){
-  :root{--thread-w:100vw;--mob-nav-h:calc(66px + var(--safe-b))}  #shell{grid-template-columns:1fr;grid-template-areas:"main"}
-  #shell.thread-open{grid-template-columns:1fr;grid-template-areas:"main"}
+  :root{--mob-nav-h:calc(66px + var(--safe-b))}  #shell{grid-template-columns:1fr;grid-template-areas:"main"}
 
-  #thread-panel{position:fixed;inset:0;bottom:var(--mob-nav-h);z-index:var(--z-panel)}
   #mob-nav{display:flex}
   /* Внутри чата нижняя навигация скрыта, поле ввода стоит в потоке у нижнего края */
   body.in-chat{--mob-nav-h:0px}
@@ -907,6 +923,7 @@ a{color:inherit;text-decoration:none}
 .rs-ava-in{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:calc(var(--rs-d) * .34)}
 .rs-ava-in img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .rs-cell.me .rs-ava{box-shadow:0 0 0 2.5px var(--surface),0 0 0 4.5px var(--accent)}
+.rs-cell.speaking .rs-ava{box-shadow:0 0 0 2.5px var(--surface),0 0 0 5px var(--green),0 0 16px rgba(26,158,74,.55)}
 .rs-cell.empty .rs-ava{box-shadow:none}
 .rs-cell.empty .rs-ava-in{background:transparent;border:2px dashed var(--border-h);color:var(--muted-2)}
 .rs-cell:active .rs-ava{transform:scale(.94)}
@@ -957,17 +974,19 @@ a{color:inherit;text-decoration:none}
 
 /* ── Запись о звонке в переписке (исходящий / входящий / пропущенный) ── */
 .msg-text.msg-call{white-space:normal}
-.mc-row{display:flex;align-items:center;gap:12px;min-width:240px;padding:0}
+.msg-text.msg-call{min-width:0;max-width:100%}
+.msg-bubble-wrap:has(.msg-call){max-width:min(500px,88%)}
+.mc-row{display:flex;align-items:center;gap:12px;min-width:min(200px,100%);padding:0}
 .mc-ico{width:40px;height:40px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--accent);color:var(--on-accent)}
 .mc-ico svg{width:20px;height:20px}
 .mc-info{flex:1;min-width:0}
-.mc-title{font-size:var(--fs-sm);font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-title{font-size:var(--fs-sm);font-weight:700;line-height:1.25;overflow-wrap:anywhere}
 .mc-sub{display:flex;align-items:center;gap:4px;margin-top:1px;font-size:var(--fs-xs);line-height:1.3;opacity:.75;font-variant-numeric:tabular-nums}
 .mc-sub>svg{width:12px;height:12px;flex:0 0 auto;color:var(--accent)}
 
-.mc-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
-.mc-side .msg-ts-inline{float:none;margin:0}
-.mc-side .msg-st{margin-right:-3px}   /* в иконке галочек справа ~3px пустого поля — выравниваем по краю кнопки */
+.mc-side{display:flex;justify-content:flex-end;align-items:center;margin-top:3px;max-width:100%}
+.mc-side .msg-ts-inline{float:none;margin:0 -2px 0 0;max-width:100%}
+.mc-side .msg-st{flex:0 0 auto}
 .mc-back{width:36px;height:36px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);color:var(--accent);transition:transform var(--tf)}
 .mc-back svg{width:18px;height:18px}
 .mc-back:active{transform:scale(.92)}
@@ -1240,12 +1259,25 @@ a{color:inherit;text-decoration:none}
               <svg class="i-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0114.5-7.1M21 12v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/><path d="M1 1l22 22"/></svg>
             </button>
           </div>
-          <label class="input-icon-btn" for="file-input" title="Прикрепить файл" style="cursor:pointer">
-            <svg width="22" height="22" viewBox="0 0 14 14" fill="none"><path d="M12.5 7L7 12.5a4 4 0 01-5.7-5.6L7.5 1a2.5 2.5 0 013.5 3.5L4.8 10.8a1 1 0 01-1.4-1.4L9 3.8" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </label>
+          <div class="input-field">
+            <label class="input-attach" for="file-input" title="Фото и файлы" aria-label="Фото и файлы">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3.5"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5L6 20"/></svg>
+            </label>
+            <textarea id="msg-input" placeholder="Сообщение" rows="1"></textarea>
+          </div>
           <input type="file" id="file-input" style="display:none" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt,.mp4,.mp3"/>
-          <div class="input-field"><textarea id="msg-input" placeholder="Сообщение" rows="1"></textarea></div>
-          <button class="input-send" id="btn-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11.5l6-6 6 6"/></svg></button>
+          <div class="rec-bar" id="rec-bar">
+            <button class="rec-cancel" id="rec-cancel" type="button" aria-label="Отменить запись" title="Отменить">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>
+            </button>
+            <span class="rec-dot"></span>
+            <span class="rec-time" id="rec-time">0:00</span>
+            <span class="rec-hint" id="rec-hint">Идёт запись…</span>
+          </div>
+          <button class="input-send" id="btn-send" type="button" data-mode="mic" aria-label="Голосовое сообщение">
+            <svg class="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3.5"/></svg>
+            <svg class="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11.5l6-6 6 6"/></svg>
+          </button>
         </div>
         <div class="char-count" id="char-count"></div>
         <!-- Mention popup -->
@@ -1339,22 +1371,6 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 
-  <!-- Thread panel -->
-  <div id="thread-panel">
-    <div class="thread-head">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:var(--muted);flex-shrink:0"><path d="M1 8V3a2 2 0 012-2h8a2 2 0 012 2v5a2 2 0 01-2 2H9l-3 2v-2H3a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-      <div class="thread-title">Тред</div>
-      <button class="thread-close" id="thread-close">✕</button>
-    </div>
-    <div class="thread-root" id="thread-root"></div>
-    <div id="thread-msgs"></div>
-    <div class="input-wrap">
-      <div class="input-box">
-        <div class="input-field"><textarea id="thread-input" placeholder="Ответить в тред…" rows="1"></textarea></div>
-        <button class="input-send" id="thread-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11.5l6-6 6 6"/></svg></button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Плавающая плашка комнаты (когда мы в эфире, но вышли из неё «назад») -->
@@ -1496,15 +1512,7 @@ import { auth, db as fdb, storage } from './firebase.js';
  *  │          ├─ reactions       object      { '👍': [uid, ...], '❤️': [...] }
  *  │          ├─ deliveredTo     string[]    uid собеседника, чей клиент получил сообщение (✓✓) — пишет получатель
  *  │          ├─ readBy          string[]    uid собеседника, открывшего чат с сообщением (●) — пишет получатель
- *  │          └─ threadCount     number
- *  │
- *  │          └── thread/{threadMessageId}
- *  │                Ответы в треде (тред привязан к одному сообщению).
- *  │                ├─ text        string
- *  │                ├─ authorId    string
- *  │                ├─ authorName  string
- *  │                ├─ ts          Timestamp
- *  │                └─ clientTs    number
+ *  │          └─ threadCount     number      (устарело, тредов в приложении больше нет)
  *  │
  *  ├─ pulsar_presence/{uid}
  *  │    Онлайн-статус пользователей (обновляется в реальном времени).
@@ -1531,7 +1539,6 @@ import { auth, db as fdb, storage } from './firebase.js';
 let me=null, currentCh=null, msgUnsub=null, replyTo=null, editingId=null;
 let allUsers={}, usersLoaded=false;
 let currentMsgs=[], knownMsgIds=new Set();
-let threadMsgId=null, threadUnsub=null;
 let pinnedMsgs=[];
 let mutedChannels=new Set(JSON.parse(localStorage.getItem('p_muted')||'[]'));
 let unreadCounts={};
@@ -1623,7 +1630,7 @@ function showInAppNotif(msg,chName){
   const av=allUsers[msg.authorId];
   const avContent=av?.photoURL?`<img src="${esc(av.photoURL)}" alt=""/>`:(ini(msg.authorName));
   card.className='notif-card';
-  card.innerHTML=`<div class="notif-avatar">${avContent}</div><div class="notif-body"><div class="notif-ch"># ${esc(chName)}</div><div class="notif-name">${esc(msg.authorName)}</div><div class="notif-msg">${msg.attachmentType?'📎 '+esc(msg.attachmentName||'Файл'):esc((msg.text||'').slice(0,60))}</div></div>`;
+  card.innerHTML=`<div class="notif-avatar">${avContent}</div><div class="notif-body"><div class="notif-ch"># ${esc(chName)}</div><div class="notif-name">${esc(msg.authorName)}</div><div class="notif-msg">${msg.attachmentType==='audio'?'🎤 Голосовое сообщение':msg.attachmentType?'📎 '+esc(msg.attachmentName||'Файл'):esc((msg.text||'').slice(0,60))}</div></div>`;
   card.addEventListener('click',()=>{openChannel(msg.chId);card.remove();});
   bar.appendChild(card);
   playNotifSound();
@@ -1808,8 +1815,8 @@ function makeChCard(ch, o /* null for channels */, oid=null){
   if(!lm){
     previewHtml = `<div class="ch-preview empty">Нет сообщений</div>`;
   } else {
-    const icon = lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':'';
-    const txt  = (icon + (lm.text||'').slice(0,55)) || (lm.attachmentType?'Файл':'');
+    const icon = lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':lm.attachmentType==='audio'?'🎤 ':'';
+    const txt  = (icon + (lm.text||'').slice(0,55)) || (lm.attachmentType==='audio'?'Голосовое':lm.attachmentType?'Файл':'');
     const isMyMsg = lm.authorId ? lm.authorId === me?.uid : lm.authorName === (me?.displayName||me?.email);
     const who = isDM
       ? (isMyMsg ? '<b>Вы:</b> ' : '')
@@ -1958,9 +1965,10 @@ function renderDMList(){ scheduleChatList(); }
 
 /* ── OPEN CHANNEL ── */
 async function openChannel(chId){
+  try{window.AndroidBridge?.onChatOpened?.(chId);}catch(e){}   // Android: убрать уведомление этого чата
   if(currentCh?.id===chId){if(currentCh.type==='room')_roomEnter(currentCh);showView('conversation');markLatestIncoming();return;}
   if(msgUnsub){msgUnsub();msgUnsub=null;}
-  closeThread();clearTyping();
+  clearTyping();
   replyTo=null;
   delete unreadCounts[chId];
   if(_findGR(chId))markGroupRead(chId);
@@ -2129,7 +2137,7 @@ function updateMessageEl(msg){
 
   // 1. Текст — обновляем только текстовый узел, сохраняем tsInline
   const textEl=group.querySelector('.msg-text[data-msgid]');
-  if(textEl&&!(msg.type==='call'&&!msg.deleted)){
+  if(textEl&&!(msg.type==='call'&&!msg.deleted)&&!(msg.attachmentType==='audio'&&!msg.deleted)){
     if(msg.deleted){
       textEl.textContent='Сообщение удалено';
       textEl.className='msg-text deleted';
@@ -2165,14 +2173,6 @@ function updateMessageEl(msg){
   if(!meta&&inl&&msg.edited&&!inl.querySelector('.msg-edited-inline'))
     inl.insertAdjacentHTML('afterbegin','<span class="msg-edited-inline">изм.</span>');
 
-  // 4. Счётчик ответов в треде
-  const tc=msg.threadCount||0;
-  const tb=bubbleWrap.querySelector('.msg-thread-btn');
-  if(tc>0&&!msg.deleted){
-    const label=` ${tc} ${tc===1?'ответ':tc<5?'ответа':'ответов'} `;
-    if(tb){if(tb.lastChild&&tb.lastChild.nodeType===3)tb.lastChild.textContent=label;}
-    else bubbleWrap.insertAdjacentHTML('beforeend',`<button class="msg-thread-btn" data-msgid="${esc(msg.id)}"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M1 8V3a2 2 0 012-2h8a2 2 0 012 2v5a2 2 0 01-2 2H9l-3 2v-2H3a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>${label}</button>`);
-  }else if(tb)tb.remove();
 }
 
 /* ── HELPERS FOR BUILDING MESSAGE HTML ── */
@@ -2184,10 +2184,10 @@ function shouldGroup(msg,pAId,pTs){return msg.authorId===pAId&&((msg.clientTs||0
  * В документе сообщения: deliveredTo / readBy — массивы uid. Их пишет клиент ПОЛУЧАТЕЛЯ.
  * Если более позднее моё сообщение доставлено/прочитано — более ранние тоже (достаточно отметить последнее). */
 const ST_ICON={
-  0:'<svg viewBox="0 0 18 11"><circle cx="9" cy="5.5" r="4"/><path d="M9 3.4v2.3l1.5.9"/></svg>',
-  1:'<svg viewBox="0 0 18 11"><path d="M6 5.8l3 3L15 2.2"/></svg>',
-  2:'<svg viewBox="0 0 18 11"><path d="M1.5 5.8l3 3L10.5 2.2M6 5.8l3 3L15 2.2"/></svg>',
-  3:'<svg viewBox="0 0 18 11"><path d="M1.5 5.8l3 3L10.5 2.2M6 5.8l3 3L15 2.2"/></svg>'
+  0:'<svg viewBox="0 0 18 11"><circle cx="12.5" cy="5.5" r="4"/><path d="M12.5 3.4v2.3l1.5.9"/></svg>',
+  1:'<svg viewBox="0 0 18 11"><path d="M7.5 5.8l3 3L16.5 2.2"/></svg>',
+  2:'<svg viewBox="0 0 18 11"><path d="M3 5.8l3 3L12 2.2M7.5 5.8l3 3L16.5 2.2"/></svg>',
+  3:'<svg viewBox="0 0 18 11"><path d="M3 5.8l3 3L12 2.2M7.5 5.8l3 3L16.5 2.2"/></svg>'
 };
 const ST_TITLE=['Отправляется…','Отправлено','Доставлено','Прочитано'];
 
@@ -2312,14 +2312,13 @@ function callCardHtml(msg,isMe,tsInline){
   else if(isMe){title='Исходящий '+kn;sub=r==='declined'?'Отклонён':r==='missed'?'Нет ответа':'Отменён';}
   else if(r==='declined'){title='Входящий '+kn;sub='Вы отклонили';}
   else{title='Пропущенный '+kn;sub=r==='missed'?'Вы не ответили':'Вызов отменён';missed=true;}
-  return `<div class="msg-text msg-call${missed?' missed':''}" data-msgid="${esc(msg.id)}"><div class="mc-row"><div class="mc-ico">${ico}</div><div class="mc-info"><div class="mc-title">${title}</div><div class="mc-sub">${isMe?CALL_ICO.out:CALL_ICO.inn}<span>${sub}</span></div></div><div class="mc-side"><button class="mc-back" type="button" data-kind="${au?'audio':'video'}" aria-label="Перезвонить" title="Перезвонить">${ico}</button>${tsInline}</div></div></div>`;
+  return `<div class="msg-text msg-call${missed?' missed':''}" data-msgid="${esc(msg.id)}"><div class="mc-row"><div class="mc-ico">${ico}</div><div class="mc-info"><div class="mc-title">${title}</div><div class="mc-sub">${isMe?CALL_ICO.out:CALL_ICO.inn}<span>${sub}</span></div><div class="mc-side">${tsInline}</div></div></div></div>`;
 }
 
 function makeMsgEl(msg, grouped, animate){
   const isMe = msg.authorId === me.uid;
   const react = msg.reactions || {};
   const rl = REACT5.filter(e => react[e]?.length);
-  const threadCount = msg.threadCount || 0;
   const ts = fmtT({toDate: () => msgTs(msg)});
   const isDM = currentCh?.type === 'direct';
   const isGrp = _isGR(currentCh);
@@ -2347,17 +2346,13 @@ function makeMsgEl(msg, grouped, animate){
   const textHtml = msg.deleted
     ? '<div class="msg-text deleted">Сообщение удалено</div>'
     : msg.type==='call' ? callCardHtml(msg,isMe,tsInline)
+    : msg.attachmentType==='audio' ? `<div class="msg-text msg-voice" data-msgid="${esc(msg.id)}">${voiceHtml(msg)}${tsInline}</div>`
     : `<div class="msg-text" data-msgid="${esc(msg.id)}">${renderText(msg.text||'')}${tsInline}</div>`;
 
   const reactHtml = rl.length ? `<div class="msg-reactions">${rl.map(e=>
     `<button class="reaction-btn ${react[e]?.includes(me.uid)?'active':''}" data-msgid="${esc(msg.id)}" data-emoji="${e}">${e}<span class="reaction-count">${react[e].length}</span></button>`
   ).join('')}</div>` : '';
 
-  const threadHtml = threadCount > 0 && !msg.deleted
-    ? `<button class="msg-thread-btn" data-msgid="${esc(msg.id)}">
-        <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M1 8V3a2 2 0 012-2h8a2 2 0 012 2v5a2 2 0 01-2 2H9l-3 2v-2H3a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-        ${threadCount} ${threadCount===1?'ответ':threadCount<5?'ответа':'ответов'}
-      </button>` : '';
 
   div.innerHTML = `
     <div class="msg-row${isMe?' is-me':''}">
@@ -2371,7 +2366,7 @@ function makeMsgEl(msg, grouped, animate){
           ${textHtml}
           ${makeAttachHtml(msg)}
         </div>
-        ${reactHtml}${threadHtml}
+        ${reactHtml}
       </div>
     </div>
   `;
@@ -2389,11 +2384,12 @@ function initMessageEvents(){
       navigator.clipboard.writeText(el.dataset.code||'').then(()=>{el.textContent='Скопировано';el.classList.add('copied');setTimeout(()=>{el.textContent='Скопировать';el.classList.remove('copied');},2000);}).catch(()=>toast('Не удалось скопировать','err'));
       return;
     }
+    if((el=t.closest('.vm-play'))){e.stopPropagation();vmToggle(el.closest('.vm'));return;}
+    if((el=t.closest('.vm-wave'))){e.stopPropagation();vmSeek(el.closest('.vm'),e);return;}
     if((el=t.closest('.mc-back'))){e.stopPropagation();window.VideoCall?.open(el.dataset.kind);return;}          // «перезвонить» тем же способом, каким звонили
     if((el=t.closest('.reaction-btn'))){e.stopPropagation();toggleReact(el.dataset.msgid,el.dataset.emoji);return;}
     if((el=t.closest('[data-scroll]'))){const g=document.querySelector(`.msg-group[data-msgid="${el.dataset.scroll}"]`);if(g)g.scrollIntoView({behavior:'smooth',block:'center'});return;}
     if((el=t.closest('[data-lightbox]'))){e.stopPropagation();openLightbox(el.dataset.lightbox);return;}
-    if((el=t.closest('.msg-thread-btn'))){openThread(el.dataset.msgid);return;}
     if((el=t.closest('[data-uid]'))){openUserProfile(el.dataset.uid);return;}
     if((el=t.closest('.msg-bubble'))){                           // тап по пузырьку — меню сообщения
       if(t.closest('a'))return;                                  // ссылки открываются как обычно
@@ -2443,7 +2439,6 @@ async function pinMessage(msgId,isPinned){
 /* ── МЕНЮ СООБЩЕНИЯ ── */
 const MM_ICONS={
   reply:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 016 6v3"/>',
-  thread:'<path d="M4 5a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2h-6l-5 4v-4H6a2 2 0 01-2-2z"/>',
   copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/>',
   pin:'<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',
   edit:'<path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/>',
@@ -2505,7 +2500,7 @@ function openMsgMenu(group){
   cloneBox.innerHTML='';cloneBox.appendChild(c);
 
   pill.innerHTML=REACT5.map(e=>`<button class="mm-react${(msg.reactions?.[e]||[]).includes(me.uid)?' mine':''}" data-emoji="${e}">${e}</button>`).join('');
-  const items=[['reply','Ответить'],['thread','Ответить в треде']];
+  const items=[['reply','Ответить']];
   if(msg.text&&!isCall)items.push(['copy','Копировать текст']);
   items.push(['pin',msg.pinned?'Открепить':'Закрепить']);
   if(isMe&&!isCall)items.push(['edit','Изменить']);
@@ -2534,11 +2529,10 @@ function openMsgMenu(group){
 /* ── MESSAGE ACTIONS ── */
 function msgAction(action,msgId,isPinned=false){
   const msg=currentMsgs.find(m=>m.id===msgId);if(!msg)return;
-  if(action==='reply'){replyTo={id:msg.id,text:msg.text||'',authorName:msg.authorName};$('reply-bar').classList.add('visible');updateInputRadius();$('reply-to-name').textContent=msg.authorName;$('reply-preview').textContent=(msg.text||'Вложение').slice(0,80);$('msg-input').focus();}
+  if(action==='reply'){replyTo={id:msg.id,text:msg.text||(msg.attachmentType==='audio'?'🎤 Голосовое сообщение':''),authorName:msg.authorName};$('reply-bar').classList.add('visible');updateInputRadius();$('reply-to-name').textContent=msg.authorName;$('reply-preview').textContent=(msg.text||'Вложение').slice(0,80);$('msg-input').focus();}
   if(action==='edit'&&msg.authorId===me.uid&&!msg.deleted){msg._prevText=msg.text;startEdit(msgId,msg.text||'');}
   if(action==='delete'&&msg.authorId===me.uid){if(!confirm('Удалить сообщение?'))return;delMsg(msgId);}
   if(action==='pin')pinMessage(msgId,isPinned);
-  if(action==='thread')openThread(msgId);
 }
 function startEdit(msgId,text){
   cancelEdit();
@@ -2612,9 +2606,9 @@ function handleFileSelect(file){
   if(isImg){const r=new FileReader();r.onload=e=>{$('upload-thumb').src=e.target.result;};r.readAsDataURL(file);}
   else $('upload-thumb').src='';
   updateInputRadius();
-  $('btn-send').disabled=false;
+  updateSendMode();
 }
-function cancelUpload(){pendingFile=null;if(uploadTask)uploadTask.cancel();$('upload-preview').classList.remove('visible');$('upload-thumb').src='';$('file-input').value='';updateInputRadius();$('btn-send').disabled=!$('msg-input').value.trim();}
+function cancelUpload(){pendingFile=null;if(uploadTask)uploadTask.cancel();$('upload-preview').classList.remove('visible');$('upload-thumb').src='';$('file-input').value='';updateInputRadius();updateSendMode();}
 function updateInputRadius(){
   const hasAbove=$('upload-preview').classList.contains('visible')||$('reply-bar').classList.contains('visible');
 }
@@ -2630,63 +2624,194 @@ async function sendMessage(){
 
   let attachData={};
   if(pendingFile){
-    const file=pendingFile;pendingFile=null;$('btn-send').disabled=true;
+    const file=pendingFile;pendingFile=null;_sendBusy=true;updateSendMode();
     try{
       const path=`pulsar/${chId}/${Date.now()}_${file.name}`;
       const storRef=sRef(storage,path);
       uploadTask=uploadBytesResumable(storRef,file);
       await new Promise((res,rej)=>{uploadTask.on('state_changed',s=>{$('upload-fill').style.width=(s.bytesTransferred/s.totalBytes*100)+'%';},rej,async()=>{const url=await getDownloadURL(uploadTask.snapshot.ref);attachData={attachmentUrl:url,attachmentName:file.name,attachmentSize:fmtSize(file.size),attachmentType:file.type.startsWith('image/')?'image':'file'};res();});});
-    }catch(e){if(e?.code!=='storage/canceled')toast('Ошибка загрузки: '+e.message,'err');$('btn-send').disabled=false;return;}
+    }catch(e){if(e?.code!=='storage/canceled')toast('Ошибка загрузки: '+e.message,'err');_sendBusy=false;updateSendMode();return;}
     cancelUpload();
   }
 
-  input.value='';ar(input);$('btn-send').disabled=true;$('char-count').textContent='';
+  input.value='';ar(input);_sendBusy=false;updateSendMode();$('char-count').textContent='';
   const payload={text:text||'',authorId:me.uid,authorName:uName(me),ts:serverTimestamp(),clientTs:Date.now(),edited:false,deleted:false,pinned:false,reactions:{},replyTo:replyTo||null,threadCount:0,...attachData};
   clearReply();
   let sentId=null;
   try{
     sentId=(await addDoc(collection(fdb,'pulsar_channels',chId,'messages'),payload)).id;
-  }catch(e){toast('Ошибка отправки: '+e.message,'err');input.value=text;ar(input);$('btn-send').disabled=false;return;}
+  }catch(e){toast('Ошибка отправки: '+e.message,'err');input.value=text;ar(input);updateSendMode();return;}
   // Превью в списке чатов — отдельно: сбой тут не должен возвращать текст в поле (получился бы дубль)
   updateDoc(doc(fdb,'pulsar_channels',chId),{lastMessage:{id:sentId,text:(text||'Файл').slice(0,80),authorId:me.uid,authorName:uName(me),attachmentType:attachData.attachmentType||null,ts:serverTimestamp()}}).catch(e=>console.error('lastMessage:',e));
 }
 
-function clearReply(){replyTo=null;$('reply-bar').classList.remove('visible');$('reply-to-name').textContent='';$('reply-preview').textContent='';updateInputRadius();}
-
-/* ── THREAD ── */
-function openThread(msgId){
-  const msg=currentMsgs.find(m=>m.id===msgId);if(!msg)return;
-  threadMsgId=msgId;
-  $('shell').classList.add('thread-open');
-  $('thread-panel').classList.add('open');
-  const user=allUsers[msg.authorId]||{};
-  const avI=user.photoURL?`<img src="${esc(user.photoURL)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:inherit"/>`:esc(ini(msg.authorName));
-  $('thread-root').innerHTML=`<div class="thread-root-author">${avI} ${esc(msg.authorName)} <span class="thread-root-time">${fmtT({toDate:()=>msgTs(msg)})}</span></div><div class="thread-root-text">${renderText(msg.text||'[Вложение]')}</div>`;
-  if(threadUnsub)threadUnsub();
-  const tq=query(collection(fdb,'pulsar_channels',currentCh.id,'messages',msgId,'thread'),orderBy('clientTs','asc'));
-  const tmList=$('thread-msgs');
-  threadUnsub=onSnapshot(tq,snap=>{
-    const replies=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(!replies.length){tmList.innerHTML='<div style="padding:20px;font-size:var(--fs-xs);color:var(--muted);text-align:center">Ответов пока нет<br><span style="font-size:var(--fs-2xs);color:var(--muted-2)">Напишите первый</span></div>';return;}
-    tmList.innerHTML=replies.map(r=>{
-      const u=allUsers[r.authorId]||{};
-      const avI2=u.photoURL?`<img src="${esc(u.photoURL)}" alt=""/>`:esc(ini(r.authorName));
-      return`<div class="thread-reply-row"><div class="thread-reply-av">${avI2}</div><div class="thread-reply-body"><div class="thread-reply-meta"><span class="thread-reply-author">${esc(r.authorName)}</span><span class="thread-reply-time">${fmtT(r.ts||{toDate:()=>new Date(r.clientTs)})}</span></div><div class="thread-reply-text">${renderText(r.text||'')}</div></div></div>`;
-    }).join('');
-    requestAnimationFrame(()=>{tmList.scrollTop=tmList.scrollHeight;});
+/*VOICE-START*/
+/* ── РЕЖИМ КНОПКИ: микрофон (пусто) ↔ отправить (есть текст / файл / идёт запись) ── */
+let _sendBusy=false,_voiceUp=0,_pd=null,_noClickUntil=0;
+const _rec={on:false,starting:false,mr:null,stream:null,chunks:[],t0:0,timer:0,mime:'',chId:null,send:false,reply:null,mode:'lock'};
+const VM_MAX=300,VM_HOLD_MS=450,VM_SLIDE=90;        // максимум 5 мин · «удержание» от 0.45 с · сдвиг влево для отмены
+function updateSendMode(){
+  const b=$('btn-send');if(!b)return;
+  const has=!!$('msg-input').value.trim()||!!pendingFile||_rec.on||_sendBusy;
+  b.dataset.mode=has?'send':'mic';
+  b.setAttribute('aria-label',has?'Отправить':'Голосовое сообщение');
+  b.disabled=_sendBusy;
+}
+function onSendBtn(){
+  if(Date.now()<_noClickUntil)return;               // клик-«хвост» после жеста удержания/сдвига — игнорируем
+  if(_rec.on){stopVoice(true);return;}
+  if($('btn-send').dataset.mode==='mic'){startVoice('lock');return;}   // клавиатура и спец. возможности
+  sendMessage();
+}
+/* Жесты: удержал и отпустил — отправилось; быстрый тап — запись «залипает», потом нажать ➤; сдвиг влево — отмена */
+function initVoiceButton(){
+  const btn=$('btn-send');
+  btn.addEventListener('click',onSendBtn);
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+  btn.addEventListener('pointerdown',e=>{
+    if(e.button>0||btn.disabled||_rec.on||_rec.starting||btn.dataset.mode!=='mic')return;
+    _pd={t:Date.now(),x:e.clientX};
+    try{btn.setPointerCapture(e.pointerId);}catch(_){}
+    startVoice('hold');
   });
+  btn.addEventListener('pointermove',e=>{
+    if(!_pd||!_rec.on||_rec.mode!=='hold')return;
+    const dx=Math.min(0,e.clientX-_pd.x),h=$('rec-hint');
+    h.style.transform=`translateX(${Math.max(dx,-70)}px)`;h.style.opacity=String(Math.max(.25,1+dx/(VM_SLIDE*1.4)));
+    if(dx<-VM_SLIDE){_pd=null;_noClickUntil=Date.now()+500;stopVoice(false);}
+  });
+  const up=()=>{
+    if(!_pd)return;
+    const held=Date.now()-_pd.t;_pd=null;_noClickUntil=Date.now()+500;
+    if(_rec.on&&_rec.mode==='hold'){if(held>=VM_HOLD_MS)stopVoice(true);else setRecMode('lock');}
+    // запись ещё не началась (ждём разрешение микрофона) — стартует сразу в режиме «lock»
+  };
+  btn.addEventListener('pointerup',up);btn.addEventListener('pointercancel',up);
 }
-function closeThread(){$('shell').classList.remove('thread-open');$('thread-panel').classList.remove('open');if(threadUnsub){threadUnsub();threadUnsub=null;}threadMsgId=null;}
-async function sendThreadReply(){
-  const input=$('thread-input'),text=input.value.trim();
-  if(!text||!currentCh||!threadMsgId)return;
-  input.value='';ar(input);$('thread-send').disabled=true;
+function setRecMode(m){
+  _rec.mode=m;
+  const h=$('rec-hint');h.textContent=m==='hold'?'← влево — отмена':'Идёт запись…';h.style.transform='';h.style.opacity='';
+  $('btn-send').classList.toggle('holding',m==='hold');
+}
+
+/* ── ЗАПИСЬ ГОЛОСОВОГО ── */
+function _recMime(){
+  const c=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  return c.find(t=>MediaRecorder.isTypeSupported(t))||'';
+}
+async function startVoice(req){
+  if(_rec.on||_rec.starting||!currentCh){_pd=null;return;}
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){_pd=null;toast('Запись голоса здесь не поддерживается','warn');return;}
+  _rec.starting=true;
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
+  catch(e){_rec.starting=false;_pd=null;toast('Нет доступа к микрофону','err');return;}
+  const mime=_recMime();
+  let mr;
+  try{mr=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream);}
+  catch(e){_rec.starting=false;_pd=null;stream.getTracks().forEach(t=>t.stop());toast('Не удалось начать запись','err');return;}
+  Object.assign(_rec,{on:true,starting:false,mr,stream,chunks:[],t0:Date.now(),mime:mr.mimeType||mime||'audio/webm',chId:currentCh.id,send:false,reply:replyTo||null});
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)_rec.chunks.push(e.data);};
+  mr.onstop=()=>_finishVoice();
+  mr.start(250);
+  clearTyping();
+  $('input-box').classList.add('recording');
+  $('rec-time').textContent='0:00';
+  setRecMode(req==='hold'&&_pd?'hold':'lock');       // палец уже отпущен (пока ждали микрофон) — значит «lock»
+  _rec.timer=setInterval(()=>{
+    const sec=Math.floor((Date.now()-_rec.t0)/1000);
+    $('rec-time').textContent=fmtCallDur(sec);
+    if(sec>=VM_MAX)stopVoice(true);
+  },250);
+  updateSendMode();
+}
+function stopVoice(send){
+  if(!_rec.on)return;
+  _rec.send=!!send;
+  clearInterval(_rec.timer);
+  try{if(_rec.mr.state!=='inactive')_rec.mr.stop();else _finishVoice();}catch(e){_finishVoice();}
+}
+async function _finishVoice(){
+  if(!_rec.on)return;
+  const {chunks,mime,chId,send,stream,t0,reply}=_rec;
+  const held=Date.now()-t0;
+  stream?.getTracks().forEach(t=>t.stop());
+  Object.assign(_rec,{on:false,mr:null,stream:null,chunks:[]});
+  _pd=null;
+  $('input-box').classList.remove('recording');
+  setRecMode('lock');$('btn-send').classList.remove('holding');
+  updateSendMode();
+  if(!send)return;
+  const blob=new Blob(chunks,{type:mime});
+  if(held<700||blob.size<500){toast('Слишком короткое сообщение','warn');return;}
+  await sendVoice(blob,Math.max(1,Math.round(held/1000)),chId,reply);
+}
+/* Отправка идёт в фоне: кнопка не блокируется (вокруг неё крутится кольцо), зависшая загрузка обрывается через 2 минуты */
+async function sendVoice(blob,dur,chId,reply){
+  _voiceUp++;$('btn-send').classList.add('busy');
   try{
-    await addDoc(collection(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId,'thread'),{text,authorId:me.uid,authorName:uName(me),ts:serverTimestamp(),clientTs:Date.now()});
-    await updateDoc(doc(fdb,'pulsar_channels',currentCh.id,'messages',threadMsgId),{threadCount:increment(1)});
-  }catch(e){toast('Ошибка: '+e.message,'err');}
-  $('thread-send').disabled=false;
+    const type=(blob.type||'audio/webm').split(';')[0];
+    const ext=type.includes('mp4')?'m4a':type.includes('ogg')?'ogg':'webm';
+    const task=uploadBytesResumable(sRef(storage,`pulsar/${chId}/${Date.now()}_voice.${ext}`),blob,{contentType:type});
+    const to=setTimeout(()=>{try{task.cancel();}catch(_){}} ,120000);
+    try{await task;}finally{clearTimeout(to);}
+    const url=await getDownloadURL(task.snapshot.ref);
+    const payload={text:'',authorId:me.uid,authorName:uName(me),ts:serverTimestamp(),clientTs:Date.now(),edited:false,deleted:false,pinned:false,reactions:{},replyTo:reply||null,threadCount:0,
+      attachmentUrl:url,attachmentName:'Голосовое сообщение',attachmentSize:fmtSize(blob.size),attachmentType:'audio',audioDur:dur};
+    const sentId=(await addDoc(collection(fdb,'pulsar_channels',chId,'messages'),payload)).id;
+    if(replyTo&&reply&&replyTo.id===reply.id)clearReply();
+    updateDoc(doc(fdb,'pulsar_channels',chId),{lastMessage:{id:sentId,text:'Голосовое сообщение',authorId:me.uid,authorName:uName(me),attachmentType:'audio',ts:serverTimestamp()}}).catch(e=>console.error('lastMessage:',e));
+  }catch(e){
+    console.error('voice send:',e);
+    toast(e?.code==='storage/canceled'?'Голосовое не отправилось (долго грузилось), попробуйте ещё раз':'Не удалось отправить голосовое: '+(e?.message||e),'err');
+  }finally{
+    if(--_voiceUp<=0){_voiceUp=0;$('btn-send').classList.remove('busy');}
+  }
 }
+
+/* ── ПЛЕЕР ГОЛОСОВОГО В ПУЗЫРЕ ── */
+const VM_BARS=30;
+function voiceHtml(msg){
+  const d=Math.max(1,Math.round(msg.audioDur||0));
+  let h=0;for(const c of String(msg.id||'x'))h=(h*31+c.charCodeAt(0))>>>0;
+  let bars='';
+  for(let i=0;i<VM_BARS;i++){h=(h*1103515245+12345)>>>0;const k=(h>>>16)%100;bars+=`<i style="height:${28+Math.round(k*.62)}%"></i>`;}
+  return`<div class="vm" data-src="${esc(msg.attachmentUrl)}" data-dur="${d}"><button class="vm-play" type="button" aria-label="Воспроизвести"><svg class="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 001.5.86l10.5-6.5a1 1 0 000-1.72L9.5 4.64A1 1 0 008 5.5z" fill="currentColor"/></svg><svg class="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg></button><div class="vm-body"><div class="vm-wave">${bars}</div><div class="vm-time">${fmtCallDur(d)}</div></div></div>`;
+}
+let _vmAudio=null,_vmEl=null;
+function vmProgress(vm,r,t){
+  const bars=vm.querySelectorAll('.vm-wave i'),n=Math.round(Math.max(0,Math.min(1,r||0))*bars.length);
+  bars.forEach((b,i)=>b.classList.toggle('on',i<n));
+  vm.querySelector('.vm-time').textContent=fmtCallDur(t);
+}
+function vmStop(){
+  const a=_vmAudio,vm=_vmEl;_vmAudio=null;_vmEl=null;
+  if(a)a.pause();
+  if(vm){vm.classList.remove('playing');vmProgress(vm,0,+vm.dataset.dur);}
+}
+function vmToggle(vm){
+  if(!vm)return;
+  if(_vmEl===vm&&_vmAudio){if(_vmAudio.paused)_vmAudio.play().catch(()=>{});else _vmAudio.pause();return;}
+  vmStop();
+  const a=new Audio(vm.dataset.src),dur=+vm.dataset.dur;
+  _vmAudio=a;_vmEl=vm;
+  a.addEventListener('timeupdate',()=>{const d=isFinite(a.duration)&&a.duration>0?a.duration:dur;vmProgress(vm,a.currentTime/d,a.currentTime);});
+  a.addEventListener('play',()=>vm.classList.add('playing'));
+  a.addEventListener('pause',()=>vm.classList.remove('playing'));
+  a.addEventListener('ended',()=>{if(_vmAudio===a)vmStop();});
+  a.addEventListener('error',()=>{if(_vmAudio===a){vmStop();toast('Не удалось воспроизвести','err');}});
+  a.play().catch(()=>{});
+}
+function vmSeek(vm,e){
+  if(!vm)return;
+  if(_vmEl!==vm||!_vmAudio){vmToggle(vm);return;}
+  const r=vm.querySelector('.vm-wave').getBoundingClientRect(),k=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  const d=isFinite(_vmAudio.duration)&&_vmAudio.duration>0?_vmAudio.duration:+vm.dataset.dur;
+  try{_vmAudio.currentTime=k*d;}catch(_){}
+}
+/*VOICE-END*/
+
+function clearReply(){replyTo=null;$('reply-bar').classList.remove('visible');$('reply-to-name').textContent='';$('reply-preview').textContent='';updateInputRadius();}
 
 /* ── LIGHTBOX ── */
 function openLightbox(url){$('lightbox-img').src=url;$('lightbox-dl').href=url;$('lightbox').classList.add('open');}
@@ -3518,7 +3643,7 @@ async function saveProfile(){
 
 /* ════════════════════════════════════════════════════════════════
  *  ГРУППЫ  (pulsar_channels/{id}, type:'group')
- *  Хранятся в той же коллекции, что и каналы, поэтому сообщения, реакции, треды,
+ *  Хранятся в той же коллекции, что и каналы, поэтому сообщения, реакции,
  *  закрепы и «печатает…» работают без изменений. В список чатов не попадают —
  *  только во вкладку «Группы».
  *    ├─ name, description, photoURL
@@ -3567,8 +3692,8 @@ function makeGroupCard(g){
   const cnt=`${n} ${_plural(n,'участник','участника','участников')}`;
   let tail;
   if(lm){
-    const icon=lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':'';
-    tail=`<b>${esc((lm.authorName||'').split(' ')[0])}:</b> ${esc(icon+((lm.text||'').slice(0,55)||(lm.attachmentType?'Файл':'')))}`;
+    const icon=lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':lm.attachmentType==='audio'?'🎤 ':'';
+    tail=`<b>${esc((lm.authorName||'').split(' ')[0])}:</b> ${esc(icon+((lm.text||'').slice(0,55)||(lm.attachmentType==='audio'?'Голосовое':lm.attachmentType?'Файл':'')))}`;
   }else tail=esc((g.description||'').slice(0,60))||'Нет сообщений';
   const unread=currentCh?.id!==g.id&&isGroupUnread(g);
   return `<div class="ch-card${currentCh?.id===g.id?' active':''}${unread?' has-unread':''}" data-chid="${esc(g.id)}" role="button" tabindex="0">
@@ -4056,7 +4181,7 @@ function _dropCurrentGroup(msg){
   const inConv=$('conversation')&&getComputedStyle($('conversation')).display!=='none';
   const wasRoom=currentCh?.type==='room';
   if(wasRoom&&currentCh.id===_voiceId){_voiceId=null;}
-  closeThread();clearTyping();
+  clearTyping();
   if(msgUnsub){msgUnsub();msgUnsub=null;}
   if(typingUnsub){typingUnsub();typingUnsub=null;}
   Sheet.close('group-profile');
@@ -4132,7 +4257,7 @@ async function _saveGroupMedia(fields,okMsg){
  *  Устроены как группы: те же сообщения, профиль, участники, ссылка-приглашение.
  *  Отличия:
  *    ├─ slots     {0..5: uid}  кто в какой ячейке сейчас «в эфире» (пустая — '')
- *    └─ звук      пока заглушки: кнопки микрофона/наушников и «Настройки звука»
+ *    └─ звук      LiveKit (SFU): слушатель подключается при входе, право говорить выдаёт сервер по slots
  *  Тех, у кого presence = offline, в эфире не показываем — так «зависшие» после
  *  закрытия вкладки не занимают места. Сами записи чистятся при следующем входе.
  * ════════════════════════════════════════════════════════════════ */
@@ -4184,8 +4309,8 @@ function makeRoomCard(r){
   const cnt=`${n} ${_plural(n,'участник','участника','участников')}`;
   let tail;
   if(lm){
-    const icon=lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':'';
-    tail=`<b>${esc((lm.authorName||'').split(' ')[0])}:</b> ${esc(icon+((lm.text||'').slice(0,40)||(lm.attachmentType?'Файл':'')))}`;
+    const icon=lm.attachmentType==='image'?'🖼 ':lm.attachmentType==='file'?'📎 ':lm.attachmentType==='audio'?'🎤 ':'';
+    tail=`<b>${esc((lm.authorName||'').split(' ')[0])}:</b> ${esc(icon+((lm.text||'').slice(0,40)||(lm.attachmentType==='audio'?'Голосовое':lm.attachmentType?'Файл':'')))}`;
   }else tail=esc((r.description||'').slice(0,50))||'Нет сообщений';
   const lead=live.length?`<span class="room-live-t">${live.length} в эфире</span>`:`<b>${cnt}</b>`;
   const unread=currentCh?.id!==r.id&&isGroupUnread(r);
@@ -4235,7 +4360,7 @@ function onRoomsChanged(){
   // комнату, в эфире которой мы были, удалили или нас оттуда убрали
   if(_voiceId){
     const vr=_allRooms.find(x=>x.id===_voiceId);
-    if(!vr||(vr.banned||[]).includes(me?.uid))_voiceId=null;
+    if(!vr||(vr.banned||[]).includes(me?.uid)){_voiceId=null;voiceDisconnect();}
     updateRoomMini();
   }
   if(currentCh?.type==='room'){
@@ -4243,6 +4368,7 @@ function onRoomsChanged(){
     if(r){currentCh=r;updateChatHeader();if(_gpOpen)fillGroupProfile(false);}
     else if(_grpLoaded)_dropCurrentGroup('Комната удалена');
   }
+  voiceSync();
 }
 
 /* ── сцена комнаты: 6 круглых ячеек ── */
@@ -4253,7 +4379,7 @@ function renderRoomStage(){
   st.style.display=r?'':'none';
   const ctl=$('room-ctl');
   if(ctl)ctl.style.display=r?'flex':'none';
-  updateRoomMini();
+  updateRoomMini();voiceSync();
   if(!r||!me)return;
   const slots=_roomSlots(r),count=slots.filter(Boolean).length,on=slots.includes(me.uid),banned=(r.banned||[]).includes(me.uid);
   $('rs-count').textContent=`В эфире · ${count} из ${ROOM_SLOTS}`;
@@ -4274,12 +4400,13 @@ function renderRoomStage(){
   $('rc-mic').classList.toggle('on',_roomAudio.mic&&!_roomAudio.deaf);
   $('rc-deaf').classList.toggle('off',_roomAudio.deaf);
   $('rc-deaf').classList.toggle('on',!_roomAudio.deaf);
+  _paintSpeaking();
 }
 // вошли в комнату (как слушатель): помним её, пока не нажмём «Выйти из комнаты»
 function _roomEnter(r){
   if(!r||r.type!=='room'||!me||(r.banned||[]).includes(me.uid))return;
   if(_voiceId&&_voiceId!==r.id)leaveStage(_voiceId);          // были в другой комнате — слезаем с её ячейки
-  _voiceId=r.id;updateRoomMini();
+  _voiceId=r.id;updateRoomMini();voiceConnect(r.id);
 }
 // idx — номер ячейки, на которую нажали; без него (кнопка «Войти в голос») — первая свободная.
 // Если уже в эфире — просто пересаживаемся на выбранную свободную ячейку.
@@ -4317,7 +4444,7 @@ function leaveStage(id=_voiceId){
 function leaveRoom(){
   const id=_voiceId;if(!id)return;
   leaveStage(id);
-  _voiceId=null;
+  _voiceId=null;voiceDisconnect();
   renderRoomStage();updateRoomMini();
 }
 function _roomToggleMic(){
@@ -4329,6 +4456,68 @@ function _roomToggleDeaf(){
   if(!_onStage()){toast('Сначала войдите в голос','warn');return;}
   _roomAudio.deaf=!_roomAudio.deaf;
   renderRoomStage();
+}
+
+/* ═══ ГОЛОС КОМНАТ (LiveKit) ═══
+ *  Слушатель подключается при входе в комнату, говорящий включает микрофон, когда занял ячейку.
+ *  Право говорить выдаёт сервер (voice.js) по slots — здесь только включаем/выключаем микрофон. */
+const VOICE_URL='https://api.dastdaroz.shop/voice/token';
+let _lkMod=null,_lkRoom=null,_lkId=null,_lkSeq=0,_lkTry=0,_micApplied=null,_speaking=new Set();
+const _lkLib=()=>_lkMod||(_lkMod=import('https://cdn.jsdelivr.net/npm/livekit-client@2/+esm').catch(e=>{_lkMod=null;throw e;}));
+
+function _paintSpeaking(){
+  document.querySelectorAll('#rs-grid .rs-cell[data-uid]').forEach(c=>c.classList.toggle('speaking',_speaking.has(c.dataset.uid)));
+}
+async function voiceConnect(roomId){
+  if(!me||!roomId||(_lkId===roomId&&_lkRoom))return;
+  await voiceDisconnect();
+  const seq=++_lkSeq;_lkId=roomId;
+  try{
+    const [lib,idToken]=await Promise.all([_lkLib(),auth.currentUser.getIdToken()]);
+    const r=await fetch(VOICE_URL,{method:'POST',headers:{Authorization:'Bearer '+idToken,'Content-Type':'application/json'},body:JSON.stringify({roomId})});
+    if(!r.ok)throw new Error('voice token '+r.status);
+    const {url,token}=await r.json();
+    if(seq!==_lkSeq)return;
+    const room=new lib.Room({audioCaptureDefaults:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    const E=lib.RoomEvent;
+    room.on(E.TrackSubscribed,t=>{if(t.kind!=='audio')return;const a=t.attach();a.dataset.lk='1';a.muted=_roomAudio.deaf;a.style.display='none';document.body.appendChild(a);});
+    room.on(E.TrackUnsubscribed,t=>t.detach().forEach(a=>a.remove()));
+    room.on(E.ActiveSpeakersChanged,sp=>{_speaking=new Set(sp.map(x=>x.identity));_paintSpeaking();});
+    room.on(E.ParticipantPermissionsChanged,(_,x)=>{if(x===room.localParticipant){_micApplied=null;voiceSync();}});
+    room.on(E.AudioPlaybackStatusChanged,()=>{if(!room.canPlaybackAudio)document.addEventListener('pointerdown',()=>room.startAudio().catch(()=>{}),{once:true});});
+    room.on(E.Disconnected,reason=>{
+      if(_lkRoom!==room)return;                                   // отключились сами
+      _lkRoom=null;_micApplied=null;_speaking=new Set();_paintSpeaking();
+      const id=_lkId;_lkId=null;
+      if(reason===lib.DisconnectReason.DUPLICATE_IDENTITY){toast('Вы вошли в комнату с другого устройства','warn');leaveRoom();return;}
+      if(id&&id===_voiceId&&_lkTry++<3)setTimeout(()=>{if(_voiceId===id)voiceConnect(id);},2000*_lkTry);
+    });
+    await room.connect(url,token);
+    if(seq!==_lkSeq){room.disconnect();return;}
+    _lkRoom=room;_lkTry=0;_micApplied=null;
+    room.startAudio().catch(()=>{});
+    voiceSync();
+  }catch(e){
+    if(seq===_lkSeq){_lkId=null;console.warn('voice',e);toast('Не удалось подключить звук комнаты','err');}
+  }
+}
+async function voiceDisconnect(){
+  _lkSeq++;_lkId=null;_micApplied=null;_speaking=new Set();_paintSpeaking();
+  const room=_lkRoom;_lkRoom=null;
+  document.querySelectorAll('audio[data-lk]').forEach(a=>a.remove());
+  if(room)try{await room.disconnect();}catch(e){}
+}
+// привести звук к состоянию интерфейса: наушники → глушим чужих, микрофон → только если мы в эфире
+async function voiceSync(){
+  document.querySelectorAll('audio[data-lk]').forEach(a=>{a.muted=_roomAudio.deaf;});
+  const room=_lkRoom;if(!room||room.state!=='connected')return;
+  const want=_onStage()&&_roomAudio.mic&&!_roomAudio.deaf;
+  if(want===_micApplied)return;
+  const lp=room.localParticipant;
+  if(want&&!lp.permissions?.canPublish)return;                    // сервер ещё не выдал право — придёт ParticipantPermissionsChanged
+  _micApplied=want;
+  try{await lp.setMicrophoneEnabled(want);}
+  catch(e){_micApplied=null;if(want){console.warn('mic',e);toast('Нет доступа к микрофону','err');_roomAudio.mic=false;renderRoomStage();}}
 }
 
 /* ── плавающая плашка комнаты: видна, пока мы в эфире, но не на экране этой комнаты ── */
@@ -4682,8 +4871,6 @@ window.handleBack=function(){
   // 4. Модальные окна
   const modal=document.querySelector('.modal-overlay.open');
   if(modal){closeModal(modal.id);return true;}
-  // 5. Панель треда
-  if($('thread-panel')?.classList.contains('open')){closeThread();return true;}
   // 6. Подсказка упоминаний
   if($('mention-popup')?.classList.contains('open')){closeMentionPopup();return true;}
   // 7. Переписка или вкладка «Комнаты»/«Группы» → к списку чатов
@@ -4718,7 +4905,7 @@ function initUI(){
   input.addEventListener('input',()=>{
     ar(input);
     const len=input.value.length;
-    $('btn-send').disabled=!input.value.trim()&&!pendingFile;
+    updateSendMode();
     // Char count
     const cc=$('char-count');
     if(len>3200){cc.textContent=`${len}/${MAX_CHARS}`;cc.className='char-count '+(len>MAX_CHARS?'over':'warn');}
@@ -4747,7 +4934,8 @@ function initUI(){
 
   input.addEventListener('blur',()=>setTimeout(closeMentionPopup,150));
 
-  $('btn-send').addEventListener('click',sendMessage);
+  initVoiceButton();
+  $('rec-cancel').addEventListener('click',()=>stopVoice(false));
   $('reply-close').addEventListener('click',clearReply);
 
   // Emoji
@@ -4771,12 +4959,29 @@ function initUI(){
   // отвечает answer'ом. ICE-кандидаты идут через подколлекции callerCandidates / calleeCandidates.
   // «Назад» сворачивает окно в плавающую плитку (#vc-mini) с камерой собеседника.
   //
-  // ICE: сейчас только STUN. Когда поднимешь свой TURN — впиши его сюда или задай window.PULSAR_ICE_SERVERS до загрузки:
+  // ICE: запасной STUN. Основные TURN-серверы с временным паролем приходят с сервера (getIce).
   const ICE_SERVERS = [
     { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }
-    // , { urls: ['turn:turn.example.com:3478?transport=udp', 'turn:turn.example.com:3478?transport=tcp', 'turns:turn.example.com:5349?transport=tcp'],
-    //     username: 'USER', credential: 'PASSWORD' }
   ];
+  const ICE_URL = 'https://api.dastdaroz.shop/ice';
+  let _ice = null;                                       // { servers, exp } — кэш на 4 часа
+  async function getIce(){
+    if (window.PULSAR_ICE_SERVERS) return window.PULSAR_ICE_SERVERS;
+    if (_ice && _ice.exp > Date.now()) return _ice.servers;
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 4000);
+      const r = await fetch(ICE_URL, { headers: { Authorization: 'Bearer ' + token }, signal: ctl.signal });
+      clearTimeout(t);
+      if (!r.ok) throw new Error('ice ' + r.status);
+      const { iceServers } = await r.json();
+      if (Array.isArray(iceServers) && iceServers.length){
+        _ice = { servers: iceServers, exp: Date.now() + 4 * 3600 * 1000 };
+        return iceServers;
+      }
+    } catch(e){ console.warn('ICE: не удалось получить TURN, только STUN', e); }
+    return ICE_SERVERS;
+  }
   const VideoCall = (() => {
     const $v = id => document.getElementById(id);
     const ICO = {
@@ -5092,8 +5297,8 @@ function initUI(){
     }
 
     /* ── WebRTC ── */
-    function makePC(){
-      const pc = new RTCPeerConnection({ iceServers: window.PULSAR_ICE_SERVERS || ICE_SERVERS });
+    function makePC(ice){
+      const pc = new RTCPeerConnection({ iceServers: ice || ICE_SERVERS });
       const rs = st.remote = new MediaStream();
       pc.ontrack = e => {
         if (!rs.getTracks().includes(e.track)){ rs.addTrack(e.track); e.track.onmute = e.track.onunmute = e.track.onended = updateRemoteView; }
@@ -5150,7 +5355,9 @@ function initUI(){
     async function invite(){
       const my = st.session, peerId = st.peerId;
       st.role = 'caller'; st.pendingIce = []; st.answered = false;
-      const pc = st.pc = makePC();
+      const ice = await getIce();
+      if (my !== st.session) return;
+      const pc = st.pc = makePC(ice);
       const a = st.stream?.getAudioTracks()[0], v = st.stream?.getVideoTracks()[0];
       st.txA = pc.addTransceiver(a || 'audio', { direction:'sendrecv' });
       st.txV = st.kind === 'audio' ? null : pc.addTransceiver(v || 'video', { direction:'sendrecv' });
@@ -5187,7 +5394,9 @@ function initUI(){
         if (my !== st.session) return;
         if (!cur || cur.status !== 'ringing'){ toast('Звонок уже завершён','warn'); end(true); return; }
         st.pendingIce = []; st.answered = true;
-        const pc = st.pc = makePC();
+        const ice = await getIce();
+        if (my !== st.session) return;
+        const pc = st.pc = makePC(ice);
         pc.onicecandidate = e => { if (e.candidate) addDoc(collection(ref, 'calleeCandidates'), candData(e.candidate)).catch(()=>{}); };
         await pc.setRemoteDescription({ type: cur.offer.type, sdp: cur.offer.sdp });
         for (const tx of pc.getTransceivers()){
@@ -5209,6 +5418,7 @@ function initUI(){
 
     /* ── показать окно звонка ── */
     function showUI(peerId, ch, kind){
+      if(_voiceId) leaveRoom();                         // обычный звонок и голосовая комната не совмещаются
       const o = allUsers[peerId] || {}, name = uName(o) || 'Собеседник';
       st.ch = ch; st.peerId = peerId; st.session++; st.min = false; st.kind = kind === 'audio' ? 'audio' : 'video';
       vc.classList.toggle('audio', st.kind === 'audio'); vc.setAttribute('aria-label', st.kind === 'audio' ? 'Аудиозвонок' : 'Видеозвонок');
@@ -5319,6 +5529,7 @@ function initUI(){
           if (now - ts > 60000) return;                                // зависший старый вызов
           if (!best || ts > best.ts) best = { id: d.id, ...v, ts };
         });
+        if (best) getIce();                                          // прогрев: TURN-пароль уже будет в кэше к ответу
         setIncoming(best);
       }, e => console.warn('calls listen', e));
     }
@@ -5331,6 +5542,14 @@ function initUI(){
       if (!incoming) return;
       const c = incoming; incoming = null; stopRing(); clearTimeout(incExpiry); refreshBanner();
       updateDoc(doc(fdb, 'pulsar_calls', c.id), { status:'declined' }).catch(()=>{});
+    }
+    // Android: «Принять» в уведомлении — ждём, пока слушатель увидит звонок, и присоединяемся
+    async function acceptById(callId){
+      for (let i = 0; i < 60; i++){
+        if (incoming?.id === callId){ joinIncoming(); return true; }
+        await new Promise(r => setTimeout(r, 250));
+      }
+      return false;
     }
     function shutdown(){
       end(); stopRing(); clearTimeout(incExpiry); incoming = null; refreshBanner();
@@ -5352,10 +5571,25 @@ function initUI(){
     remoteV.addEventListener('playing', updateRemoteView);
     listenIncoming();
 
-    return { open, end, minimize, expand, shutdown, refreshBanner, joinIncoming, declineIncoming,
+    return { open, end, minimize, expand, shutdown, refreshBanner, joinIncoming, declineIncoming, acceptById,
              get visible(){ return vc.classList.contains('open'); }, get active(){ return st.state !== 'idle'; } };
   })();
   window.VideoCall = VideoCall;
+
+  // ── Android: действия из уведомлений (тап по сообщению → чат, «Принять» → звонок) ──
+  async function nativeAction(){
+    if(!me)return;
+    let a=null;
+    try{const j=window.AndroidBridge?.takePendingAction?.();if(j)a=JSON.parse(j);}catch(e){}
+    if(!a)return;
+    if(a.type==='call_accept'&&a.callId){
+      if(!(await VideoCall.acceptById(a.callId)))toast('Звонок уже завершён','info');
+    }else if(a.type==='chat'&&a.chId){
+      openChannel(a.chId);
+    }
+  }
+  window.onNativeAction=nativeAction;
+  (function waitMe(n){if(me)nativeAction();else if(n<60)setTimeout(()=>waitMe(n+1),500);})(0);   // запуск из уведомления: ждём вход
   $('btn-call')?.addEventListener('click', () => VideoCall.open('audio'));
   $('btn-video')?.addEventListener('click', () => VideoCall.open('video'));
 
@@ -5545,13 +5779,6 @@ function initUI(){
     if(me.presence) me.presence.status=b.dataset.s; else me.presence={status:b.dataset.s};
   }));
 
-
-  // Thread
-  $('thread-close').addEventListener('click',closeThread);
-  const ti=$('thread-input');
-  ti.addEventListener('input',()=>{ar(ti);$('thread-send').disabled=!ti.value.trim();});
-  ti.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendThreadReply();}});
-  $('thread-send').addEventListener('click',sendThreadReply);
 
   // Lightbox
   $('lightbox').addEventListener('click',e=>{if(e.target===$('lightbox'))closeLightbox();});
